@@ -2,7 +2,7 @@ project(smoothing)
 
 cmake_minimum_required(VERSION 3.1)
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} $ENV{EXT}/cmake_modules)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ../cmake_modules)
 
 find_package(Boost 1.5.4 COMPONENTS system REQUIRED)
 find_package(OGRE REQUIRED)
