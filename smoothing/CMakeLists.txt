@@ -17,5 +17,6 @@ add_executable(smoothing main.cpp)
 MESSAGE("Boost library location is ${BOOST_LIBRARYDIR}")
 
 target_link_libraries(smoothing ${Boost_LIBRARIES}
+                                ${OGRE_LIBRARIES}
                                 CGAL)
 
