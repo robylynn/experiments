@@ -1,4 +1,5 @@
 Experiments in progress.
 
-Currently -- investigate local curvature based smoothing with area
-preservation.
+Currently:
+
+* Investigate local curvature based smoothing with area preservation.
