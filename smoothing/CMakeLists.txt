@@ -10,7 +10,7 @@ find_package(OGRE REQUIRED)
 include_directories(${Boost_INCLUDE_DIRS})
 link_directories(${Boost_LIBRARY_DIRS})
 
-set(CMAKE_CXX_FLAGS "-frounding-math")
+set(CMAKE_CXX_FLAGS "-frounding-math -std=c++11")
 
 add_executable(smoothing main.cpp)
 
