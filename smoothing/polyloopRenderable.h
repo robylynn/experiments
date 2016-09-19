@@ -14,9 +14,9 @@
 constexpr size_t POSITION_BINDING = 0;
 
 // A renderable polyloop class
-template<typename T>
+template <typename T>
 class PolyloopRenderable : public Ogre::SimpleRenderable {
-public:
+ public:
   PolyloopRenderable(const Polyloop<T>& polyloop);
   ~PolyloopRenderable() {}
 
@@ -26,10 +26,11 @@ public:
 
   // These are necessary to aid in Ogre Scene Management (spatial subdivision
   // data-structure maintainance).
-  virtual Ogre::Real getSquaredViewDepth(const Ogre::Camera* cam) const { return 0; }
-  virtual Ogre::Real getBoundingRadius() const { return 0; }
+  virtual Ogre::Real getSquaredViewDepth(const Ogre::Camera* cam) const {
+    return 100;
+  }
+  virtual Ogre::Real getBoundingRadius() const { return 1000; }
 };
-
 
 template <typename T>
 PolyloopRenderable<T>::PolyloopRenderable(const Polyloop<T>& polyloop) {
@@ -41,7 +42,8 @@ PolyloopRenderable<T>::PolyloopRenderable(const Polyloop<T>& polyloop) {
   mRenderOp.operationType = Ogre::RenderOperation::OT_LINE_LIST;
 
   Ogre::VertexDeclaration* decl = mRenderOp.vertexData->vertexDeclaration;
-  Ogre::VertexBufferBinding* binding = mRenderOp.vertexData->vertexBufferBinding;
+  Ogre::VertexBufferBinding* binding =
+      mRenderOp.vertexData->vertexBufferBinding;
 
   // TODO msati3: Handle generic formats dependant on the current CGAL Kernel
   decl->addElement(POSITION_BINDING, 0, Ogre::VET_FLOAT3, Ogre::VES_POSITION);
@@ -62,13 +64,14 @@ void PolyloopRenderable<T>::updatePolyloop(const Polyloop<T>& polyloop) {
 
   // Copy over the geometry of the polyloop
   Ogre::HardwareVertexBufferSharedPtr vbuf =
-    mRenderOp.vertexData->vertexBufferBinding->getBuffer(POSITION_BINDING);
-  float* buffer = static_cast<float*>(vbuf->lock(Ogre::HardwareBuffer::HBL_DISCARD));
+      mRenderOp.vertexData->vertexBufferBinding->getBuffer(POSITION_BINDING);
+  float* buffer =
+      static_cast<float*>(vbuf->lock(Ogre::HardwareBuffer::HBL_DISCARD));
 
   std::for_each(polyloop.begin(), polyloop.end(), [&buffer](const T& point) {
-      *buffer++ = point.x();
-      *buffer++ = point.y();
-      *buffer++ = point.z();
+    *buffer++ = point.x();
+    *buffer++ = point.y();
+    *buffer++ = point.z();
   });
   // Add the first point again to "complete" the polyloop geometry
   *buffer++ = polyloop.begin()->x();
@@ -78,4 +81,4 @@ void PolyloopRenderable<T>::updatePolyloop(const Polyloop<T>& polyloop) {
   vbuf->unlock();
 }
 
-#endif //_POLYLOOP_RENDERABLE_H_
+#endif  //_POLYLOOP_RENDERABLE_H_

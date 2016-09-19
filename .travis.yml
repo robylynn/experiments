@@ -9,8 +9,9 @@ compiler:
 
 before_install:
   - sudo apt-get install libcgal-dev
-  - sudo apt-get install libogre-1.9-dev
   - sudo apt-get install libgoogle-glog-dev
+  - sudo apt-get install libogre-1.9-dev
+  - sudo apt-get install libois-dev
 
 script:
   - mkdir build
