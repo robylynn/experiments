@@ -6,8 +6,19 @@
 
 #include "windowedRenderingApp.h"
 
+// Global app instance
+WindowedRenderingApp* g_appInstance = nullptr;
+
+NotificationsManager& getAppWideNotificationsManager() {
+  return g_appInstance->getNotificationsManager();
+}
+
 WindowedRenderingApp::WindowedRenderingApp(const std::string& name)
-    : m_root(new Ogre::Root()), m_name(name), m_inputSystemManager(nullptr) {}
+    : m_root(new Ogre::Root()),
+      m_name(name),
+      m_inputSystemManager(nullptr) {
+      g_appInstance = this;
+}
 
 WindowedRenderingApp::~WindowedRenderingApp() {
   m_inputSystemManager->destroyInputObject(m_mouse);
@@ -19,7 +30,7 @@ WindowedRenderingApp::~WindowedRenderingApp() {
 bool WindowedRenderingApp::init(unsigned int width, unsigned int height) {
   // Initialize rendering
   if (!(m_root->showConfigDialog())) {
-    LOG(INFO) << "Ogre rendering system failed to initialize";
+    LOG(ERROR) << "Ogre rendering system failed to initialize";
     exit(-1);
     return false;
   }
@@ -56,17 +67,28 @@ bool WindowedRenderingApp::init(unsigned int width, unsigned int height) {
 
   m_keyboard = static_cast<OIS::Keyboard*>(
       m_inputSystemManager->createInputObject(OIS::OISKeyboard, true));
-  m_keyboard->setEventCallback(&m_keyboardManager);
+  std::shared_ptr<KeyboardManager> keyboardManager(new KeyboardManager());
+  m_keyboard->setEventCallback(keyboardManager.get());
+  m_notificationsManager.registerNotifier(KeyboardManager::NOTIFIER_NAME,
+                                          keyboardManager);
 
   m_mouse = static_cast<OIS::Mouse*>(
       m_inputSystemManager->createInputObject(OIS::OISMouse, true));
-  m_mouse->setEventCallback(&m_mouseManager);
+  std::shared_ptr<MouseManager> mouseManager(new MouseManager());
+  m_mouse->setEventCallback(mouseManager.get());
+  m_notificationsManager.registerNotifier(MouseManager::NOTIFIER_NAME,
+                                          mouseManager);
 
   const OIS::MouseState& mouseState = m_mouse->getMouseState();
   mouseState.width = width;
   mouseState.height = height;
 
   return true;
+}
+
+void WindowedRenderingApp::startEventLoop() {
+  // TODO msati3: Perhaps switch from OGRE's rendering loop later.
+  m_root->startRendering();
 }
 
 bool WindowedRenderingApp::poll() {

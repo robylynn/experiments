@@ -14,6 +14,7 @@
 constexpr size_t POSITION_BINDING = 0;
 
 // A renderable polyloop class
+// TODO msati3: When moved to OGRE 2.1, this will have to be refactored.
 template <typename T>
 class PolyloopRenderable : public Ogre::SimpleRenderable {
  public:
@@ -26,19 +27,23 @@ class PolyloopRenderable : public Ogre::SimpleRenderable {
 
   // These are necessary to aid in Ogre Scene Management (spatial subdivision
   // data-structure maintainance).
-  virtual Ogre::Real getSquaredViewDepth(const Ogre::Camera* cam) const {
+  // TODO msati3: Fix these values?
+  Ogre::Real getSquaredViewDepth(const Ogre::Camera* cam) const override {
     return 100;
   }
-  virtual Ogre::Real getBoundingRadius() const { return 1000; }
+  Ogre::Real getBoundingRadius() const override {
+    return 1000;
+  }
 };
 
 template <typename T>
 PolyloopRenderable<T>::PolyloopRenderable(const Polyloop<T>& polyloop) {
   mRenderOp.vertexData = OGRE_NEW Ogre::VertexData();
-  mRenderOp.indexData = 0;
   mRenderOp.vertexData->vertexStart = 0;
   mRenderOp.vertexData->vertexCount = Polyloop<T>::HINT_MAX_BOUND;
   mRenderOp.useIndexes = false;
+  mRenderOp.indexData = 0;
+
   mRenderOp.operationType = Ogre::RenderOperation::OT_LINE_LIST;
 
   Ogre::VertexDeclaration* decl = mRenderOp.vertexData->vertexDeclaration;
@@ -54,6 +59,16 @@ PolyloopRenderable<T>::PolyloopRenderable(const Polyloop<T>& polyloop) {
           mRenderOp.vertexData->vertexCount,
           Ogre::HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY);
   binding->setBinding(POSITION_BINDING, vbuf);
+
+  // Set simple material
+  setMaterial("BaseWhiteNoLighting");
+
+  // Set to infinite bounding box
+  // TODO msati3: Perhaps remove this hardcoding later
+  Ogre::AxisAlignedBox aabInf;
+  aabInf.setInfinite();
+  setBoundingBox(aabInf);
+
   updatePolyloop(polyloop);
 }
 
