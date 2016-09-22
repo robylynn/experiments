@@ -9,8 +9,10 @@
 
 #include "cameraController.h"
 #include "windowedRenderingApp.h"
+
 #include "polyloop.h"
 #include "polyloopRenderable.h"
+#include "uniformVoxelGrid.h"
 
 bool initScene(const std::string& windowName, const std::string& sceneName) {
   Ogre::Root* root = Ogre::Root::getSingletonPtr();
@@ -51,6 +53,9 @@ int main(int argc, char* argv[]) {
 
     PolyloopRenderable<CGAL::Point_3<Kernel>>* renderableLoop =
         new PolyloopRenderable<CGAL::Point_3<Kernel>>(p);
+
+    UniformVoxelGrid voxelGrid(10, 10);
+
     sceneManager->getRootSceneNode()->createChildSceneNode()->attachObject(
         renderableLoop);
     app.startEventLoop();

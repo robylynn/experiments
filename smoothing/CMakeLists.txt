@@ -17,6 +17,7 @@ link_directories(${Boost_LIBRARY_DIRS})
 set(CMAKE_CXX_FLAGS "-frounding-math -std=c++11")
 
 add_executable(smoothing main.cpp
+  uniformVoxelGrid.cpp
   windowedRenderingApp.cpp)
 
 target_link_libraries(smoothing ${Boost_LIBRARIES}
