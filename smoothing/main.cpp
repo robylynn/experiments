@@ -5,6 +5,7 @@
 
 #include <OGRE/Ogre.h>
 #include <OGRE/OgreRectangle2D.h>
+#include <OGRE/OgreConfigFile.h>
 #include <CGAL/Point_3.h>
 
 #include "cameraController.h"
@@ -19,6 +20,18 @@ bool initScene(const std::string& windowName, const std::string& sceneName) {
   Ogre::SceneManager* sceneManager =
       root->createSceneManager(Ogre::ST_GENERIC, sceneName);
   sceneManager->setAmbientLight(Ogre::ColourValue(0.5, 0.5, 0.5));
+
+  Ogre::ConfigFile cf;
+  cf.load("resources.cfg");
+
+  Ogre::ConfigFile::SectionIterator secIt = cf.getSectionIterator();
+  while (secIt.hasMoreElements()) {
+    Ogre::ConfigFile::SettingsMultiMap* settings = secIt.getNext();
+    for (auto iter = settings->begin(); iter != settings->end(); ++iter) {
+      Ogre::ResourceGroupManager::getSingleton().addResourceLocation(
+          iter->first, iter->second);
+    }
+  }
 
   Ogre::Camera* mainCamera = sceneManager->createCamera("PrimaryCamera");
   Ogre::Viewport* viewport =

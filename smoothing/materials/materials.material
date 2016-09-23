@@ -1,0 +1,20 @@
+material Materials/VertexEdge
+{
+  technique
+  {
+    pass
+    {
+      lighting off
+      polygon_mode wireframe
+      texture_unit
+      {
+        colour_op_ex source1 src_manual src_current 1 1 1
+      }
+    }
+    pass
+    {
+      lighting off
+      polygon_mode points
+    }
+  }
+}

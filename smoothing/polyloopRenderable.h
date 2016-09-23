@@ -61,7 +61,7 @@ PolyloopRenderable<T>::PolyloopRenderable(const Polyloop<T>& polyloop) {
   binding->setBinding(POSITION_BINDING, vbuf);
 
   // Set simple material
-  setMaterial("BaseWhiteNoLighting");
+  setMaterial("Materials/VertexEdge");
 
   // Set to infinite bounding box
   // TODO msati3: Perhaps remove this hardcoding later
