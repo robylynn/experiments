@@ -1,4 +1,4 @@
-material Materials/VertexEdge
+material Materials/EdgesAndVertices
 {
   technique
   {
@@ -14,7 +14,12 @@ material Materials/VertexEdge
     pass
     {
       lighting off
+      point_size 5
       polygon_mode points
+      texture_unit
+      {
+        colour_op_ex source1 src_manual src_current 1 0 0
+      }
     }
   }
 }

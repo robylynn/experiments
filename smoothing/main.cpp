@@ -29,9 +29,10 @@ bool initScene(const std::string& windowName, const std::string& sceneName) {
     Ogre::ConfigFile::SettingsMultiMap* settings = secIt.getNext();
     for (auto iter = settings->begin(); iter != settings->end(); ++iter) {
       Ogre::ResourceGroupManager::getSingleton().addResourceLocation(
-          iter->first, iter->second);
+          iter->second, iter->first);
     }
   }
+  Ogre::ResourceGroupManager::getSingleton().initialiseAllResourceGroups();
 
   Ogre::Camera* mainCamera = sceneManager->createCamera("PrimaryCamera");
   Ogre::Viewport* viewport =

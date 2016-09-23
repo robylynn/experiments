@@ -18,7 +18,8 @@ constexpr size_t POSITION_BINDING = 0;
 template <typename T>
 class PolyloopRenderable : public Ogre::SimpleRenderable {
  public:
-  PolyloopRenderable(const Polyloop<T>& polyloop);
+  PolyloopRenderable(const Polyloop<T>& polyloop,
+                     const std::string& materialName = "Materials/EdgesAndVertices");
   ~PolyloopRenderable() {}
 
   // TODO msati3: This can perhaps be done with a generic mechanism to update
@@ -31,20 +32,22 @@ class PolyloopRenderable : public Ogre::SimpleRenderable {
   Ogre::Real getSquaredViewDepth(const Ogre::Camera* cam) const override {
     return 100;
   }
-  Ogre::Real getBoundingRadius() const override {
-    return 1000;
-  }
+  Ogre::Real getBoundingRadius() const override { return 1000; }
 };
 
 template <typename T>
-PolyloopRenderable<T>::PolyloopRenderable(const Polyloop<T>& polyloop) {
+PolyloopRenderable<T>::PolyloopRenderable(const Polyloop<T>& polyloop,
+                                          const std::string& materialName) {
   mRenderOp.vertexData = OGRE_NEW Ogre::VertexData();
   mRenderOp.vertexData->vertexStart = 0;
   mRenderOp.vertexData->vertexCount = Polyloop<T>::HINT_MAX_BOUND;
   mRenderOp.useIndexes = false;
   mRenderOp.indexData = 0;
+  mRenderOp.operationType = Ogre::RenderOperation::OT_LINE_STRIP;
 
-  mRenderOp.operationType = Ogre::RenderOperation::OT_LINE_LIST;
+  // Set desired material. The default material renders lines between edges,
+  // and point at vertex locations in a second pass.
+  setMaterial(materialName);
 
   Ogre::VertexDeclaration* decl = mRenderOp.vertexData->vertexDeclaration;
   Ogre::VertexBufferBinding* binding =
@@ -59,9 +62,6 @@ PolyloopRenderable<T>::PolyloopRenderable(const Polyloop<T>& polyloop) {
           mRenderOp.vertexData->vertexCount,
           Ogre::HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY);
   binding->setBinding(POSITION_BINDING, vbuf);
-
-  // Set simple material
-  setMaterial("Materials/VertexEdge");
 
   // Set to infinite bounding box
   // TODO msati3: Perhaps remove this hardcoding later
