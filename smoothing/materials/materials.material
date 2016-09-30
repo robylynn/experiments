@@ -23,3 +23,20 @@ material Materials/EdgesAndVertices
     }
   }
 }
+
+material Materials/Vertices
+{
+  technique
+  {
+    pass
+    {
+      lighting off
+      point_size 10
+      polygon_mode points
+      texture_unit
+      {
+        colour_op_ex source1 src_manual src_current 1 1 1
+      }
+    }
+  }
+}

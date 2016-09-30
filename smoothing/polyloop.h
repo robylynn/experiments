@@ -51,11 +51,8 @@ class Polyloop {
   // The polyloop allows for iteration over points by pass through to container,
   // and conforms to the CGAL MeshPolyline_3 concept
   auto begin() -> decltype(m_points.begin()) { return m_points.begin(); }
-
   auto begin() const -> decltype(m_points.begin()) { return m_points.begin(); }
-
   auto end() -> decltype(m_points.end()) { return m_points.end(); }
-
   auto end() const -> decltype(m_points.end()) { return m_points.end(); }
 
   typedef PointType value_type;
