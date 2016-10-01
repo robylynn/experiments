@@ -15,6 +15,7 @@
 #include "polyloopRenderable.h"
 #include "uniformVoxelGrid.h"
 #include "uniformVoxelGridRenderable.h"
+#include "sequentialGeometryRenderable.h"
 
 bool initScene(const std::string& windowName, const std::string& sceneName) {
   Ogre::Root* root = Ogre::Root::getSingletonPtr();
@@ -66,17 +67,23 @@ int main(int argc, char* argv[]) {
     Ogre::Root* root = Ogre::Root::getSingletonPtr();
     Ogre::SceneManager* sceneManager = root->getSceneManager("PrimaryScene");
 
-    PolyloopRenderable<CGAL::Point_3<Kernel>>* renderableLoop =
-        new PolyloopRenderable<CGAL::Point_3<Kernel>>(p);
+    using LoopGeometryProvider =
+        PolyloopGeometryProvider<CGAL::Point_3<Kernel>>;
+
+    SequentialGeometryRenderable<LoopGeometryProvider>* renderableLoop =
+        new SequentialGeometryRenderable<LoopGeometryProvider>();
+
+    renderableLoop->setRenderData(LoopGeometryProvider(p));
+
     sceneManager->getRootSceneNode()->createChildSceneNode()->attachObject(
         renderableLoop);
 
-    /*UniformVoxelGrid voxelGrid(100, 10);
+    UniformVoxelGrid voxelGrid(100, 10);
     UniformVoxelGridRenderable* renderableGrid =
         new UniformVoxelGridRenderable(voxelGrid);
 
     sceneManager->getRootSceneNode()->createChildSceneNode()->attachObject(
-        renderableGrid);*/
+        renderableGrid);
 
     app.startEventLoop();
   }

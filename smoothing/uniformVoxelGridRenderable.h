@@ -6,6 +6,7 @@
 #include <OGRE/Ogre.h>
 #include <OGRE/OgreSimpleRenderable.h>
 
+#include "sequentialGeometryRenderable.h"
 #include "uniformVoxelGrid.h"
 
 class UniformVoxelGridRenderable : public Ogre::SimpleRenderable {
@@ -22,7 +23,7 @@ class UniformVoxelGridRenderable : public Ogre::SimpleRenderable {
 
   Ogre::Real getBoundingRadius() const override { return 1000; }
 
-  private:
+ private:
   void setGeometry(const UniformVoxelGrid& voxelGrid);
 };
 
@@ -60,7 +61,8 @@ UniformVoxelGridRenderable::UniformVoxelGridRenderable(
   setGeometry(voxelGrid);
 }
 
-void UniformVoxelGridRenderable::setGeometry(const UniformVoxelGrid& voxelGrid) {
+void UniformVoxelGridRenderable::setGeometry(
+    const UniformVoxelGrid& voxelGrid) {
   // Copy over the geometry of the voxel grid
   Ogre::HardwareVertexBufferSharedPtr vbuf =
       mRenderOp.vertexData->vertexBufferBinding->getBuffer(POSITION_BINDING);

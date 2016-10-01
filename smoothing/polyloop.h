@@ -11,8 +11,11 @@
 // implicitly understood to be connected to each other.
 template <typename PointType>
 class Polyloop {
- private:
+ public:
+  typedef PointType value_type;
   typedef std::vector<PointType> PointsContainer;
+
+ private:
   PointsContainer m_points;
   typename PointsContainer::iterator m_insertPos;
 
@@ -54,8 +57,6 @@ class Polyloop {
   auto begin() const -> decltype(m_points.begin()) { return m_points.begin(); }
   auto end() -> decltype(m_points.end()) { return m_points.end(); }
   auto end() const -> decltype(m_points.end()) { return m_points.end(); }
-
-  typedef PointType value_type;
 };
 
 #endif  //_POLYLOOP_H_
