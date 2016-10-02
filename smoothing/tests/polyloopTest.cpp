@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
 #include "polyloop.h"
-#include "polyloopRenderable.h"
+#include "polyloopGeometryProvider.h"
 
 class PolyloopTest : public ::testing::Test {
  protected:

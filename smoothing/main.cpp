@@ -12,9 +12,9 @@
 #include "windowedRenderingApp.h"
 
 #include "polyloop.h"
-#include "polyloopRenderable.h"
+#include "polyloopGeometryProvider.h"
 #include "uniformVoxelGrid.h"
-#include "uniformVoxelGridRenderable.h"
+#include "uniformVoxelGridGeometryProvider.h"
 #include "sequentialGeometryRenderable.h"
 
 bool initScene(const std::string& windowName, const std::string& sceneName) {
@@ -72,18 +72,21 @@ int main(int argc, char* argv[]) {
 
     SequentialGeometryRenderable<LoopGeometryProvider>* renderableLoop =
         new SequentialGeometryRenderable<LoopGeometryProvider>();
-
     renderableLoop->setRenderData(LoopGeometryProvider(p));
 
     sceneManager->getRootSceneNode()->createChildSceneNode()->attachObject(
         renderableLoop);
 
     UniformVoxelGrid voxelGrid(100, 10);
-    UniformVoxelGridRenderable* renderableGrid =
-        new UniformVoxelGridRenderable(voxelGrid);
+
+    using VoxelGeometryProvider =
+        UniformVoxelGridGeometryProvider<VoxelGridPointProvider>;
+    SequentialGeometryRenderable<VoxelGeometryProvider>* renderableVoxelGrid =
+        new SequentialGeometryRenderable<VoxelGeometryProvider>();
+    renderableVoxelGrid->setRenderData(VoxelGeometryProvider(voxelGrid));
 
     sceneManager->getRootSceneNode()->createChildSceneNode()->attachObject(
-        renderableGrid);
+        renderableVoxelGrid);
 
     app.startEventLoop();
   }

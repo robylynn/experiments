@@ -9,7 +9,7 @@ UniformVoxelGrid::UniformVoxelGrid(GeometryType extent, size_t indexExtent)
                               std::back_inserter(m_points), creator);
 }
 
-CGAL::Bbox_3 UniformVoxelGrid::voxelBoundsForLocation(
+Kernel::Iso_cuboid_3 UniformVoxelGrid::voxelBoundsForLocation(
     const Kernel::Point_3& location) const {
   // Scale by the grid increment, and round down.
   Kernel::Vector_3 vector = (location - CGAL::ORIGIN) / m_gridIncrement;
@@ -20,6 +20,6 @@ CGAL::Bbox_3 UniformVoxelGrid::voxelBoundsForLocation(
   Kernel::Vector_3 maxPoint(((int)vector.x() + 1) * m_gridIncrement,
                             ((int)vector.y() + 1) * m_gridIncrement,
                             ((int)vector.z() + 1) * m_gridIncrement);
-  return CGAL::Bbox_3(minPoint.x(), minPoint.y(), minPoint.z(), maxPoint.x(),
-                      maxPoint.y(), maxPoint.z());
+  return Kernel::Iso_cuboid_3(minPoint.x(), minPoint.y(), minPoint.z(),
+                              maxPoint.x(), maxPoint.y(), maxPoint.z());
 }

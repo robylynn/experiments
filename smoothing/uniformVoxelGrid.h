@@ -2,7 +2,7 @@
 #define _UNIFORM_GRID_H_
 
 #include <CGAL/Point_3.h>
-#include <CGAL/Bbox_3.h>
+#include <CGAL/Iso_cuboid_3.h>
 #include <CGAL/Origin.h>
 
 #include "commonTypes.h"
@@ -11,16 +11,22 @@
 // Represents a uniform voxel grid of cubical voxels.
 // Supports the following queries:
 // a) Query bounds of the voxel situated at query point - const time
+// b) Iteration over voxels (representation by points placed at the centers)
 class UniformVoxelGrid {
  private:
+  using ContainerType = std::vector<Kernel::Point_3>;
   // The points are located at the centers of the grid.
-  std::vector<Kernel::Point_3> m_points;
+  ContainerType m_points;
   // The value of one dimension (all are the same) of the grid.
   GeometryType m_gridIncrement;
   // The bounds on the indexes of the voxel grid.
   Integer_3 m_indexBounds;
 
  public:
+  // Rendering hint for rendering logic -- the max number of points this voxel
+  // grid may possesses
+  static constexpr int HINT_MAX_BOUND = 10000;
+
   // Cubical grid centered at origin spanning a region of space given by the
   // geometric and index extents (of a single dimension).
   UniformVoxelGrid(GeometryType extent, size_t indexExtent);
@@ -29,7 +35,8 @@ class UniformVoxelGrid {
   // identify a voxel even for points that that lie on a face / edge /vertex of
   // voxels, a voxel is taken to be closed below, and open above. Querying
   // points outside the voxel grid returns a 0 sized bounding box
-  CGAL::Bbox_3 voxelBoundsForLocation(const Kernel::Point_3& location) const;
+  Kernel::Iso_cuboid_3 voxelBoundsForLocation(
+      const Kernel::Point_3& location) const;
 
   // The size of a voxel grid is the total number of voxels it contains
   size_t size() const { return m_points.size(); }
@@ -50,7 +57,8 @@ class UniformVoxelGrid {
   auto end() -> decltype(m_points.end()) { return m_points.end(); }
   auto end() const -> decltype(m_points.end()) { return m_points.end(); }
 
-  typedef Kernel::Point_3 value_type;
+  using value_type = Kernel::Point_3;
+  using const_iterator = ContainerType::const_iterator;
 
  private:
   // Return if a particular index is valid

@@ -5,6 +5,7 @@ find_package(OGRE REQUIRED)
 find_package(OIS REQUIRED)
 
 include_directories(${Boost_INCLUDE_DIRS})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/geometryPrimitives)
 link_directories(${Boost_LIBRARY_DIRS})
 
 add_executable(smoothing main.cpp
