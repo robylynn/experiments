@@ -7,9 +7,9 @@ constexpr size_t POSITION_BINDING = 0;
 // parameters that are suitable for a shape representation that is a simple
 // container of the geometry it represents.
 template <typename GeometryProvider>
-class DefaultRenderOpParamsProvider {
+class DefaultRenderPolicy {
  public:
-  DefaultRenderOpParamsProvider() {
+  DefaultRenderPolicy() {
     vertexStart = 0;
     useIndexes = false;
     vertexHint = GeometryProvider::HINT_MAX_BOUND;
@@ -26,8 +26,8 @@ class DefaultRenderOpParamsProvider {
 // geometry.
 // TODO msati3: When moved to OGRE 2.1, this will have to be refactored.
 template <typename SequentialGeometryProvider,
-          template <typename GeometryProvider> class RenderOpParamsProvider =
-              DefaultRenderOpParamsProvider>
+          template <typename GeometryProvider> class RenderPolicy =
+              DefaultRenderPolicy>
 class SequentialGeometryRenderable : public Ogre::SimpleRenderable {
  public:
   SequentialGeometryRenderable();
@@ -42,15 +42,14 @@ class SequentialGeometryRenderable : public Ogre::SimpleRenderable {
   Ogre::Real getBoundingRadius() const override { return 1000; }
 
  private:
-  RenderOpParamsProvider<SequentialGeometryProvider> m_renderOpProvider;
+  RenderPolicy<SequentialGeometryProvider> m_renderOpProvider;
   size_t m_maxBufferSize;
 };
 
 template <typename SequentialGeometryProvider,
-          template <typename GeometryProvider> class RenderOpParamsProvider>
-SequentialGeometryRenderable<
-    SequentialGeometryProvider,
-    RenderOpParamsProvider>::SequentialGeometryRenderable() {
+          template <typename GeometryProvider> class RenderPolicy>
+SequentialGeometryRenderable<SequentialGeometryProvider,
+                             RenderPolicy>::SequentialGeometryRenderable() {
   mRenderOp.vertexData = OGRE_NEW Ogre::VertexData();
   mRenderOp.vertexData->vertexStart = m_renderOpProvider.vertexStart;
 
@@ -86,12 +85,11 @@ SequentialGeometryRenderable<
 }
 
 template <typename SequentialGeometryProvider,
-          template <typename GeometryProvider> class RenderOpParamsProvider>
-void SequentialGeometryRenderable<SequentialGeometryProvider,
-                                  RenderOpParamsProvider>::
+          template <typename GeometryProvider> class RenderPolicy>
+void SequentialGeometryRenderable<SequentialGeometryProvider, RenderPolicy>::
     setRenderData(const SequentialGeometryProvider& geometryProvider) {
   mRenderOp.vertexData->vertexCount = geometryProvider.size();
-  //setMaterial(geometryProvider.operationType);
+  // setMaterial(geometryProvider.operationType);
 
   Ogre::HardwareVertexBufferSharedPtr vbuf =
       mRenderOp.vertexData->vertexBufferBinding->getBuffer(POSITION_BINDING);
