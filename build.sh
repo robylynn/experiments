@@ -3,4 +3,4 @@ mkdir build
 cd build
 cmake ..
 make -j8
-#smoothing/tests/representationsTest
+smoothing/tests/representationsTest
