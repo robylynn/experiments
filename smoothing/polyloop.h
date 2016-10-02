@@ -11,40 +11,36 @@
 // implicitly understood to be connected to each other.
 template <typename PointType>
 class Polyloop {
- public:
-  typedef PointType value_type;
-  typedef std::vector<PointType> PointsContainer;
+  using PointsContainer = std::vector<PointType>;
 
- private:
   PointsContainer m_points;
-  typename PointsContainer::iterator m_insertPos;
 
  public:
+  using value_type = PointType;
+  using iterator = typename PointsContainer::iterator;
+  using const_iterator = typename PointsContainer::const_iterator;
+
   // A hint on the maximum size that a polyloop may have. This may be useful
   // for rendering in non-immediate mode.
   static constexpr size_t HINT_MAX_BOUND = 1000;
 
-  Polyloop() : m_insertPos(m_points.end()) {}
+  Polyloop() {}
 
   // The size of a Polyloop is the number of points it contains
   size_t size() const { return m_points.size(); }
 
   // Add a point at specified location to the Polyloop.
-  void addPoint(typename PointsContainer::iterator iter,
-                const PointType& point) {
-    m_insertPos = m_points.insert(iter, point);
+  void addPoint(iterator iter, const PointType& point) {
+    m_points.insert(iter, point);
   }
 
-  // Add a point after the last added point. If no point in the Polyloop, add
+  // Add a point after the last point. If no point in the Polyloop, add
   // point as first point.
   void addPoint(const PointType& point) {
-    m_insertPos = m_points.insert(m_insertPos, point);
+    m_points.push_back(point);
   }
 
-  typename PointsContainer::iterator removePoint(
-      typename PointsContainer::iterator iter) {
-    return m_points.erase(iter);
-  }
+  iterator removePoint(iterator iter) { return m_points.erase(iter); }
 
   void updatePoint(typename PointsContainer::iterator iter,
                    const PointType& point) {

@@ -42,3 +42,4 @@ add_custom_command(TARGET smoothing POST_BUILD
                    ${CMAKE_CURRENT_SOURCE_DIR}/materials
                    ${PROJECT_BINARY_DIR}/materials)
 
+add_subdirectory(tests)
