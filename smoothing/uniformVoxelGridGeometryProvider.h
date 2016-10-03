@@ -6,8 +6,11 @@
 #include <OGRE/Ogre.h>
 #include <OGRE/OgreSimpleRenderable.h>
 
-#include "sequentialGeometryRenderable.h"
+#include "geometryConstants.h"
+
+#include "alignedCuboid.h"
 #include "uniformVoxelGrid.h"
+#include "sequentialGeometryRenderable.h"
 
 class VoxelGridPointProvider {
  private:
@@ -27,9 +30,9 @@ class VoxelGridPointProvider {
   auto end() const -> decltype(m_voxelGrid.end()) { return m_voxelGrid.end(); }
 };
 
-/*class VoxelGridCubeProvider {
+class VoxelGridCubeProvider {
  private:
-  const VoxelGrid& m_voxelGrid;
+  const UniformVoxelGrid& m_voxelGrid;
 
  public:
   // TODO msati3 - the max bound is a dynamic property that will depend on each
@@ -41,24 +44,34 @@ class VoxelGridPointProvider {
       : m_voxelGrid(voxelGrid) {}
 
   class VertexIterator
-      : public boost::iterator_facade<VertexIterator, Kernel::Point_3> {
+      : public boost::iterator_facade<VertexIterator, Kernel::Point_3,
+                                      boost::forward_traversal_tag> {
    public:
-    VertexIterator()
-        : m_triangleIndex(0),
+    VertexIterator(VoxelGridCubeProvider* cubeProvider, bool fEnd = false)
+        : m_cubeProvider(cubeProvider),
           m_vertexIndex(0),
-          m_voxelIterator(m_voxelGrid.begin()),
-m_triangleIterator(*m_voxelIterator
+          m_voxelIterator(m_cubeProvider->m_voxelGrid.begin()),
+          m_triangleBuilder(m_cubeProvider->m_voxelGrid.voxelBoundsForLocation(
+              *m_voxelIterator)),
+          m_triangleIterator(m_triangleBuilder.begin()) {
+      if (fEnd) {
+        m_voxelIterator = m_cubeProvider->m_voxelGrid.end();
+        m_triangleIterator = m_triangleBuilder.end();
+        m_vertexIndex = VERTICES_PER_TRIANGLE;
+      }
+    }
 
    private:
     friend class boost::iterator_core_access;
     void increment() {
-      if (m_triangleIndex + 1 ==
-              AlignedCuboidTriangleBuilder::TRIANGLES_PER_CUBOID &&
+      if (m_triangleIterator + 1 ==
+              AlignedCuboidTrianglesBuilder::TRIANGLES_PER_CUBOID &&
           m_vertexIndex + 1 == VERTICES_PER_TRIANGLE) {
         m_triangleIndex = -1;
         // Create a new triangle builder attached to a different cuboid
-        m_triangleBuilder =
-            m_voxelGrid.voxelBoundsForLocation(*m_voxelIterator);
+        m_triangleBuilder = AlignedCuboidTrianglesBuilder(
+            m_cubeProvider->m_voxelGrid.voxelBoundsForLocation(
+                *m_voxelIterator));
       }
       if (m_vertexIndex + 1 == VERTICES_PER_TRIANGLE) {
         ++m_triangleIndex;
@@ -66,24 +79,40 @@ m_triangleIterator(*m_voxelIterator
         m_vertexIndex = -1;
       }
       ++m_vertexIndex;
-  }
+    }
 
-  Kernel::Point_3& dereference() {
+    bool equal(const VertexIterator& other) {
+      return (m_voxelIterator == other.m_voxelIterator) &&
+             (m_triangleIterator == other.m_triangleIterator) &&
+             (m_vertexIndex == other.m_vertexIndex) &&
+             (m_cubeProvider == other.m_cubeProvider);
+    }
+
+    const Kernel::Point_3& dereference() {
       return *m_triangleIterator[m_vertexIndex];
+    }
+
+    // A geometric point is uniquely identified by a voxel index, the
+    // triangle index of the voxel under consideration, and further the
+    // vertex index of the <voxel, triangle> tuple under consideration
+    size_t m_triangleIndex;
+    size_t m_vertexIndex;
+
+    const VoxelGridCubeProvider* m_cubeProvider;
+    UniformVoxelGrid::const_iterator m_voxelIterator;
+    AlignedCuboidTrianglesBuilder m_triangleBuilder;
+    AlignedCuboidTrianglesBuilder::const_iterator m_triangleIterator;
+  };
+
+  size_t size() const {
+    return m_voxelGrid.size() *
+           AlignedCuboidTriangleBuilder::TRIANGLES_PER_CUBOID *
+           VERTICES_PER_TRIANGLE;
   }
 
- private:
-  // A geometric point is uniquely identified by a voxel index, the
-  // triangle index of the voxel under consideration, and further the
-  // vertex index of the <voxel, triangle> tuple under consideration
-  size_t m_triangleIndex;
-  size_t m_vertexIndex;
-
-  UniformVoxelGrid::const_iterator m_voxelIterator;
-  AlignedCuboidTriangleBuilder m_triangleBuilder;
-  TriangleIterator m_triangleIterator;
-  };
-};*/
+  VertexIterator begin() { return VertexIterator(); }
+  VertexIterator end() { return VertexIterator(true /*fEnd*/); }
+};
 
 // A geometry provider for the voxel grid representation. The voxel
 // representation object itself must remain valid during the use of this
