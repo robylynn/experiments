@@ -44,10 +44,10 @@ class VoxelGridCubeProvider {
       : m_voxelGrid(voxelGrid) {}
 
   class VertexIterator
-      : public boost::iterator_facade<VertexIterator, Kernel::Point_3,
+      : public boost::iterator_facade<VertexIterator, const Kernel::Point_3,
                                       boost::forward_traversal_tag> {
    public:
-    VertexIterator(VoxelGridCubeProvider* cubeProvider, bool fEnd = false)
+    VertexIterator(const VoxelGridCubeProvider* cubeProvider, bool fEnd = false)
         : m_cubeProvider(cubeProvider),
           m_vertexIndex(0),
           m_voxelIterator(m_cubeProvider->m_voxelGrid.begin()),
@@ -64,32 +64,40 @@ class VoxelGridCubeProvider {
    private:
     friend class boost::iterator_core_access;
     void increment() {
-      if (m_triangleIterator + 1 ==
-              AlignedCuboidTrianglesBuilder::TRIANGLES_PER_CUBOID &&
-          m_vertexIndex + 1 == VERTICES_PER_TRIANGLE) {
-        m_triangleIndex = -1;
-        // Create a new triangle builder attached to a different cuboid
-        m_triangleBuilder = AlignedCuboidTrianglesBuilder(
-            m_cubeProvider->m_voxelGrid.voxelBoundsForLocation(
-                *m_voxelIterator));
-      }
       if (m_vertexIndex + 1 == VERTICES_PER_TRIANGLE) {
-        ++m_triangleIndex;
-        ++m_triangleIterator;
         m_vertexIndex = -1;
+        if (++m_triangleIterator == m_triangleBuilder.end()) {
+          if (++m_voxelIterator == m_cubeProvider->m_voxelGrid.end()) {
+            // In this case, we are done with traversing the voxel grid and the
+            // vertexIndex should be set to the index for the end iterator.
+            // Thus, we set it to one less than this, as it is incremented at
+            // the end of this function.
+            m_vertexIndex = VERTICES_PER_TRIANGLE - 1;
+          } else {  // There are more voxels in the voxel grid
+            // Create a new triangle builder attached to a different cuboid
+            m_triangleBuilder = AlignedCuboidTrianglesBuilder(
+                m_cubeProvider->m_voxelGrid.voxelBoundsForLocation(
+                    *m_voxelIterator));
+            m_triangleIterator = m_triangleBuilder.begin();
+          }
+        }
       }
       ++m_vertexIndex;
     }
 
-    bool equal(const VertexIterator& other) {
+    bool equal(const VertexIterator& other) const {
       return (m_voxelIterator == other.m_voxelIterator) &&
              (m_triangleIterator == other.m_triangleIterator) &&
              (m_vertexIndex == other.m_vertexIndex) &&
              (m_cubeProvider == other.m_cubeProvider);
     }
 
-    const Kernel::Point_3& dereference() {
-      return *m_triangleIterator[m_vertexIndex];
+    // Dereference to return Point directly, not a reference to it, as the CGAL
+    // api doesn't allow for retrieving references.
+    // TODO msati3 PERF: If this is slow, we might want to cache the returnined
+    // point, and return a const reference if that helps.
+    const Kernel::Point_3& dereference() const {
+      return (*m_triangleIterator)[m_vertexIndex];
     }
 
     // A geometric point is uniquely identified by a voxel index, the
@@ -106,12 +114,11 @@ class VoxelGridCubeProvider {
 
   size_t size() const {
     return m_voxelGrid.size() *
-           AlignedCuboidTriangleBuilder::TRIANGLES_PER_CUBOID *
+           AlignedCuboidTrianglesBuilder::TRIANGLES_PER_CUBOID *
            VERTICES_PER_TRIANGLE;
   }
-
-  VertexIterator begin() { return VertexIterator(); }
-  VertexIterator end() { return VertexIterator(true /*fEnd*/); }
+  VertexIterator begin() const { return VertexIterator(this); }
+  VertexIterator end() const { return VertexIterator(this, true /*fEnd*/); }
 };
 
 // A geometry provider for the voxel grid representation. The voxel

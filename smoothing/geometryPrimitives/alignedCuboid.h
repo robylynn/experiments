@@ -17,10 +17,10 @@ class AlignedCuboidTrianglesBuilder {
   // ------------------------------------------------------------
   // Triangle Iterator specific code
   class TriangleIterator
-      : public boost::iterator_facade<TriangleIterator, Kernel::Triangle_3,
-                                      boost::forward_traversal_tag> {
+      : public boost::iterator_facade<TriangleIterator,
+                                      const Kernel::Triangle_3,
+                                      boost::random_access_traversal_tag> {
    public:
-
     explicit TriangleIterator(
         const AlignedCuboidTrianglesBuilder* trianglesBuilder)
         : m_builder(trianglesBuilder), m_triangleIndex(0) {}
@@ -34,12 +34,17 @@ class AlignedCuboidTrianglesBuilder {
 
     void increment() { ++m_triangleIndex; }
 
-    bool equal(const TriangleIterator& other) {
+    bool equal(const TriangleIterator& other) const {
       return (m_triangleIndex == other.m_triangleIndex) &&
              (m_builder == other.m_builder);
     }
 
-    // TODO msati3: Cache this is perf becomes an issue
+    TriangleIterator::difference_type distance_to(
+        const TriangleIterator& other) {
+      return other.m_triangleIndex - m_triangleIndex;
+    }
+
+    // TODO msati3: Cache this if perf becomes an issue
     const Kernel::Triangle_3& dereference() const {
       m_triangle = Kernel::Triangle_3(
           m_builder->m_cuboid[s_triangleLUT[m_triangleIndex][0]],
@@ -68,19 +73,22 @@ class AlignedCuboidTrianglesBuilder {
   Kernel::Iso_cuboid_3 m_cuboid;
 
   // Lookup table according to CGAL IsoCuboid indexing scheme (docs.cgal.org)
-  static constexpr int s_triangleLUT[TRIANGLES_PER_CUBOID][3] = {
-      {0, 1, 2},  // Back
-      {0, 2, 3},
-      {0, 3, 4},  // Left
-      {0, 4, 5},
-      {2, 3, 7},  // Top
-      {3, 4, 7},
-      {4, 5, 6},  // Front
-      {4, 6, 7},
-      {1, 2, 7},  // Right
-      {1, 7, 6},
-      {0, 1, 6},  // Bottom
-      {0, 6, 5}};
+  static const int s_triangleLUT[TRIANGLES_PER_CUBOID][VERTICES_PER_TRIANGLE];
 };
+
+const int AlignedCuboidTrianglesBuilder::s_triangleLUT
+    [AlignedCuboidTrianglesBuilder::TRIANGLES_PER_CUBOID]
+    [VERTICES_PER_TRIANGLE] = {{0, 1, 2},  // Back
+                               {0, 2, 3},
+                               {0, 3, 4},  // Left
+                               {0, 4, 5},
+                               {2, 3, 7},  // Top
+                               {3, 4, 7},
+                               {4, 5, 6},  // Front
+                               {4, 6, 7},
+                               {1, 2, 7},  // Right
+                               {1, 7, 6},
+                               {0, 1, 6},  // Bottom
+                               {0, 6, 5}};
 
 #endif  //_GEOMPRIMITIVES_ALIGNED_CUBOID_H_

@@ -80,7 +80,7 @@ int main(int argc, char* argv[]) {
     UniformVoxelGrid voxelGrid(100, 10);
 
     using VoxelGeometryProvider =
-        UniformVoxelGridGeometryProvider<VoxelGridPointProvider>;
+        UniformVoxelGridGeometryProvider<VoxelGridCubeProvider>;
     SequentialGeometryRenderable<VoxelGeometryProvider>* renderableVoxelGrid =
         new SequentialGeometryRenderable<VoxelGeometryProvider>();
     renderableVoxelGrid->setRenderData(VoxelGeometryProvider(voxelGrid));
