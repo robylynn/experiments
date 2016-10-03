@@ -5,7 +5,9 @@
 #include <CGAL/Iso_cuboid_3.h>
 #include <CGAL/Origin.h>
 
-#include "commonTypes.h"
+#include <commonTypes.h>
+#include <partialOrder.h>
+
 #include "geometryTypes.h"
 
 // Represents a uniform voxel grid of cubical voxels.
@@ -28,7 +30,8 @@ class UniformVoxelGrid {
   static constexpr int HINT_MAX_BOUND = 10000;
 
   // Cubical grid centered at origin spanning a region of space given by the
-  // geometric and index extents (of a single dimension).
+  // geometric range [-extent, extent] in each dimension, and the index extents
+  // (of a single dimension).
   UniformVoxelGrid(GeometryType extent, size_t indexExtent);
 
   // Obtains the bounds of the voxel that the location lies in. To uniquely

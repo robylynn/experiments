@@ -1,7 +1,5 @@
-#ifndef _COMMON_TYPES_H_
-#define _COMMON_TYPES_H_
-
-#include <tuple>
+#ifndef _PARTIAL_ORDER_H_
+#define _PARTIAL_ORDER_H_
 
 // Partial ordering on tuples. Returns true if first < second.
 // The partial ordering implies if first < second, then second > first, and
@@ -23,7 +21,4 @@ class PartialOrder<Tuple, 0> {
   }
 };
 
-typedef std::tuple<size_t, size_t, size_t> Index_3;
-typedef std::tuple<int, int, int> Integer_3;
-
-#endif  //_COMMON_TYPES_H_
+#endif  //_PARTIAL_ORDER_H_

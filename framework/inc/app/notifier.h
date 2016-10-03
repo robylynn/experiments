@@ -1,12 +1,13 @@
 #ifndef _NOTIFIER_H_
 #define _NOTIFIER_H_
 
+#include <glog/logging.h>
+
 #include <memory>
+#include <mutex>
 
 #include <boost/noncopyable.hpp>
 #include <boost/any.hpp>
-
-#include <mutex>
 
 class NotificationsManager;
 NotificationsManager& getAppWideNotificationsManager();

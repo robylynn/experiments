@@ -7,4 +7,6 @@ set(CMAKE_CXX_FLAGS "-frounding-math -std=c++11")
 find_package(Boost 1.5.4 COMPONENTS system REQUIRED)
 find_package(Glog REQUIRED)
 
-add_subdirectory(smoothing)
+add_subdirectory(framework)
+
+#add_subdirectory(smoothing)

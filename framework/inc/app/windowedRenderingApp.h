@@ -1,33 +1,17 @@
 #ifndef _WINDOWED_RENDERING_APP_H_
 #define _WINDOWED_RENDERING_APP_H_
 
-#include <glog/logging.h>
+#include <memory>
 
 #include <OGRE/OgreFrameListener.h>
 #include <OIS/OIS.h>
 
-#include "inputManager.h"
 #include "notifier.h"
 
 class InputSystemPoller {
  public:
   virtual ~InputSystemPoller() {}
   virtual bool poll() = 0;
-};
-
-class RenderLoopInputListener : public Ogre::FrameListener {
- public:
-  RenderLoopInputListener(InputSystemPoller& poller)
-      : m_inputSystemPoller(poller) {}
-
-  bool frameStarted(const Ogre::FrameEvent& event) {
-    return !m_inputSystemPoller.poll();
-  }
-
-  bool frameEnded(const Ogre::FrameEvent& event) { return true; }
-
- private:
-  InputSystemPoller& m_inputSystemPoller;
 };
 
 // Support for a single window application. The window houses the mouse and
@@ -54,7 +38,7 @@ class WindowedRenderingApp : public InputSystemPoller {
   NotificationsManager m_notificationsManager;
 
   OIS::InputManager* m_inputSystemManager;
-  RenderLoopInputListener* m_renderLoopInputListener;
+  std::unique_ptr<Ogre::FrameListener> m_renderLoopInputListener;
 
   OIS::Mouse* m_mouse;
   OIS::Keyboard* m_keyboard;

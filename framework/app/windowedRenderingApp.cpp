@@ -5,6 +5,26 @@
 #include <OGRE/Ogre.h>
 
 #include "windowedRenderingApp.h"
+#include "inputManager.h"
+
+namespace {
+
+class RenderLoopInputListener : public Ogre::FrameListener {
+ public:
+  RenderLoopInputListener(InputSystemPoller& poller)
+      : m_inputSystemPoller(poller) {}
+
+  bool frameStarted(const Ogre::FrameEvent& event) {
+    return !m_inputSystemPoller.poll();
+  }
+
+  bool frameEnded(const Ogre::FrameEvent& event) { return true; }
+
+ private:
+  InputSystemPoller& m_inputSystemPoller;
+};
+
+}  // end anon-namespace
 
 // Global app instance
 WindowedRenderingApp* g_appInstance = nullptr;
@@ -14,10 +34,8 @@ NotificationsManager& getAppWideNotificationsManager() {
 }
 
 WindowedRenderingApp::WindowedRenderingApp(const std::string& name)
-    : m_root(new Ogre::Root()),
-      m_name(name),
-      m_inputSystemManager(nullptr) {
-      g_appInstance = this;
+    : m_root(new Ogre::Root()), m_name(name), m_inputSystemManager(nullptr) {
+  g_appInstance = this;
 }
 
 WindowedRenderingApp::~WindowedRenderingApp() {
@@ -62,8 +80,8 @@ bool WindowedRenderingApp::init(unsigned int width, unsigned int height) {
 #endif
 
   m_inputSystemManager = OIS::InputManager::createInputSystem(paramList);
-  m_renderLoopInputListener = new RenderLoopInputListener(*this);
-  m_root->addFrameListener(m_renderLoopInputListener);
+  m_renderLoopInputListener.reset(new RenderLoopInputListener(*this));
+  m_root->addFrameListener(m_renderLoopInputListener.get());
 
   m_keyboard = static_cast<OIS::Keyboard*>(
       m_inputSystemManager->createInputObject(OIS::OISKeyboard, true));

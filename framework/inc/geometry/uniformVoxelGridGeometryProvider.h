@@ -10,7 +10,6 @@
 
 #include "alignedCuboid.h"
 #include "uniformVoxelGrid.h"
-#include "sequentialGeometryRenderable.h"
 
 class VoxelGridPointProvider {
  private:

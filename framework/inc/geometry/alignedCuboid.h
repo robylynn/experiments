@@ -1,5 +1,5 @@
-#ifndef _GEOMPRIMITIVES_ALIGNED_CUBOID_H_
-#define _GEOMPRIMITIVES_ALIGNED_CUBOID_H_
+#ifndef _GEOMETRY_ALIGNED_CUBOID_H_
+#define _GEOMETRY_ALIGNED_CUBOID_H_
 
 #include <CGAL/Triangle_3.h>
 
@@ -91,4 +91,4 @@ const int AlignedCuboidTrianglesBuilder::s_triangleLUT
                                {0, 1, 6},  // Bottom
                                {0, 6, 5}};
 
-#endif  //_GEOMPRIMITIVES_ALIGNED_CUBOID_H_
+#endif  //_GEOMETRY_ALIGNED_CUBOID_H_
