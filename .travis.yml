@@ -27,4 +27,4 @@ script:
   - cd build
   - cmake ..
   - make
-  - smoothing/tests/representationsTest
+  - framework/tests/representationsTest
