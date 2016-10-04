@@ -8,14 +8,14 @@
 #include <OGRE/OgreConfigFile.h>
 #include <CGAL/Point_3.h>
 
-#include "cameraController.h"
-#include "windowedRenderingApp.h"
+#include <cameraController.h>
+#include <windowedRenderingApp.h>
 
-#include "polyloop.h"
-#include "polyloopGeometryProvider.h"
-#include "uniformVoxelGrid.h"
-#include "uniformVoxelGridGeometryProvider.h"
-#include "sequentialGeometryRenderable.h"
+#include <polyloop.h>
+#include <polyloopGeometryProvider.h>
+#include <uniformVoxelGrid.h>
+#include <uniformVoxelGridGeometryProvider.h>
+#include <sequentialGeometryRenderable.h>
 
 bool initScene(const std::string& windowName, const std::string& sceneName) {
   Ogre::Root* root = Ogre::Root::getSingletonPtr();

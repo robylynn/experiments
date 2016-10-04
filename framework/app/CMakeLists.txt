@@ -1,5 +1,6 @@
 add_library(app
-  windowedRenderingApp.cpp
-  inputManager.cpp)
+  cameraController.cpp
+  inputManager.cpp
+  windowedRenderingApp.cpp)
 
 include_directories(${PROJECT_SOURCE_DIR}/inc/app)
