@@ -1,4 +1,5 @@
 set(GEOMETRY_TEST_SOURCE_FILES
+  "geometry/cuboidTest.cpp"
   "geometry/polyloopTest.cpp"
   "geometry/uniformVoxelGridTest.cpp")
 
