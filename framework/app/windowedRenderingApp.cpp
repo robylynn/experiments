@@ -79,6 +79,19 @@ bool WindowedRenderingApp::init(unsigned int width, unsigned int height) {
   paramList.insert({"w32_keyboard", "DISCL_NONEXCLUSIVE"});
 #endif
 
+  Ogre::ConfigFile cf;
+  cf.load("resources.cfg");
+
+  Ogre::ConfigFile::SectionIterator secIt = cf.getSectionIterator();
+  while (secIt.hasMoreElements()) {
+    Ogre::ConfigFile::SettingsMultiMap* settings = secIt.getNext();
+    for (auto iter = settings->begin(); iter != settings->end(); ++iter) {
+      Ogre::ResourceGroupManager::getSingleton().addResourceLocation(
+          iter->second, iter->first);
+    }
+  }
+  Ogre::ResourceGroupManager::getSingleton().initialiseAllResourceGroups();
+
   m_inputSystemManager = OIS::InputManager::createInputSystem(paramList);
   m_renderLoopInputListener.reset(new RenderLoopInputListener(*this));
   m_root->addFrameListener(m_renderLoopInputListener.get());

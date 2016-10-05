@@ -23,19 +23,6 @@ bool initScene(const std::string& windowName, const std::string& sceneName) {
       root->createSceneManager(Ogre::ST_GENERIC, sceneName);
   sceneManager->setAmbientLight(Ogre::ColourValue(0.5, 0.5, 0.5));
 
-  Ogre::ConfigFile cf;
-  cf.load("resources.cfg");
-
-  Ogre::ConfigFile::SectionIterator secIt = cf.getSectionIterator();
-  while (secIt.hasMoreElements()) {
-    Ogre::ConfigFile::SettingsMultiMap* settings = secIt.getNext();
-    for (auto iter = settings->begin(); iter != settings->end(); ++iter) {
-      Ogre::ResourceGroupManager::getSingleton().addResourceLocation(
-          iter->second, iter->first);
-    }
-  }
-  Ogre::ResourceGroupManager::getSingleton().initialiseAllResourceGroups();
-
   Ogre::Camera* mainCamera = sceneManager->createCamera("PrimaryCamera");
   Ogre::Viewport* viewport =
       root->getRenderTarget(windowName)->addViewport(mainCamera);
@@ -77,8 +64,7 @@ int main(int argc, char* argv[]) {
     sceneManager->getRootSceneNode()->createChildSceneNode()->attachObject(
         renderableLoop);
 
-    UniformVoxelGrid voxelGrid(100, 10);
-
+    UniformVoxelGrid voxelGrid(30.0, 5);
     using VoxelGeometryProvider =
         UniformVoxelGridGeometryProvider<VoxelGridCubeProvider>;
     SequentialGeometryRenderable<VoxelGeometryProvider>* renderableVoxelGrid =

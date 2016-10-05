@@ -3,7 +3,8 @@
 #include "uniformVoxelGrid.h"
 
 UniformVoxelGrid::UniformVoxelGrid(GeometryType extent, size_t indexExtent)
-    : m_indexBounds(indexExtent, indexExtent, indexExtent) {
+    : m_indexBounds(indexExtent, indexExtent, indexExtent),
+      m_gridIncrement(2 * extent / indexExtent) {
   CGAL::Creator_uniform_3<GeometryType, Kernel::Point_3> creator;
   CGAL::points_on_cube_grid_3(extent, indexExtent * indexExtent * indexExtent,
                               std::back_inserter(m_points), creator);
