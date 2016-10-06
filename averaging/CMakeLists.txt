@@ -4,12 +4,17 @@ project(averaging)
 find_package(OGRE REQUIRED)
 find_package(OIS REQUIRED)
 
-add_executable(averaging main.cpp)
+add_executable(averaging
+  main.cpp)
+
+add_library(averagingLib
+  squaredDistanceField.cpp)
 
 include_directories(${ROOT_DIR}/framework/inc/app)
 include_directories(${ROOT_DIR}/framework/inc/geometry)
 include_directories(${ROOT_DIR}/framework/inc/rendering)
 include_directories(${ROOT_DIR}/framework/inc/utils)
+include_directories(${ROOT_DIR}/averaging)
 
 link_directories(${Boost_LIBRARY_DIRS})
 
@@ -19,7 +24,8 @@ target_link_libraries(averaging ${Boost_LIBRARIES}
   ${OIS_LIBRARIES}
   CGAL
   app
-  geometry)
+  geometry
+  averagingLib)
 
 # Copy over OGRE plugins file to built directory
 add_custom_command(TARGET averaging POST_BUILD
@@ -37,3 +43,4 @@ add_custom_command(TARGET averaging POST_BUILD
   ${CMAKE_CURRENT_SOURCE_DIR}/materials
   ${PROJECT_BINARY_DIR}/materials)
 
+add_subdirectory(tests)

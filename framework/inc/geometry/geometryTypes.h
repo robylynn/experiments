@@ -3,7 +3,7 @@
 
 #include <CGAL/Cartesian.h>
 
-typedef float GeometryType;
-typedef CGAL::Cartesian<GeometryType> Kernel;
+typedef float FieldType;
+typedef CGAL::Cartesian<FieldType> Kernel;
 
 #endif //_GEOMETRY_TYPES_H_

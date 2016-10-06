@@ -20,7 +20,7 @@ class UniformVoxelGrid {
   // The points are located at the centers of the grid.
   ContainerType m_points;
   // The value of one dimension (all are the same) of the grid.
-  GeometryType m_gridIncrement;
+  FieldType m_gridIncrement;
   // The bounds on the indexes of the voxel grid.
   Integer_3 m_indexBounds;
 
@@ -32,7 +32,7 @@ class UniformVoxelGrid {
   // Cubical grid centered at origin spanning a region of space given by the
   // geometric range [-extent, extent] in each dimension, and the index extents
   // (of a single dimension).
-  UniformVoxelGrid(GeometryType extent, size_t indexExtent);
+  UniformVoxelGrid(FieldType extent, size_t indexExtent);
 
   // Obtains the bounds of the voxel that the location lies in. To uniquely
   // identify a voxel even for points that that lie on a face / edge /vertex of
