@@ -6,4 +6,4 @@
 typedef float FieldType;
 typedef CGAL::Cartesian<FieldType> Kernel;
 
-#endif //_GEOMETRY_TYPES_H_
+#endif  //_GEOMETRY_TYPES_H_

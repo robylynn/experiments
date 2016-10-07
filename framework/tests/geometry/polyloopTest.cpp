@@ -27,8 +27,15 @@ class PolyloopGeometryProviderTest : public ::testing::Test {
   Polyloop<Kernel::Point_3> p;
 };
 
-TEST_F(PolyloopTest, size) {
-  EXPECT_EQ(3, p.size());
+TEST_F(PolyloopTest, size) { EXPECT_EQ(3, p.size()); }
+
+TEST_F(PolyloopTest, next) {
+  EXPECT_EQ(*p.begin(), *p.next(p.begin() + p.size() - 1));
+}
+
+TEST_F(PolyloopTest, segments) {
+  EXPECT_EQ(p.getSegment(p.begin()),
+            Kernel::Segment_3(*p.begin(), *p.next(p.begin())));
 }
 
 TEST_F(PolyloopGeometryProviderTest, size) {
@@ -39,6 +46,7 @@ TEST_F(PolyloopGeometryProviderTest, size) {
 TEST_F(PolyloopGeometryProviderTest, iterate) {
   PolyloopGeometryProvider<Kernel::Point_3> provider(p);
   auto iter = provider.begin();
-  for (;iter != provider.end(); ++iter);
+  for (; iter != provider.end(); ++iter)
+    ;
   EXPECT_EQ(*iter, *p.begin());
 }

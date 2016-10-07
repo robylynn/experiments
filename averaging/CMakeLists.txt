@@ -8,7 +8,7 @@ add_executable(averaging
   main.cpp)
 
 add_library(averagingLib
-  squaredDistanceField.cpp)
+  separableGeometryInducedField.cpp)
 
 include_directories(${ROOT_DIR}/framework/inc/app)
 include_directories(${ROOT_DIR}/framework/inc/geometry)

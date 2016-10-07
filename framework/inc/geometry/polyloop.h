@@ -57,7 +57,11 @@ class Polyloop {
   auto end() -> decltype(m_points.end()) { return m_points.end(); }
   auto end() const -> decltype(m_points.end()) { return m_points.end(); }
 
-  // Obtain next iterator from a current iterator
+  // Obtain next iterators from the current iterators
+  iterator next(const iterator& iterator) {
+    return iterator + 1 == end() ? begin() : iterator + 1;
+  }
+
   const_iterator next(const const_iterator& iterator) const {
     return iterator + 1 == end() ? begin() : iterator + 1;
   }
@@ -68,6 +72,7 @@ class Polyloop {
     return Kernel::Segment_3(*iterator, *next(iterator));
   }
 
+  /*
   // Algorithms on Polyloops
   // Given a query point, find the distance of t
   FieldType computeDistance(const Kernel::Point_3& point) const {
@@ -88,7 +93,18 @@ class Polyloop {
                  CGAL::squared_distance(point, second);
         });
     return CGAL::squared_distance(point, closestSegment);
-  }
+  }*/
 };
+
+// Add distance computation from point to CGAL
+namespace CGAL {
+
+template <typename PointType>
+Kernel::FT squared_distance(const Polyloop<PointType>& polyloop,
+                            const Kernel::Point_3 &point) {
+  return 0;
+}
+
+}  // namespace CGAL
 
 #endif  //_POLYLOOP_H_

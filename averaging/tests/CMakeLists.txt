@@ -4,7 +4,7 @@ find_package(GTest REQUIRED)
 
 add_executable(averagingTest
   main.cpp
-  distanceFieldTest.cpp)
+  separableGeometryInducedFieldTest.cpp)
 
 include_directories(${PROJECT_SOURCE_DIR}/inc/geometry)
 include_directories(${GTEST_INCLUDE_DIRS})
