@@ -1,4 +1,4 @@
-project(averaging)
+project(cppplayground)
 
 # TODO msati3: Going forward, split windowing component into library
 add_executable(cppplayground

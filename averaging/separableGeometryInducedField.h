@@ -2,13 +2,16 @@
 #define _SEPARABLE_GEOMETRY_INDUCED_FIELD_H_
 
 #include <boost/variant.hpp>
+#include <boost/mpl/transform.hpp>
 
 #include "polyloop.h"
 #include "uniformVoxelGrid.h"
+#include "variantWrapper.h"
 
 // A "separable" field in R3 that is induced by a group of geometric objects.
 // Any field that is computable as a linear function of individually
 // induced distance fields on each geometric object can be modeled as such.
+// The geometry objects should remain valid as long as the field is queried.
 //
 // The field is sampled along any FieldSampler that is capable of being
 // iterated over, each iteration yielding a point in R3.
@@ -29,13 +32,22 @@ template <typename GeometryTypesVariant, typename Computer  //,
 class SeparableGeometryInducedField {
   using InducedFieldType = typename Computer::ComputedFieldType;
 
+  using GeometryReferenceTypesVariant =
+      typename boost::make_variant_over<typename boost::mpl::transform<
+          typename GeometryTypesVariant::types,
+          ConstReferenceTypeWrapper<boost::mpl::_1>>::type>::type;
+
  public:
   // TODO msati3: Fix initialization of GeometryInducedDistance field to make
   // parameters not dependent on extent, indexExtent, etc
   SeparableGeometryInducedField() {}
 
-  void addGeometry(const GeometryTypesVariant& geometryRep) {
-    m_representations.push_back(geometryRep);
+  // Add a geometry representation to the field. The callers must ensure that
+  // the geometry representations remain valid till they are done using the
+  // InducedField object's API's
+  template <typename Representation>
+  void addGeometry(const Representation& geometryRep) {
+    addGeometryReference(std::cref(geometryRep));
   }
 
   /*void setAggregator(std::unique_ptr<Aggregator> aggregator) {
@@ -54,9 +66,10 @@ class SeparableGeometryInducedField {
     InducedFieldType sampledValue = std::accumulate(
         m_representations.begin(), m_representations.end(), InducedFieldType(0),
         [this, point, &sampledValue](const InducedFieldType& init,
-                                     const GeometryTypesVariant& rep) {
-          Computer computer(point);
-          return init + boost::apply_visitor(computer, rep);
+                                     GeometryReferenceTypesVariant rep) {
+          WrappedVariantInvoker<GeometryReferenceTypesVariant, Computer>
+              invoker(Computer(point));
+          return init + boost::apply_visitor(invoker, rep);
         });
     return sampledValue;
   }
@@ -69,9 +82,11 @@ class SeparableGeometryInducedField {
 
  private:
   /*void resetDistanceFieldSampleValues() { m_fieldSampleValues.clear(); }*/
+  void addGeometryReference(GeometryReferenceTypesVariant geometryRef) {
+    m_representations.push_back(geometryRef);
+  }
 
-  std::vector<std::reference_wrapper<const GeometryTypesVariant>>
-      m_representations;
+  std::vector<GeometryReferenceTypesVariant> m_representations;
   /*std::unique_ptr<Aggregator> m_aggregator;*/
 };
 

@@ -69,12 +69,12 @@ class Polyloop {
     // Note: Red herring -- the SegmentIterator doesn't cache the created
     // Kernel::Segment_3 object anywhere. Thus, the type of the returned
     // reference must be Kernel::Segment_3, as, otherwise, consumers would be
-    // storing a reference to a temporary. For syntactical niceties, the
-    // segment iterator returns a reference wrapper so that dereferencing
-    // works
+    // storing a reference to a temporary that is already destructed when
+    // operator* exits.
     explicit SegmentIterator(const Polyloop<PointType>* loop,
                              const const_iterator& baseIter)
         : boost::iterator_adaptor<SegmentIterator, const_iterator,
+                                  Kernel::Segment_3, boost::use_default,
                                   Kernel::Segment_3>(baseIter),
           m_loop(loop) {}
 
@@ -102,14 +102,15 @@ class Polyloop {
 
   // Algorithms on Polyloops
   // Given a query point, find the squared distance from the polyloop
-  FieldType computeDistance(const Kernel::Point_3& point) const {
-    SegmentIterator closestSegment = std::min_element(
-        beginSegment(), endSegment(),
-        [&point](const SegmentIterator& first, const SegmentIterator& second) {
-          return CGAL::squared_distance(point, *first) <
-                 CGAL::squared_distance(point, *second);
-        });
-    return CGAL::squared_distance(point, *closestSegment);
+  FieldType squaredDistance(const Kernel::Point_3& point) const {
+    const Kernel::Segment_3& closestSegment =
+        *(std::min_element(beginSegment(), endSegment(),
+                           [&point](const Kernel::Segment_3& first,
+                                    const Kernel::Segment_3& second) {
+                             return CGAL::squared_distance(point, first) <
+                                    CGAL::squared_distance(point, second);
+                           }));
+    return CGAL::squared_distance(point, closestSegment);
   }
 
  private:
@@ -126,7 +127,7 @@ namespace CGAL {
 template <typename PointType>
 Kernel::FT squared_distance(const Polyloop<PointType>& polyloop,
                             const Kernel::Point_3& point) {
-  return polyloop.computeDistance(point);
+  return polyloop.squaredDistance(point);
 }
 
 }  // namespace CGAL

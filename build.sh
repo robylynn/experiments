@@ -3,5 +3,5 @@ mkdir build
 cd build
 cmake ..
 make -j8
-framework/tests/representationsTest
+framework/tests/frameworkTest
 averaging/tests/averagingTest
