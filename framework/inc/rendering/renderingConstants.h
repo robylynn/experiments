@@ -1,0 +1,6 @@
+#ifndef _RENDERING_CONSTANTS_H_
+#define _RENDERING_CONSTANTS_H_
+
+const char* DEFAULT_RENDER_GROUP_NAME = "general";
+
+#endif  //_RENDERING_CONSTANTS_H_

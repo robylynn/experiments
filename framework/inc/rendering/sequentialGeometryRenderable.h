@@ -1,29 +1,42 @@
 #ifndef _SEQUENTIAL_GEOMETRY_RENDERABLE_H_
 #define _SEQUENTIAL_GEOMETRY_RENDERABLE_H_
 
-constexpr size_t POSITION_BINDING = 0;
-
-// A DefaultRenderOpParamProvider class provides defaults render operation
+// A DefaultRenderPolicy class provides defaults render operation
 // parameters that are suitable for a shape representation that is a simple
-// container of the geometry it represents.
+// container of the geometry it represents, and contains just position bindings
 template <typename GeometryProvider>
 class DefaultRenderPolicy {
  public:
-  DefaultRenderPolicy() {
+  DefaultRenderPolicy() : m_vertexElements(PositionVertexElement()) {
     vertexStart = 0;
     useIndexes = false;
     vertexHint = GeometryProvider::HINT_MAX_BOUND;
     operationType = GeometryProvider::PRIMITIVE_TYPE;
   }
 
+  void initPolicyParams(const GeometryProvider& provider) {
+    vertexHint = provider.sizeHint();
+  }
+
+  auto vertexElements() -> decltype(m_vertexElements) {
+    return m_vertexElements;
+  }
+
   size_t vertexStart;
   size_t vertexHint;
   bool useIndexes;
   Ogre::RenderOperation::OperationType operationType;
+
+  // TODO msati3: This could be done with type-lists only. Then, one can take
+  // the typelist as a parameter, and remove the constraint that
+  // DefaultRenderPolicy can only provide for position bindings.
+  std::vector<VertexElementsVariant> m_vertexElements;
 };
 
 // A sequential geometry renderable allows for the rendering of sequential
-// geometry.
+// geometry. This class is primarily usable for simple geometries, that will
+// not require instancing. If support for instancing is desired, look to the
+// SequentialGeometryMesh class
 // TODO msati3: When moved to OGRE 2.1, this will have to be refactored.
 template <typename SequentialGeometryProvider,
           template <typename GeometryProvider> class RenderPolicy =
