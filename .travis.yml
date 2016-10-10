@@ -23,8 +23,4 @@ before_install:
   - sudo apt-get install libois-dev
 
 script:
-  - mkdir build
-  - cd build
-  - cmake ..
-  - make
-  - framework/tests/representationsTest
+  - ./build.sh

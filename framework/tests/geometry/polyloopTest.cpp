@@ -6,9 +6,9 @@
 class PolyloopTest : public ::testing::Test {
  protected:
   virtual void SetUp() {
-    p.addPoint(CGAL::Point_3<Kernel>(0, 0, 0));
-    p.addPoint(CGAL::Point_3<Kernel>(100, 100, -100));
-    p.addPoint(CGAL::Point_3<Kernel>(100, 0, -100));
+    p.addPoint(Kernel::Point_3(0, 0, 0));
+    p.addPoint(Kernel::Point_3(1, 0, 0));
+    p.addPoint(Kernel::Point_3(0, 1, 0));
   }
   virtual void TearDown() {}
 
@@ -18,9 +18,9 @@ class PolyloopTest : public ::testing::Test {
 class PolyloopGeometryProviderTest : public ::testing::Test {
  protected:
   virtual void SetUp() {
-    p.addPoint(CGAL::Point_3<Kernel>(0, 0, 0));
-    p.addPoint(CGAL::Point_3<Kernel>(100, 100, -100));
-    p.addPoint(CGAL::Point_3<Kernel>(100, 0, -100));
+    p.addPoint(Kernel::Point_3(0, 0, 0));
+    p.addPoint(Kernel::Point_3(100, 100, -100));
+    p.addPoint(Kernel::Point_3(100, 0, -100));
   }
   virtual void TearDown() {}
 
@@ -34,8 +34,15 @@ TEST_F(PolyloopTest, next) {
 }
 
 TEST_F(PolyloopTest, segments) {
-  EXPECT_EQ(p.getSegment(p.begin()),
+  EXPECT_EQ(*p.beginSegment(),
             Kernel::Segment_3(*p.begin(), *p.next(p.begin())));
+}
+
+TEST_F(PolyloopTest, squaredDistance) {
+  EXPECT_EQ(p.squaredDistance(*p.begin()), 0);
+  EXPECT_EQ(p.squaredDistance(Kernel::Point_3(0, 0, 1)), 1);
+  EXPECT_EQ(p.squaredDistance(Kernel::Point_3(0, 0.5, 0)), 0);
+  EXPECT_EQ(p.squaredDistance(Kernel::Point_3(2, 0, 0)), 1);
 }
 
 TEST_F(PolyloopGeometryProviderTest, size) {

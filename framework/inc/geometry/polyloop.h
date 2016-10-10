@@ -1,10 +1,12 @@
 #ifndef _POLYLOOP_H_
 #define _POLYLOOP_H_
 
-#include <boost/iterator/transform_iterator.hpp>
+#include <boost/iterator/iterator_adaptor.hpp>
 
 #include <vector>
+
 #include <CGAL/circulator.h>
+#include <CGAL/squared_distance_3.h>
 
 #include "geometryTypes.h"
 
@@ -13,7 +15,6 @@
 // with adjacent points implicitly understood to be connected to each other.
 
 // The polyloop also exposes a const iterator for its composing LineSegments
-// TODO msati3: Expose this interface
 template <typename PointType>
 class Polyloop {
   using PointsContainer = std::vector<PointType>;
@@ -57,6 +58,39 @@ class Polyloop {
   auto end() -> decltype(m_points.end()) { return m_points.end(); }
   auto end() const -> decltype(m_points.end()) { return m_points.end(); }
 
+  // The polyloop also allows for iteration over its constituting Segments.
+  // This is done using the segment iterator. This only provides for constant
+  // iteration.
+  class SegmentIterator
+      : public boost::iterator_adaptor<SegmentIterator, const_iterator,
+                                       Kernel::Segment_3, boost::use_default,
+                                       Kernel::Segment_3> {
+   public:
+    // Note: Red herring -- the SegmentIterator doesn't cache the created
+    // Kernel::Segment_3 object anywhere. Thus, the type of the returned
+    // reference must be Kernel::Segment_3, as, otherwise, consumers would be
+    // storing a reference to a temporary that is already destructed when
+    // operator* exits.
+    explicit SegmentIterator(const Polyloop<PointType>* loop,
+                             const const_iterator& baseIter)
+        : boost::iterator_adaptor<SegmentIterator, const_iterator,
+                                  Kernel::Segment_3, boost::use_default,
+                                  Kernel::Segment_3>(baseIter),
+          m_loop(loop) {}
+
+   private:
+    friend class boost::iterator_core_access;
+    Kernel::Segment_3 dereference() const {
+      return m_loop->getSegment(this->base());
+    }
+    const Polyloop<PointType>* m_loop;
+  };
+
+  SegmentIterator beginSegment() const {
+    return SegmentIterator(this, begin());
+  }
+  SegmentIterator endSegment() const { return SegmentIterator(this, end()); }
+
   // Obtain next iterators from the current iterators
   iterator next(const iterator& iterator) {
     return iterator + 1 == end() ? begin() : iterator + 1;
@@ -66,34 +100,25 @@ class Polyloop {
     return iterator + 1 == end() ? begin() : iterator + 1;
   }
 
+  // Algorithms on Polyloops
+  // Given a query point, find the squared distance from the polyloop
+  FieldType squaredDistance(const Kernel::Point_3& point) const {
+    const Kernel::Segment_3& closestSegment =
+        *(std::min_element(beginSegment(), endSegment(),
+                           [&point](const Kernel::Segment_3& first,
+                                    const Kernel::Segment_3& second) {
+                             return CGAL::squared_distance(point, first) <
+                                    CGAL::squared_distance(point, second);
+                           }));
+    return CGAL::squared_distance(point, closestSegment);
+  }
+
+ private:
   // Obtain segment corresponding to the current iterator (there is a
   // one-to-one mapping between the two)
   Kernel::Segment_3 getSegment(const const_iterator& iterator) const {
     return Kernel::Segment_3(*iterator, *next(iterator));
   }
-
-  /*
-  // Algorithms on Polyloops
-  // Given a query point, find the distance of t
-  FieldType computeDistance(const Kernel::Point_3& point) const {
-    using SegmentCreator =
-        std::function<Kernel::Segment_3(const const_iterator&)>;
-    using SegmentIterator =
-        boost::transform_iterator<SegmentCreator, const const_iterator,
-                                  Kernel::Segment_3>;
-
-    SegmentCreator segmentCreationFunction =
-        std::bind(&Polyloop::getSegment, this, std::placeholders::_1);
-    SegmentIterator segmentIterator =
-        boost::make_transform_iterator(begin(), segmentCreationFunction);
-    SegmentIterator closestSegment = std::min_element(
-        segmentIterator.begin(), segmentIterator.end(),
-        [&point](const SegmentIterator& first, const SegmentIterator& second) {
-          return CGAL::squared_distance(point, first) <
-                 CGAL::squared_distance(point, second);
-        });
-    return CGAL::squared_distance(point, closestSegment);
-  }*/
 };
 
 // Add distance computation from point to CGAL
@@ -101,8 +126,8 @@ namespace CGAL {
 
 template <typename PointType>
 Kernel::FT squared_distance(const Polyloop<PointType>& polyloop,
-                            const Kernel::Point_3 &point) {
-  return 0;
+                            const Kernel::Point_3& point) {
+  return polyloop.squaredDistance(point);
 }
 
 }  // namespace CGAL
