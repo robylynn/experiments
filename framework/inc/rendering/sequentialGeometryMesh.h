@@ -5,31 +5,29 @@
 
 #include "renderingConstants.h"
 
-constexpr size_t POSITION_BINDING = 0;
-
 // A sequential geometry mesh creator wraps provided geometry in a mesh, thus
 // allowing for instancing. It is assumed that the sequential geometry provider
 // provides homogeneous geometry, and thus, there are no material changes. The
 // mesh creator owns its creator mesh, unless this ownership is requested.
 //
 // TODO msati3: When moved to OGRE 2.1, this will have to be refactored.
-template <typename SequentialGeometryProvider,
+template <typename VertexBufferDataProvider,
           template <typename GeometryProvider> class RenderPolicy =
               DefaultRenderPolicy>
 class SequentialGeometryMeshCreator {
  public:
   SequentialGeometryMeshCreator();
-  void setRenderData(const SequentialGeometryProvider& geometryProvider);
+  void setVertexBufferData(const VertexBufferDataProvider& vertexDataProvider);
 
  private:
-  RenderPolicy<SequentialGeometryProvider> m_renderOpProvider;
+  RenderPolicy<VertexBufferDataProvider::SequentialGeometryProvider> m_renderOpProvider;
   Ogre::MeshPtr m_mesh;
   size_t m_maxBufferSize;
 };
 
-template <typename SequentialGeometryProvider,
+template <typename VertexBufferDataProvider,
           template <typename GeometryProvider> class RenderPolicy>
-SequentialGeometryMeshCreator<SequentialGeometryProvider, RenderPolicy>::
+SequentialGeometryMeshCreator<VertexBufferDataProvider, RenderPolicy>::
     SequentialGeometryMeshCreator(
         const std::string& meshName,
         const std::string& groupName = DEFAULT_RENDER_GROUP_NAME) {
@@ -47,7 +45,7 @@ SequentialGeometryMeshCreator<SequentialGeometryProvider, RenderPolicy>::
 
 template <typename SequentialGeometryProvider,
           template <typename GeometryProvider> class RenderPolicy>
-void SequentialGeometryRenderable<SequentialGeometryProvider, RenderPolicy>::
-    setRenderData(const SequentialGeometryProvider& geometryProvider) {}
+void SequentialGeometryRenderable<VertexBufferDataProvider, RenderPolicy>::
+    setVertexBufferData(const VertexBufferDataProvider& geometryProvider) {}
 
 #endif  //_SEQUENTIAL_GEOMETRY_RENDERABLE_H_

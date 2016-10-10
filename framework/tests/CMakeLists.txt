@@ -4,7 +4,10 @@ set(GEOMETRY_TEST_SOURCE_FILES
   "geometry/uniformVoxelGridTest.cpp")
 
 set(UTILS_TEST_SOURCE_FILES
-  "utils/variantWrapper.cpp")
+  "utils/variantWrapperTest.cpp")
+
+set(RENDERING_TEST_SOURCE_FILES
+  "rendering/sequentialGeometryProviderTest.cpp")
 
 set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
 find_package(Threads REQUIRED)
@@ -14,9 +17,12 @@ add_executable(frameworkTest
   main.cpp
   ${GEOMETRY_TEST_SOURCE_FILES}
   ${UTILS_TEST_SOURCE_FILES}
+  ${RENDERING_TEST_SOURCE_FILES}
   )
 
+#TODO msati3: Split into multiple executables with contained dependencies?
 include_directories(${PROJECT_SOURCE_DIR}/inc/geometry)
+include_directories(${PROJECT_SOURCE_DIR}/inc/rendering)
 include_directories(${GTEST_INCLUDE_DIRS})
 
 enable_testing()

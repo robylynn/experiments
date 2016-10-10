@@ -1,39 +1,40 @@
-#ifndef _VERTEX_ELEMENT_H_
-#define _VERTEX_ELEMENT_H_
+#ifndef _FRAMEWORK_RENDERING_VERTEX_ELEMENT_H_
+#define _FRAMEWORK_RENDERING_VERTEX_ELEMENT_H_
 
 #include <boost/variant.hpp>
 #include <boost/variant/static_visitor.hpp>
 
-#include <Ogre/HardwareVertexBuffer.h>
-#include <Ogre/OgreVertexIndexData.h>
+#include <OGRE/OgreHardwareVertexBuffer.h>
+#include <OGRE/OgreHardwareBufferManager.h>
+#include <OGRE/OgreVertexIndexData.h>
 
 // Rendering can refer to geometry
 #include <geometryTypes.h>
 
 // Binding constants for commonly used vertex buffer attributes.
 enum VertexElementBindings {
-  POSITION_BINDING = 0;
-  NORMAL_BINDING = 1;
-  COLOR_BINDING = 2;
+  POSITION_BINDING = 0,
+  NORMAL_BINDING = 1,
+  COLOR_BINDING = 2
 };
 constexpr int VertexDataElementSemantic[] = {
     Ogre::VES_POSITION, Ogre::VES_NORMAL, Ogre::VES_DIFFUSE};
-constexpr int VertexDataElementTypes = {Ogre::VET_FLOAT3, Ogre::VET_FLOAT3,
-                                        Ogre::VET_FLOAT3};
+constexpr int VertexDataElementTypes[] = {Ogre::VET_FLOAT3, Ogre::VET_FLOAT3,
+                                          Ogre::VET_FLOAT3};
 
 struct PositionVertexElement {
-  static unsigned short bindingLocation =
+  constexpr static unsigned short bindingLocation =
       VertexElementBindings::POSITION_BINDING;
-  static VertexElementSemantic semantic = Ogre::VES_POSITION;
-  static VertexElementType type = Ogre::VET_FLOAT3;
+  constexpr static Ogre::VertexElementSemantic semantic = Ogre::VES_POSITION;
+  constexpr static Ogre::VertexElementType type = Ogre::VET_FLOAT3;
 };
 
 // Variant of different VertexElement types
 using VertexElementsVariant = boost::variant<PositionVertexElement>;
 
-// Create each type of vertex attribute (element) -- create an element for the
-// vertex attribute (also binding it to a location), and also reserve data for
-// the vertex element.
+// Create each type of vertex element (attribute) for a vertex buffer -- create
+// an element for the vertex attribute (also binding it to a location), and also
+// reserve data for the vertex element.
 class CreateVertexElementVisitor : public boost::static_visitor<void> {
  public:
   CreateVertexElementVisitor(Ogre::VertexData* vertexData)
@@ -74,17 +75,17 @@ class PopulateVertexElementDataVisitor : public boost::static_visitor<void> {
 
   template <typename VertexElement>
   void operator()(const VertexElement& element) {
-    m_vertexData->vertexCount = size;
+    m_vertexData->vertexCount = m_dataProvider->size();
 
     Ogre::HardwareVertexBufferSharedPtr vbuf =
-        vertexData->vertexBufferBinding->getBuffer(
+        m_vertexData->vertexBufferBinding->getBuffer(
             VertexElement::bindingLocation);
     float* buffer =
         static_cast<float*>(vbuf->lock(Ogre::HardwareBuffer::HBL_DISCARD));
 
     // Copy over the geometry provided by the geometry provider
-    std::for_each(provider->begin(element), provider->end(element),
-                  [&buffer](float data) { *buffer++ = value });
+    std::for_each(m_dataProvider->begin(element), m_dataProvider->end(element),
+                  [&buffer](float data) { *buffer++ = data; });
     vbuf->unlock();
   }
 
@@ -93,28 +94,4 @@ class PopulateVertexElementDataVisitor : public boost::static_visitor<void> {
   DataProvider m_dataProvider;
 };
 
-template <template <typename GeometryProvider> class RenderPolicy>
-void createVertexData(Ogre::VertexData** vertexData,
-                      const RenderPolicy<GeometryProvider>& renderPolicy) {
-  *vertexData = OGRE_NEW Ogre::VertexData();
-  vertexData->vertexStart = renderPolicy.vertexStart;
-  vertexData->vertexCount = renderPolicy.vertexHint;
-
-  // Create vertex elements (attributes) for the types required
-  for (auto vertexElement : renderPolicy.vertexElements()) {
-    boost::apply_visitor(CreateVertexElementVisitor(vertexData), vertexElement);
-  }
-}
-
-template <typename VertexElementDataProvider>
-void populateVertexElementData(Ogre::VertexData* vertexData,
-                               const VertexElementDataProvider& provider) {
-  for (auto vertexElement : renderPolicy.vertexElements()) {
-    boost::apply_visitor(
-        PopulateVertexElementDataVisitor<VertexElementDataProvider>(vertexData,
-                                                                    provider),
-        vertexElement);
-  }
-}
-
-#endif  //_VERTEX_ELEMENT_H_
+#endif  //_FRAMEWORK_RENDERING_VERTEX_ELEMENT_H_

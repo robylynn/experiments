@@ -13,5 +13,5 @@ find_package(Glog REQUIRED)
 include_directories(${Boost_INCLUDE_DIR})
 
 add_subdirectory(framework)
-add_subdirectory(averaging)
+#add_subdirectory(averaging)
 add_subdirectory(cppplayground)

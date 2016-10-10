@@ -26,7 +26,8 @@ class PolyloopGeometryProvider : public ProviderPolicy {
   using LoopCirculator = CGAL::Circulator_from_iterator<
       typename Polyloop<PointType>::const_iterator>;
   LoopCirculator m_circulator;
-  CGAL::Container_from_circulator<LoopCirculator> m_circularContainer;
+  using CirculatorContainer = CGAL::Container_from_circulator<LoopCirculator>;
+  CirculatorContainer m_circularContainer;
 
  public:
   static constexpr int HINT_MAX_BOUND = Polyloop<PointType>::HINT_MAX_BOUND;
@@ -39,10 +40,10 @@ class PolyloopGeometryProvider : public ProviderPolicy {
 
   size_t size() const { return m_polyloop->size() + 1; }
 
-  auto begin() const -> decltype(m_circularContainer.begin()) {
+  auto begin() const -> decltype(std::declval<CirculatorContainer&>().begin()) {
     return m_circularContainer.begin();
   }
-  auto end() const -> decltype(m_circularContainer.end()) {
+  auto end() const -> decltype(std::declval<CirculatorContainer&>().end()) {
     return m_circularContainer.end();
   }
 };
