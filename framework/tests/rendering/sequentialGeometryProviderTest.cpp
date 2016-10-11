@@ -2,8 +2,8 @@
 
 #include "polyloop.h"
 #include "polyloopGeometryProvider.h"
-#include "vertexElement.h"
 #include "positionOnlyProvider.h"
+#include "vertexElement.h"
 
 class PositionOnlyProviderTest : public ::testing::Test {
  protected:
@@ -18,7 +18,9 @@ class PositionOnlyProviderTest : public ::testing::Test {
 
 TEST_F(PositionOnlyProviderTest, iterate) {
   PolyloopGeometryProvider<Kernel::Point_3> loopProvider(loop);
-  PositionOnlyProvider<PolyloopGeometryProvider<Kernel::Point_3>>
-      positionProvider(loopProvider);
-  EXPECT_EQ(*(++positionProvider.begin(PositionVertexElement())), 1);
+  PositionOnlyBufferProvider<PolyloopGeometryProvider<Kernel::Point_3>>
+      positionProvider;
+  EXPECT_EQ(
+      *++positionProvider.begin(loopProvider.begin(), PositionVertexElement()),
+      1);
 }

@@ -4,6 +4,7 @@
 #include <boost/iterator/iterator_facade.hpp>
 
 #include "vertexElement.h"
+#include "vertexData.h"
 
 // Adapts a class that provides begin and end over geometry only to be a
 // suitable vertex element data provider by forwarding requests for begin and
@@ -13,20 +14,26 @@
 // indexable from 0 to 3 -- TODO msati3: This could be relaxed to only be
 // iterable.
 //
-// The position only provider demans the following concepts:
-// begin, end, size and cost_iterator typedef
+// The position only provider demands the following concepts from the
+// SequentialGeometryProvider:
+// cost_iterator typedef
+// Additionally, if the provider object is passed in itself, instead of the
+// provider iterators, the provider must also provide the following:
+// begin and end (return type = const_iterator
 template <typename SequentialGeometryProvider>
-class PositionOnlyProvider {
+class PositionOnlyBufferProvider {
  public:
-  PositionOnlyProvider(const SequentialGeometryProvider& provider)
-      : m_provider(&provider) {}
-  PositionOnlyProvider(const SequentialGeometryProvider&& provider) = delete;
+  PositionOnlyBufferProvider() : m_provider(nullptr) {}
+  PositionOnlyBufferProvider(const SequentialGeometryProvider& geometryProvider)
+      : m_provider(&geometryProvider) {}
+  PositionOnlyBufferProvider(
+      const SequentialGeometryProvider&& geometryProvider) = delete;
 
   class CoordinateIterator
       : public boost::iterator_facade<CoordinateIterator, float,
                                       boost::forward_traversal_tag, float> {
    public:
-    CoordinateIterator(const PositionOnlyProvider* positionProvider,
+    CoordinateIterator(const PositionOnlyBufferProvider* positionProvider,
                        typename SequentialGeometryProvider::const_iterator
                            sequentialProviderIter,
                        int coordinateIndex)
@@ -55,27 +62,78 @@ class PositionOnlyProvider {
       return (*m_sequentialProviderIter)[m_coordinateIndex];
     }
 
-    const PositionOnlyProvider* m_positionProvider;
+    const PositionOnlyBufferProvider* m_positionProvider;
     typename SequentialGeometryProvider::const_iterator
         m_sequentialProviderIter;
     int m_coordinateIndex;
   };
 
-  size_t size() { return m_provider->size(); }
-
-  CoordinateIterator begin(
-      const PositionVertexElement& /*vertexElement*/) const {
-    return CoordinateIterator(this, m_provider->begin(), 0);
+  // Allow for querying size of provider
+  CoordinateIterator size(const SequentialGeometryProvider& provider) const {
+    return 3 * provider.size();
   }
 
-  CoordinateIterator end(const PositionVertexElement& /*vertexElement*/) const {
-    return CoordinateIterator(this, m_provider->end(), 3);
+  CoordinateIterator size() const {
+    assert(m_provider != nullptr);
+    return 3 * m_provider.size();
+  }
+
+  // Accept the provider itself. The provider must provide for begin and end
+  // iterator
+  CoordinateIterator begin(const SequentialGeometryProvider& provider,
+                           const PositionVertexElement& vertexElement) const {
+    return begin(provider.begin(), vertexElement);
+  }
+
+  CoordinateIterator end(const SequentialGeometryProvider& provider,
+                         PositionVertexElement& vertexElement) const {
+    return end(provider.end(), vertexElement);
+  }
+
+  // Accept iterators to the provider begin and end, allowing for non-standard
+  // names to the iterators being used
+  CoordinateIterator begin(
+      typename SequentialGeometryProvider::const_iterator providerBegin,
+      const PositionVertexElement& /*vertexElement*/) const {
+    return CoordinateIterator(this, providerBegin, 0);
+  }
+
+  CoordinateIterator end(
+      typename SequentialGeometryProvider::const_iterator providerEnd,
+      PositionVertexElement& /*vertexElement*/) const {
+    return CoordinateIterator(this, providerEnd, 3);
+  }
+
+  // Accept just the vertexElement, and forward calls using stored instance
+  CoordinateIterator begin(PositionVertexElement& vertexElement) const {
+    assert(m_provider != nullptr);
+    return begin(m_provider, vertexElement);
+  }
+
+  CoordinateIterator end(PositionVertexElement& vertexElement) const {
+    assert(m_provider != nullptr);
+    return end(m_provider, vertexElement);
   }
 
   using const_iterator = CoordinateIterator;
+  using GeometryProvider = SequentialGeometryProvider;
+  using Params = VertexBufferDataProviderParams<
+      PositionOnlyBufferProvider<GeometryProvider>>;
 
  private:
-  const SequentialGeometryProvider* m_provider;
+  SequentialGeometryProvider* m_provider;
 };
+
+template <typename GP>
+class VertexBufferDataProviderParams<PositionOnlyBufferProvider<GP>> {
+  static const size_t vertexStart = 0;
+  static const size_t maxBound = GP::HINT_MAX_BOUND;
+  static const bool useIndexes = 0;
+  static std::vector<VertexElementsVariant> vertexElements;
+};
+
+template <typename GP>
+std::vector<VertexElementsVariant> VertexBufferDataProviderParams<
+    PositionOnlyBufferProvider<GP>>::vertexElements = {PositionVertexElement()};
 
 #endif  //_FRAMEWORK_RENDERING_POSITIONONLY_PROVIDER_H__
