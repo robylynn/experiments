@@ -2,7 +2,7 @@
 
 #include "polyloop.h"
 #include "polyloopGeometryProvider.h"
-#include "positionOnlyProvider.h"
+#include "positionOnlyBufferProvider.h"
 #include "vertexElement.h"
 
 class PositionOnlyProviderTest : public ::testing::Test {

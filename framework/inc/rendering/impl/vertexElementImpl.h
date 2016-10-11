@@ -87,7 +87,7 @@ class PopulateVertexElementDataVisitor : public boost::static_visitor<void> {
         static_cast<float*>(vbuf->lock(Ogre::HardwareBuffer::HBL_DISCARD));
 
     // Copy over the geometry provided by the geometry provider
-    std::for_each(m_dataProvider->begin(element), m_dataProvider->end(element),
+    std::for_each(m_dataProvider.begin(element), m_dataProvider.end(element),
                   [&buffer](float data) { *buffer++ = data; });
     vbuf->unlock();
   }
@@ -97,6 +97,6 @@ class PopulateVertexElementDataVisitor : public boost::static_visitor<void> {
   DataProvider m_dataProvider;
 };
 
-} // end namespace impl
+}  // end namespace impl
 
 #endif  //_FRAMEWORK_RENDERING_VERTEXELEMENTIMPL_H_

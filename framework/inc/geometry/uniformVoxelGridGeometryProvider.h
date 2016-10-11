@@ -17,6 +17,7 @@ class VoxelGridPointProvider {
  public:
   static constexpr Ogre::RenderOperation::OperationType PRIMITIVE_TYPE =
       Ogre::RenderOperation::OT_POINT_LIST;
+  using const_iterator = decltype(m_voxelGrid.begin());
 
   VoxelGridPointProvider(const UniformVoxelGrid& voxelGrid)
       : m_voxelGrid(voxelGrid) {}
@@ -37,6 +38,7 @@ class VoxelGridCubeProvider {
   // object.
   static constexpr Ogre::RenderOperation::OperationType PRIMITIVE_TYPE =
       Ogre::RenderOperation::OT_TRIANGLE_LIST;
+  using const_iterator = decltype(m_voxelGrid.begin());
 
   VoxelGridCubeProvider(const UniformVoxelGrid& voxelGrid)
       : m_voxelGrid(voxelGrid) {}

@@ -4,17 +4,18 @@
 #include "impl/vertexElementImpl.h"
 
 namespace impl {
-// Populate vertex buffer data.
-template <typename DataProviderParameters>
+// Populate vertex buffer data. Set the vertex count to maxBound when reserving
+// memory on the GPU.
+template <typename DataProviderParams>
 void createVertexData(Ogre::VertexData** vertexData) {
   *vertexData = OGRE_NEW Ogre::VertexData();
-  (*vertexData)->vertexStart = DataProviderParameters::vertexStart;
-  (*vertexData)->vertexCount = DataProviderParameters::vertexHint;
+  (*vertexData)->vertexStart = DataProviderParams::vertexStart;
+  (*vertexData)->vertexCount = DataProviderParams::maxBound;
 
   // Create vertex elements (attributes) for the types required
-  for (auto vertexElement : DataProviderParameters::vertexElements) {
-    boost::apply_visitor(CreateVertexElementVisitor(*vertexData),
-                         vertexElement);
+  for (auto vertexElement : DataProviderParams::vertexElements) {
+    CreateVertexElementVisitor createVisitor(*vertexData);
+    boost::apply_visitor(createVisitor, vertexElement);
   }
 }
 
@@ -25,10 +26,10 @@ template <typename DataProvider>
 void populateVertexData(Ogre::VertexData* vertexData,
                         const DataProvider& provider) {
   vertexData->vertexCount = provider.size();
-  for (auto vertexElement : DataProvider::VertexDataParams::vertexElements) {
-    boost::apply_visitor(
-        PopulateVertexElementDataVisitor<DataProvider>(vertexData, provider),
-        vertexElement);
+  for (auto vertexElement : DataProvider::Params::vertexElements) {
+    PopulateVertexElementDataVisitor<DataProvider> populateVisitor(vertexData,
+                                                                   provider);
+    boost::apply_visitor(populateVisitor, vertexElement);
   }
 }
 }  // end namespace impl

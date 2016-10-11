@@ -13,9 +13,13 @@
 
 #include <polyloop.h>
 #include <polyloopGeometryProvider.h>
+#include <positionOnlyBufferProvider.h>
 #include <uniformVoxelGrid.h>
 #include <uniformVoxelGridGeometryProvider.h>
-#include <sequentialGeometryRenderable.h>
+#include <geometryRenderable.h>
+
+template <typename T>
+using PositionRenderable = GeometryRenderable<PositionOnlyBufferProvider<T>>;
 
 bool initScene(const std::string& windowName, const std::string& sceneName) {
   Ogre::Root* root = Ogre::Root::getSingletonPtr();
@@ -57,22 +61,27 @@ int main(int argc, char* argv[]) {
     using LoopGeometryProvider =
         PolyloopGeometryProvider<CGAL::Point_3<Kernel>>;
 
-    SequentialGeometryRenderable<LoopGeometryProvider>* renderableLoop =
-        new SequentialGeometryRenderable<LoopGeometryProvider>();
-    renderableLoop->setRenderData(LoopGeometryProvider(p));
+    PositionRenderable<LoopGeometryProvider>* renderableLoop =
+        new PositionRenderable<LoopGeometryProvider>();
+    LoopGeometryProvider loopGeometryProvider(p);
+    renderableLoop->setVertexData(
+        PositionOnlyBufferProvider<LoopGeometryProvider>(loopGeometryProvider));
 
     sceneManager->getRootSceneNode()->createChildSceneNode()->attachObject(
         renderableLoop);
 
-    UniformVoxelGrid voxelGrid(30.0, 5);
+    /*UniformVoxelGrid voxelGrid(30.0, 5);
     using VoxelGeometryProvider =
         UniformVoxelGridGeometryProvider<VoxelGridCubeProvider>;
-    SequentialGeometryRenderable<VoxelGeometryProvider>* renderableVoxelGrid =
-        new SequentialGeometryRenderable<VoxelGeometryProvider>();
-    renderableVoxelGrid->setRenderData(VoxelGeometryProvider(voxelGrid));
+    PositionRenderable<VoxelGeometryProvider>* renderableVoxelGrid =
+        new PositionRenderable<VoxelGeometryProvider>();
+    VoxelGeometryProvider voxelGeometryProvider(voxelGrid);
+    renderableVoxelGrid->setVertexData(
+        PositionOnlyBufferProvider<VoxelGeometryProvider>(
+            voxelGeometryProvider));
 
     sceneManager->getRootSceneNode()->createChildSceneNode()->attachObject(
-        renderableVoxelGrid);
+        renderableVoxelGrid);*/
 
     app.startEventLoop();
   }

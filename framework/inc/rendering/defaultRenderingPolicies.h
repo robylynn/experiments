@@ -8,14 +8,14 @@
 #include "renderingConstants.h"
 
 // The default RenderPolicy specifies that the operation type is the typedef
-// GeometryProvider::PRIMITIVE_TYPE
+// GeometryProvider::PRIMIIVE_TYPE
 template <typename VertexBufferDataProvider>
 class DefaultRenderPolicy {
  public:
   static constexpr Ogre::RenderOperation::OperationType operationType =
       VertexBufferDataProvider::GeometryProvider::PRIMITIVE_TYPE;
   static constexpr bool useIndexes =
-      VertexBufferDataProvider::VertexDataParams::useIndexes;
+      VertexBufferDataProvider::Params::useIndexes;
 };
 
 // The default MaterialPolicy specifies that, depending on the RenderPolicy
@@ -29,16 +29,16 @@ class DefaultMaterialPolicy {
  public:
   DefaultMaterialPolicy(const RenderPolicy& renderPolicy) {
     switch (renderPolicy.operationType) {
-      case Ogre::POINT_LIST:
+      case Ogre::RenderOperation::OT_POINT_LIST:
         m_material = DEFAULT_POINT_MATERIAL_NAME;
         break;
-      case Ogre::LINE_LIST:
-      case Ogre::LINE_STRIP:
+      case Ogre::RenderOperation::OT_LINE_LIST:
+      case Ogre::RenderOperation::OT_LINE_STRIP:
         m_material = DEFAULT_LINE_MATERIAL_NAME;
         break;
-      case Ogre::OT_TRIANGLE_LIST:
-      case Ogre::OT_TRIANGLE_STRIP:
-      case Ogre::OT_TRIANGLE_FAN:
+      case Ogre::RenderOperation::OT_TRIANGLE_LIST:
+      case Ogre::RenderOperation::OT_TRIANGLE_STRIP:
+      case Ogre::RenderOperation::OT_TRIANGLE_FAN:
         m_material = DEFAULT_TRIANGLE_MATERIAL_NAME;
         break;
       default:

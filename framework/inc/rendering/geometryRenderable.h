@@ -1,6 +1,7 @@
 #ifndef _SEQUENTIAL_GEOMETRY_RENDERABLE_H_
 #define _SEQUENTIAL_GEOMETRY_RENDERABLE_H_
 
+#include "defaultRenderingPolicies.h"
 #include "vertexData.h"
 
 // A sequential geometry renderable allows for the rendering of sequential
@@ -13,13 +14,11 @@
 // and a RenderOperation, aside from the VertexData itself. This is abstracted
 // out of the SequentialGeometryRenderable as two policies
 template <typename VertexBufferDataProvider,
-          template <typename GP> class RenderPolicy = DefaultRenderPolicy<
-              typename VertexBufferDataProvider::GeometryProvider>,
-          template <typename RP> class MaterialPolicy =
-              DefaultMaterialPolicy<RenderPolicy>>
+          typename RenderPolicy = DefaultRenderPolicy<VertexBufferDataProvider>,
+          typename MaterialPolicy = DefaultMaterialPolicy<RenderPolicy>>
 class GeometryRenderable : public Ogre::SimpleRenderable {
  public:
-  GeometryRenderable() {
+  GeometryRenderable() : m_materialPolicy(m_renderPolicy) {
     mRenderOp.useIndexes = m_renderPolicy.useIndexes;
     mRenderOp.operationType = m_renderPolicy.operationType;
 
@@ -34,9 +33,9 @@ class GeometryRenderable : public Ogre::SimpleRenderable {
   }
 
   void setVertexData(const VertexBufferDataProvider& geometryProvider) {
-    createVertexData<VertexBufferDataProvider::Params>(
-        &m_mesh->sharedVertexData);
-    populateVertexData<VertexBufferDataProvider>(m_mesh->sharedVertexData,
+    using Params = typename VertexBufferDataProvider::Params;
+    createVertexData<Params>(&mRenderOp.vertexData);
+    populateVertexData<VertexBufferDataProvider>(mRenderOp.vertexData,
                                                  geometryProvider);
     if (!mRenderOp.useIndexes) {
       mRenderOp.indexData = 0;
@@ -55,8 +54,8 @@ class GeometryRenderable : public Ogre::SimpleRenderable {
   Ogre::Real getBoundingRadius() const override { return 1000; }
 
  private:
-  RenderPolicy<VertexBufferDataProvider> m_renderPolicy;
-  MaterialPolicy<RenderPolicy<VertexBufferDataProvider>> m_materialPolicy;
+  RenderPolicy m_renderPolicy;
+  MaterialPolicy m_materialPolicy;
 };
 
 #endif  //_SEQUENTIAL_GEOMETRY_RENDERABLE_H_
