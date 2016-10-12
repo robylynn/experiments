@@ -23,6 +23,8 @@ target_link_libraries(averaging ${Boost_LIBRARIES}
   ${GLOG_LIBRARIES}
   ${OIS_LIBRARIES}
   CGAL
+  gmp
+  mpfr
   app
   geometry
   averagingLib)

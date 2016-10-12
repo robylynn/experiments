@@ -31,5 +31,7 @@ target_link_libraries(frameworkTest ${GTEST_LIBRARIES}
   ${CMAKE_THREAD_LIBS_INIT}
   ${Boost_LIBRARIES}
   CGAL
+  gmp
+  mpfr
   geometry)
 

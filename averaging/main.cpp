@@ -74,10 +74,12 @@ int main(int argc, char* argv[]) {
 
     std::function<Kernel::FT(const Kernel::Point_3&)> samplingFunction =
         [](const Kernel::Point_3& point) {
-          return CGAL::squared_distance(point, Kernel::Point_3(0,0,0)) - 1;
+          return CGAL::squared_distance(point, Kernel::Point_3(0, 0, 0)) - 1;
         };
+
     LevelSetMeshBuilder<> meshBuilder;
-    meshBuilder.buildMesh(samplingFunction, Kernel::Sphere_3(CGAL::ORIGIN, 2), 1);
+    meshBuilder.buildMesh(samplingFunction, Kernel::Sphere_3(CGAL::ORIGIN, 2),
+                          1);
 
     /*UniformVoxelGrid voxelGrid(30.0, 5);
     using VoxelGeometryProvider =
