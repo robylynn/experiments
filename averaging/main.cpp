@@ -18,6 +18,8 @@
 #include <uniformVoxelGridGeometryProvider.h>
 #include <geometryRenderable.h>
 
+#include "levelSetMeshBuilder.h"
+
 template <typename T>
 using PositionRenderable = GeometryRenderable<PositionOnlyBufferProvider<T>>;
 
@@ -58,7 +60,7 @@ int main(int argc, char* argv[]) {
     Ogre::Root* root = Ogre::Root::getSingletonPtr();
     Ogre::SceneManager* sceneManager = root->getSceneManager("PrimaryScene");
 
-    using LoopGeometryProvider =
+    /*using LoopGeometryProvider =
         PolyloopGeometryProvider<CGAL::Point_3<Kernel>>;
 
     PositionRenderable<LoopGeometryProvider>* renderableLoop =
@@ -68,7 +70,14 @@ int main(int argc, char* argv[]) {
         PositionOnlyBufferProvider<LoopGeometryProvider>(loopGeometryProvider));
 
     sceneManager->getRootSceneNode()->createChildSceneNode()->attachObject(
-        renderableLoop);
+        renderableLoop);*/
+
+    std::function<Kernel::FT(const Kernel::Point_3&)> samplingFunction =
+        [](const Kernel::Point_3& point) {
+          return CGAL::squared_distance(point, Kernel::Point_3(0,0,0)) - 1;
+        };
+    LevelSetMeshBuilder<> meshBuilder;
+    meshBuilder.buildMesh(samplingFunction, Kernel::Sphere_3(CGAL::ORIGIN, 2), 1);
 
     /*UniformVoxelGrid voxelGrid(30.0, 5);
     using VoxelGeometryProvider =
