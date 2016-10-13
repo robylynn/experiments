@@ -43,6 +43,7 @@ class VoxelGridCubeProvider {
   VoxelGridCubeProvider(const UniformVoxelGrid& voxelGrid)
       : m_voxelGrid(voxelGrid) {}
 
+  // TODO msati3: Look at the return value semantics here
   class VertexIterator
       : public boost::iterator_facade<VertexIterator, const Kernel::Point_3,
                                       boost::forward_traversal_tag> {

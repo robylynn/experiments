@@ -19,6 +19,7 @@
 #include <geometryRenderable.h>
 
 #include "levelSetMeshBuilder.h"
+#include "meshGeometryProvider.h"
 
 template <typename T>
 using PositionRenderable = GeometryRenderable<PositionOnlyBufferProvider<T>>;
@@ -78,8 +79,9 @@ int main(int argc, char* argv[]) {
         };
 
     LevelSetMeshBuilder<> meshBuilder;
-    meshBuilder.buildMesh(samplingFunction, Kernel::Sphere_3(CGAL::ORIGIN, 2),
-                          1);
+    typename LevelSetMeshBuilder<>::Representation rep = meshBuilder.buildMesh(
+        samplingFunction, Kernel::Sphere_3(CGAL::ORIGIN, 2), 1);
+    MeshGeometryProvider meshGeometryProvider(rep);
 
     /*UniformVoxelGrid voxelGrid(30.0, 5);
     using VoxelGeometryProvider =

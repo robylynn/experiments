@@ -3,6 +3,8 @@
 
 #include <type_traits>
 
+#include <glog/logging.h>
+
 #include <CGAL/Robust_circumcenter_traits_3.h>
 #include <CGAL/Triangulation_cell_base_with_circumcenter_3.h>
 #include <CGAL/Delaunay_triangulation_3.h>
@@ -99,7 +101,7 @@ class ScalarFieldSamplingAdaptor<Kernel> {
  private:
   typename ScalarFieldPointSampler<Kernel>::type m_adaptedFunction;
 
-  public:
+ public:
   ScalarFieldSamplingAdaptor(
       const ScalarFieldPointSampler<Kernel>::type& samplingFunction) {
     m_adaptedFunction = samplingFunction;
@@ -116,12 +118,13 @@ template <typename BuildPolicy = DefaultLevelSetMeshBuilderPolicy>
 class LevelSetMeshBuilder : public BuildPolicy {
  private:
   using Triangulation = typename BuildPolicy::MeshTriangulation;
-  using Representation = typename BuildPolicy::MeshRepresentation;
   using SamplingFunction = typename ScalarFieldPointSampler<Kernel>::type;
 
  public:
-  void buildMesh(const SamplingFunction& fieldSamplingFunction,
-                 const Kernel::Sphere_3& boundingSphere, double value) {
+  using Representation = typename BuildPolicy::MeshRepresentation;
+  Representation buildMesh(const SamplingFunction& fieldSamplingFunction,
+                               const Kernel::Sphere_3& boundingSphere,
+                               double value) {
     Triangulation triangulation;
     Representation rep(triangulation);
 
@@ -136,8 +139,10 @@ class LevelSetMeshBuilder : public BuildPolicy {
     CGAL::make_surface_mesh(rep, surface, this->meshingCriteria,
                             CGAL::Manifold_with_boundary_tag());
 
-    std::cout << "Number of vertices in the created mesh "
-              << triangulation.number_of_vertices() << std::endl;
+    LOG(INFO)
+        << "Created level set mesh. Number of vertices in the created mesh = "
+        << triangulation.number_of_vertices() << std::endl;
+    return rep;
   }
 };
 
