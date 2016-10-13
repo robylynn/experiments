@@ -27,6 +27,8 @@ class DefaultLevelSetMeshBuilderPolicy {
  private:
   // Some typedefs for the triangulation data structure
   using RobustKernel = CGAL::Robust_circumcenter_traits_3<Kernel>;
+  // A 3D triangulation requires types modeling the vertex base concepts
+  // and cell base (a cell is a maximal simplex -- a tetrahedron in 3D)
   using Vb = CGAL::Surface_mesh_vertex_base_3<RobustKernel>;
   using Cb = CGAL::Surface_mesh_cell_base_3<RobustKernel>;
   using Cb_with_circumcenter =
@@ -60,7 +62,7 @@ class DefaultLevelSetMeshBuilderPolicy {
   // each facet of the mesh, upper radius bound for surface Delaunay balls and
   // the upper distance bound between circumcenter of each face, and its
   // surface Delaunay ball.
-  DefaultLevelSetMeshBuilderPolicy() : meshingCriteria(30, 0.1, 0.1) {}
+  DefaultLevelSetMeshBuilderPolicy() : meshingCriteria(30, 1, 1) {}
 
  protected:
   MeshingCriteria meshingCriteria;

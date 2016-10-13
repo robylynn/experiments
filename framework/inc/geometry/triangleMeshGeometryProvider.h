@@ -9,7 +9,7 @@
 // TODO msati3: Use circulator for facet vertex iteration, and get rid of this
 // include
 #include "geometryConstants.h"
-#include "triangleMeshTypeTraits.h"
+#include "triangleMeshGeometryProviderAdaptor.h"
 
 class MeshTriangleListPolicy {
  public:

@@ -71,6 +71,8 @@ class CreateVertexElementVisitor : public boost::static_visitor<void> {
 //
 // The DataProvider must provide begin and end for the element types that are
 // contained in the VertexData's bindings.
+//
+// TODO msati3: Change this interface to accept iterators
 template <typename DataProvider>
 class PopulateVertexElementDataVisitor : public boost::static_visitor<void> {
  public:

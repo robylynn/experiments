@@ -34,7 +34,7 @@ bool initScene(const std::string& windowName, const std::string& sceneName) {
   Ogre::Camera* mainCamera = sceneManager->createCamera("PrimaryCamera");
   Ogre::Viewport* viewport =
       root->getRenderTarget(windowName)->addViewport(mainCamera);
-  viewport->setBackgroundColour(Ogre::ColourValue(0.5, 0, 0));
+  viewport->setBackgroundColour(Ogre::ColourValue(1, 1, 1));
 
   mainCamera->setAspectRatio((float)viewport->getActualWidth() /
                              viewport->getActualHeight());
@@ -45,6 +45,11 @@ bool initScene(const std::string& windowName, const std::string& sceneName) {
   CameraController* cameraController =
       new CameraController("mainCamera", mainCamera);
 }
+
+template <typename T>
+using RenderBufferProvider = PositionOnlyBufferProvider<T>;
+template <typename T>
+using Renderable = GeometryRenderable<RenderBufferProvider<T>>;
 
 int main(int argc, char* argv[]) {
   google::InitGoogleLogging(argv[0]);
@@ -65,26 +70,33 @@ int main(int argc, char* argv[]) {
     using LoopGeometryProvider =
         PolyloopGeometryProvider<CGAL::Point_3<Kernel>>;
 
-    PositionRenderable<LoopGeometryProvider>* renderableLoop =
-        new PositionRenderable<LoopGeometryProvider>();
     LoopGeometryProvider loopGeometryProvider(p);
-    renderableLoop->setVertexData(
-        PositionOnlyBufferProvider<LoopGeometryProvider>(loopGeometryProvider));
+    auto loopRenderable = new Renderable<LoopGeometryProvider>();
+    loopRenderable->setVertexData(
+        RenderBufferProvider<LoopGeometryProvider>(loopGeometryProvider));
 
     sceneManager->getRootSceneNode()->createChildSceneNode()->attachObject(
-        renderableLoop);
+        loopRenderable);
 
     std::function<Kernel::FT(const Kernel::Point_3&)> samplingFunction =
         [](const Kernel::Point_3& point) {
-          return CGAL::squared_distance(point, Kernel::Point_3(0, 0, 0)) - 1;
+          return CGAL::squared_distance(point, Kernel::Point_3(0, 0, 0)) - 100;
         };
 
-    using MeshRepresentation = typename LevelSetMeshBuilder<>::Representation;
+    using TMeshRepresentation = typename LevelSetMeshBuilder<>::Representation;
+    using TMeshGeometryProvider =
+        TriangleMeshGeometryProvider<TMeshRepresentation>;
+
     LevelSetMeshBuilder<> meshBuilder;
-    MeshRepresentation meshRep = meshBuilder.buildMesh(
-        samplingFunction, Kernel::Sphere_3(CGAL::ORIGIN, 2), 1);
-    TriangleMeshGeometryProvider<MeshRepresentation> meshGeometryProvider(
-        meshRep);
+    TMeshRepresentation meshRep = meshBuilder.buildMesh(
+        samplingFunction, Kernel::Sphere_3(CGAL::ORIGIN, 1000), 1);
+    TMeshGeometryProvider meshGeometryProvider(meshRep);
+    auto meshRenderable = new Renderable<TMeshGeometryProvider>();
+    meshRenderable->setVertexData(
+        RenderBufferProvider<TMeshGeometryProvider>(meshGeometryProvider));
+
+    sceneManager->getRootSceneNode()->createChildSceneNode()->attachObject(
+        meshRenderable);
 
     /*UniformVoxelGrid voxelGrid(30.0, 5);
     using VoxelGeometryProvider =
