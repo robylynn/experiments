@@ -46,8 +46,7 @@ class PositionOnlyBufferProvider {
     friend class boost::iterator_core_access;
 
     void increment() {
-      ++m_coordinateIndex;
-      if (m_coordinateIndex == NUM_POSITION_COORDS) {
+      if (++m_coordinateIndex == NUM_POSITION_COORDS) {
         m_coordinateIndex = 0;
         ++m_sequentialProviderIter;
       }
@@ -102,7 +101,7 @@ class PositionOnlyBufferProvider {
   CoordinateIterator end(
       typename SequentialGeometryProvider::const_iterator providerEnd,
       const PositionVertexElement& /*vertexElement*/) const {
-    return CoordinateIterator(this, providerEnd, NUM_POSITION_COORDS);
+    return CoordinateIterator(this, providerEnd, 0);
   }
 
   // Accept just the vertexElement, and forward calls using stored instance

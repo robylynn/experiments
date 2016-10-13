@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#include "geometryTypes.h"
 #include "containerAlgorithms.h"
 #include "cuboidGeometryProvider.h"
 

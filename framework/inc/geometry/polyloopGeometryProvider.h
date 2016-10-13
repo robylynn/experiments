@@ -5,8 +5,7 @@
 
 #include <CGAL/circulator.h>
 
-#include <OGRE/Ogre.h>
-#include <OGRE/OgreSimpleRenderable.h>
+#include <OGRE/OgreRenderOperation.h>
 
 #include "polyloop.h"
 

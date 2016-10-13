@@ -31,7 +31,7 @@ class DefaultLevelSetMeshBuilderPolicy {
   using Cb = CGAL::Surface_mesh_cell_base_3<RobustKernel>;
   using Cb_with_circumcenter =
       CGAL::Triangulation_cell_base_with_circumcenter_3<RobustKernel, Cb>;
-  // Triangulation Data structure
+  // 3D Triangulation Data structure
   using Tds = CGAL::Triangulation_data_structure_3<Vb, Cb_with_circumcenter>;
 
  public:
@@ -42,8 +42,8 @@ class DefaultLevelSetMeshBuilderPolicy {
   using MeshingCriteria =
       CGAL::Surface_mesh_default_criteria_3<MeshTriangulation>;
 
-  // We will build a surface mesh. Choose an appropriate mesh
-  // representation (half edge).
+  // We will build a surface mesh. Choose an appropriate mesh representation for
+  // the restricted Delaunay triangulation used by the surface mesh generator.
   using MeshRepresentation =
       CGAL::Surface_mesh_complex_2_in_triangulation_3<MeshTriangulation>;
 
@@ -123,8 +123,8 @@ class LevelSetMeshBuilder : public BuildPolicy {
  public:
   using Representation = typename BuildPolicy::MeshRepresentation;
   Representation buildMesh(const SamplingFunction& fieldSamplingFunction,
-                               const Kernel::Sphere_3& boundingSphere,
-                               double value) {
+                           const Kernel::Sphere_3& boundingSphere,
+                           double value) {
     Triangulation triangulation;
     Representation rep(triangulation);
 

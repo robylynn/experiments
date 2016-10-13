@@ -1,13 +1,14 @@
 set(GEOMETRY_TEST_SOURCE_FILES
   "geometry/cuboidTest.cpp"
   "geometry/polyloopTest.cpp"
+  "geometry/triangleMeshTest.cpp"
   "geometry/uniformVoxelGridTest.cpp")
 
 set(UTILS_TEST_SOURCE_FILES
   "utils/variantWrapperTest.cpp")
 
 set(RENDERING_TEST_SOURCE_FILES
-  "rendering/sequentialGeometryProviderTest.cpp")
+  "rendering/positionOnlyBufferProviderTest.cpp")
 
 set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
 find_package(Threads REQUIRED)
