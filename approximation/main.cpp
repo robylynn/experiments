@@ -28,16 +28,18 @@ namespace PS = CGAL::Polyline_simplification_2;
 typedef CGAL::Polygon_2<Kernel1> Polygon_2;
 
 int main() {
-  PS::Stop_below_count_ratio_threshold stopThreshold(0.5);
-  //PS::Stop_above_cost_threshold stopThreshold(0.1);
+  // PS::Stop_below_count_ratio_threshold stopThreshold(0.5);
+  PS::Stop_above_cost_threshold stopThreshold(0.01);
   PS::Squared_distance_cost cost;
   Polygon_2 polygon;
   std::cin >> polygon;
 
   Polygon_2 simplified = PS::simplify(polygon, cost, stopThreshold);
   std::cout << polygon.size() << " " << simplified.size() << std::endl;
-  std::cout << polygon << std::endl;
-  std::cout << simplified << std::endl;
+  std::for_each(simplified.vertices_begin(), simplified.vertices_end(),
+                [](const CGAL::Point_2<Kernel1>& point) {
+                  std::cout << point << std::endl;
+                });
   return 0;
 }
 
