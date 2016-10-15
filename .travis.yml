@@ -29,6 +29,7 @@ before_install:
   - cmake -DCMAKE_BUILD_TYPE=Release -DWITH_Eigen3=ON .
   - make
   - sudo make install &>> install.log
+  - cd "${TRAVIS_BUILD_DIR}"
 
     cd /usr/src/
   - sudo apt-get install libcgal-dev
