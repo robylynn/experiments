@@ -18,6 +18,19 @@ before_install:
   - sudo mv libgtest* /usr/lib/
   - cd "${TRAVIS_BUILD_DIR}"
 
+    # install the latest version of cgal
+  - sudo apt-get install -qq libboost-all-dev
+  - sudo apt-get install -qq libmpfr-dev
+  - sudo apt-get install -qq libeigen3-dev
+  - sudo apt-get install -qq libgmp3-dev
+  - curl -L -o CGAL-4.9.tar.gz https://github.com/CGAL/cgal/archive/releases/CGAL-4.9.tar.gz
+  - tar zxvf CGAL-4.9.tar.gz &> install.log
+  - cd cgal-releases-CGAL-4.9
+  - cmake -DCMAKE_BUILD_TYPE=Release -DWITH_Eigen3=ON .
+  - make
+  - sudo make install &>> install.log
+
+    cd /usr/src/
   - sudo apt-get install libcgal-dev
   - sudo apt-get install libogre-1.9-dev
   - sudo apt-get install libois-dev

@@ -6,7 +6,7 @@
 #include <glog/logging.h>
 
 #include <CGAL/Robust_circumcenter_traits_3.h>
-#include <CGAL/Triangulation_cell_base_with_circumcenter_3.h>
+#include <CGAL/Delaunay_triangulation_cell_base_with_circumcenter_3.h>
 #include <CGAL/Delaunay_triangulation_3.h>
 #include <CGAL/Surface_mesh_complex_2_in_triangulation_3.h>
 #include <CGAL/make_surface_mesh.h>
@@ -32,7 +32,8 @@ class DefaultLevelSetMeshBuilderPolicy {
   using Vb = CGAL::Surface_mesh_vertex_base_3<RobustKernel>;
   using Cb = CGAL::Surface_mesh_cell_base_3<RobustKernel>;
   using Cb_with_circumcenter =
-      CGAL::Triangulation_cell_base_with_circumcenter_3<RobustKernel, Cb>;
+      CGAL::Delaunay_triangulation_cell_base_with_circumcenter_3<RobustKernel,
+                                                                 Cb>;
   // 3D Triangulation Data structure
   using Tds = CGAL::Triangulation_data_structure_3<Vb, Cb_with_circumcenter>;
 
