@@ -18,6 +18,7 @@
 #include <uniformVoxelGrid.h>
 #include <uniformVoxelGridGeometryProvider.h>
 #include <geometryRenderable.h>
+#include <prefabs.h>
 
 #include "levelSetMeshBuilder.h"
 #include "triangleMeshGeometryProvider.h"
@@ -97,6 +98,11 @@ int main(int argc, char* argv[]) {
 
     sceneManager->getRootSceneNode()->createChildSceneNode()->attachObject(
         meshRenderable);
+
+    Ogre::SceneNode* axesNode =
+        sceneManager->getRootSceneNode()->createChildSceneNode();
+    axesNode->attachObject(getPrefab(Prefab::AXES));
+    axesNode->setScale(10, 10, 10);
 
     /*UniformVoxelGrid voxelGrid(30.0, 5);
     using VoxelGeometryProvider =

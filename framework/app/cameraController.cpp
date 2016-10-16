@@ -26,7 +26,7 @@ CameraController::CameraController(const std::string& name, Ogre::Camera* cam)
           name, std::bind(&CameraController::onKeyboardEvent, this,
                           std::placeholders::_1, std::placeholders::_2)) {
   setCamera(cam);
-  setStyle(CS_FREELOOK);
+  setStyle(CS_ORBIT);
 }
 
 /*-----------------------------------------------------------------------------

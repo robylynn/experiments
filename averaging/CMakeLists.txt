@@ -27,6 +27,7 @@ target_link_libraries(averaging ${Boost_LIBRARIES}
   mpfr
   app
   geometry
+  rendering
   averagingLib)
 
 # Copy over OGRE plugins file to built directory
