@@ -21,10 +21,9 @@ link_directories(${Boost_LIBRARY_DIRS})
 target_link_libraries(averaging ${Boost_LIBRARIES}
   ${OGRE_LIBRARIES}
   ${GLOG_LIBRARIES}
+  ${GFLAGS_LIBRARIES}
   ${OIS_LIBRARIES}
-  CGAL
-  gmp
-  mpfr
+  ${CGAL_LIBS}
   app
   geometry
   rendering

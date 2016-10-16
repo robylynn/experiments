@@ -12,9 +12,11 @@ include_directories(${GTEST_INCLUDE_DIRS})
 enable_testing()
 
 target_link_libraries(averagingTest ${GTEST_LIBRARIES}
+  ${GLOG_LIBRARIES}
+  ${GFLAGS_LIBRARIES}
   ${CMAKE_THREAD_LIBS_INIT}
   ${Boost_LIBRARIES}
-  CGAL
+  ${CGAL_LIBS}
   geometry
   averagingLib)
 

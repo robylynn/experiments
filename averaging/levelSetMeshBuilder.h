@@ -2,17 +2,25 @@
 #define _LEVELSETMESHBUILDER_H_
 
 #include <type_traits>
+#include <fstream>
 
 #include <glog/logging.h>
+#include <gflags/gflags.h>
 
-#include <CGAL/Robust_circumcenter_traits_3.h>
 #include <CGAL/Delaunay_triangulation_cell_base_with_circumcenter_3.h>
 #include <CGAL/Delaunay_triangulation_3.h>
-#include <CGAL/Surface_mesh_complex_2_in_triangulation_3.h>
-#include <CGAL/make_surface_mesh.h>
+#include <CGAL/IO/Complex_2_in_triangulation_3_file_writer.h>
+#include <CGAL/IO/output_surface_facets_to_polyhedron.h>
 #include <CGAL/Implicit_surface_3.h>
+#include <CGAL/make_surface_mesh.h>
+#include <CGAL/Polyhedron_3.h>
+#include <CGAL/Robust_circumcenter_traits_3.h>
+#include <CGAL/Surface_mesh_complex_2_in_triangulation_3.h>
 
 #include "geometryTypes.h"
+
+// If this flag is set, we write the level set mesh out to a .off file
+DECLARE_bool(write_generated_level_set_mesh);
 
 // A scalar field sampling function must model this concept
 template <typename KernelType>
@@ -49,6 +57,9 @@ class DefaultLevelSetMeshBuilderPolicy {
   // the restricted Delaunay triangulation used by the surface mesh generator.
   using MeshRepresentation =
       CGAL::Surface_mesh_complex_2_in_triangulation_3<MeshTriangulation>;
+
+  // We output a Polyhedron mesh
+  using OutputMeshRepresentation = CGAL::Polyhedron_3<Kernel>;
 
   // The kernel that will decide the sampling function that is desired by the
   // MeshBuilder policy
@@ -121,15 +132,16 @@ template <typename BuildPolicy = DefaultLevelSetMeshBuilderPolicy>
 class LevelSetMeshBuilder : public BuildPolicy {
  private:
   using Triangulation = typename BuildPolicy::MeshTriangulation;
+  using InternalRepresentation = typename BuildPolicy::MeshRepresentation;
   using SamplingFunction = typename ScalarFieldPointSampler<Kernel>::type;
 
  public:
-  using Representation = typename BuildPolicy::MeshRepresentation;
-  Representation buildMesh(const SamplingFunction& fieldSamplingFunction,
-                           const Kernel::Sphere_3& boundingSphere,
-                           double value) {
+  using Representation = typename BuildPolicy::OutputMeshRepresentation;
+  void buildMesh(const SamplingFunction& fieldSamplingFunction,
+                 const Kernel::Sphere_3& boundingSphere, double value,
+                 CGAL::Polyhedron_3<Kernel>& polyhedron) {
     Triangulation triangulation;
-    Representation rep(triangulation);
+    InternalRepresentation rep(triangulation);
 
     // TODO msati3: Extensible form of this to allow not just sampling
     // implicit functions possible?
@@ -144,8 +156,15 @@ class LevelSetMeshBuilder : public BuildPolicy {
 
     LOG(INFO)
         << "Created level set mesh. Number of vertices in the created mesh = "
-        << triangulation.number_of_vertices() << std::endl;
-    return rep;
+        << triangulation.number_of_vertices();
+
+    if (FLAGS_write_generated_level_set_mesh) {
+      LOG(INFO) << "Writing generated mesh to mesh.off file";
+      std::ofstream out("mesh.off");
+      CGAL::output_surface_facets_to_off(out, rep);
+    }
+
+    CGAL::output_surface_facets_to_polyhedron(rep, polyhedron);
   }
 };
 

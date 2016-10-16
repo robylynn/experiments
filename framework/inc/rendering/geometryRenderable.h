@@ -1,6 +1,8 @@
 #ifndef _SEQUENTIAL_GEOMETRY_RENDERABLE_H_
 #define _SEQUENTIAL_GEOMETRY_RENDERABLE_H_
 
+#include <glog/logging.h>
+
 #include "defaultRenderingPolicies.h"
 #include "vertexData.h"
 
@@ -22,6 +24,10 @@ class GeometryRenderable : public Ogre::SimpleRenderable {
     mRenderOp.useIndexes = m_renderPolicy.useIndexes;
     mRenderOp.operationType = m_renderPolicy.operationType;
 
+    LOG(INFO) << "Creating a geometry renderable, with renderPolicy type "
+              << m_renderPolicy.operationType << " and material "
+              << m_materialPolicy.getMaterial();
+
     // Set material from material policy
     setMaterial(m_materialPolicy.getMaterial());
 
@@ -37,6 +43,9 @@ class GeometryRenderable : public Ogre::SimpleRenderable {
     createVertexData<Params>(&mRenderOp.vertexData);
     populateVertexData<VertexBufferDataProvider>(mRenderOp.vertexData,
                                                  geometryProvider);
+    LOG(INFO)
+        << "Added a geometry renderable to a scene, with number of vertices "
+        << geometryProvider.size() << std::endl;
     if (!mRenderOp.useIndexes) {
       mRenderOp.indexData = 0;
     } else {

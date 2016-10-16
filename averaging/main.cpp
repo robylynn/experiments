@@ -2,12 +2,11 @@
 #include <memory>
 
 #include <glog/logging.h>
+#include <gflags/gflags.h>
 
 #include <OGRE/Ogre.h>
 #include <OGRE/OgreRectangle2D.h>
 #include <OGRE/OgreConfigFile.h>
-
-#include <CGAL/Point_3.h>
 
 #include <cameraController.h>
 #include <windowedRenderingApp.h>
@@ -22,6 +21,11 @@
 
 #include "levelSetMeshBuilder.h"
 #include "triangleMeshGeometryProvider.h"
+
+// Default flag values
+DEFINE_bool(write_generated_level_set_mesh, false,
+            "Should the mesh created by the level set mesh builder be written "
+            "out to file?");
 
 template <typename T>
 using PositionRenderable = GeometryRenderable<PositionOnlyBufferProvider<T>>;
@@ -81,7 +85,7 @@ int main(int argc, char* argv[]) {
 
     std::function<Kernel::FT(const Kernel::Point_3&)> samplingFunction =
         [](const Kernel::Point_3& point) {
-          return CGAL::squared_distance(point, Kernel::Point_3(0, 0, 0)) - 100;
+          return CGAL::squared_distance(point, Kernel::Point_3(0, 0, 0)) - 400;
         };
 
     using TMeshRepresentation = typename LevelSetMeshBuilder<>::Representation;
@@ -89,13 +93,13 @@ int main(int argc, char* argv[]) {
         TriangleMeshGeometryProvider<TMeshRepresentation>;
 
     LevelSetMeshBuilder<> meshBuilder;
-    TMeshRepresentation meshRep = meshBuilder.buildMesh(
-        samplingFunction, Kernel::Sphere_3(CGAL::ORIGIN, 1000), 1);
+    CGAL::Polyhedron_3<Kernel> meshRep;
+    meshBuilder.buildMesh(samplingFunction,
+                          Kernel::Sphere_3(CGAL::ORIGIN, 1000), 1, meshRep);
     TMeshGeometryProvider meshGeometryProvider(meshRep);
     auto meshRenderable = new Renderable<TMeshGeometryProvider>();
     meshRenderable->setVertexData(
         RenderBufferProvider<TMeshGeometryProvider>(meshGeometryProvider));
-
     sceneManager->getRootSceneNode()->createChildSceneNode()->attachObject(
         meshRenderable);
 
