@@ -2,6 +2,7 @@ set(GEOMETRY_TEST_SOURCE_FILES
   "geometry/cuboidTest.cpp"
   "geometry/polyloopTest.cpp"
   "geometry/triangleMeshTest.cpp"
+  "geometry/uniformPlanarGridTest.cpp"
   "geometry/uniformVoxelGridTest.cpp")
 
 set(UTILS_TEST_SOURCE_FILES

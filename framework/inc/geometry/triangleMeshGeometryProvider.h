@@ -65,7 +65,6 @@ class TriangleMeshGeometryProvider : public ProviderPolicy {
     }
 
     const Kernel::Point_3& dereference() const {
-      std::cout << "Here " << std::endl;
       return m_adaptor->dereference(m_facetVertexIter);
     }
 
