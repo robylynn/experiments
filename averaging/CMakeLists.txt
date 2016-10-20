@@ -1,3 +1,5 @@
+include(CopyOgreResources)
+
 project(averaging)
 
 # TODO msati3: Going forward, split windowing component into library
@@ -29,20 +31,5 @@ target_link_libraries(averaging ${Boost_LIBRARIES}
   rendering
   averagingLib)
 
-# Copy over OGRE plugins file to built directory
-add_custom_command(TARGET averaging POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E  copy
-  ${CMAKE_CURRENT_SOURCE_DIR}/plugins.cfg ${PROJECT_BINARY_DIR})
-add_custom_command(TARGET averaging POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E  copy
-  ${CMAKE_CURRENT_SOURCE_DIR}/resources.cfg
-  ${PROJECT_BINARY_DIR})
-add_custom_command(TARGET averaging POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E  make_directory
-  ${CMAKE_CURRENT_SOURCE_DIR}/materials)
-add_custom_command(TARGET averaging POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E  copy_directory
-  ${CMAKE_CURRENT_SOURCE_DIR}/materials
-  ${PROJECT_BINARY_DIR}/materials)
-
+copy_standard_ogre_resources(averaging)
 add_subdirectory(tests)
