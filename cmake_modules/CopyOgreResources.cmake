@@ -14,5 +14,4 @@ add_custom_command(TARGET ${TargetName} POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E  copy_directory
   ${CMAKE_CURRENT_SOURCE_DIR}/materials
   ${PROJECT_BINARY_DIR}/materials)
-  message(${CMAKE_CURRENT_SOURCE_DIR})
 endfunction()
