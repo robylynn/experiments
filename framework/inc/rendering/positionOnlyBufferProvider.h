@@ -35,7 +35,8 @@ class PositionOnlyBufferProvider {
       : m_provider(&geometryProvider),
         m_beginFn(
             std::bind(&SequentialGeometryProvider::begin, &geometryProvider)),
-        m_endFn(std::bind(&SequentialGeometryProvider::end)) {}
+        m_endFn(
+            std::bind(&SequentialGeometryProvider::end, &geometryProvider)) {}
 
   // Use to provide own sequential geometry provider, as well as functions that
   // return begin and end iterators over the geometry provider's geometry.
@@ -152,7 +153,8 @@ class PositionOnlyBufferProvider {
 
  private:
   const SequentialGeometryProvider* m_provider;
-  std::function<typename SequentialGeometryProvider::const_iterator()> m_beginFn;
+  std::function<typename SequentialGeometryProvider::const_iterator()>
+      m_beginFn;
   std::function<typename SequentialGeometryProvider::const_iterator()> m_endFn;
 };
 

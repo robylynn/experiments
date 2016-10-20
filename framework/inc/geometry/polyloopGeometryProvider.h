@@ -30,7 +30,7 @@ class PolyloopGeometryProvider : public ProviderPolicy {
 
  public:
   static constexpr int HINT_MAX_BOUND = Polyloop<PointType>::HINT_MAX_BOUND;
-  using const_iterator = decltype(m_circularContainer.begin());
+  using const_iterator = decltype(std::declval<CirculatorContainer&>().begin());
 
  public:
   PolyloopGeometryProvider(const Polyloop<PointType>& polyloop);

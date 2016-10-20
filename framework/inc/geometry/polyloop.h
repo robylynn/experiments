@@ -28,7 +28,7 @@ class Polyloop {
 
   // A hint on the maximum size that a polyloop may have. This may be useful
   // for rendering in non-immediate mode.
-  static constexpr size_t HINT_MAX_BOUND = 1000;
+  static constexpr size_t HINT_MAX_BOUND = 10000;
 
   Polyloop() {}
 
