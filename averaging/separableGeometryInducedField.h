@@ -32,14 +32,14 @@ template <typename Computer,
           typename GeometryTypesVariant = PointDistanceComputableTypes  //,
           /*typename Aggregator = UseDefault*/>
 class SeparableGeometryInducedField {
-  using InducedFieldType = typename Computer::result_type;
-
   using GeometryReferenceTypesVariant =
       typename boost::make_variant_over<typename boost::mpl::transform<
           typename GeometryTypesVariant::types,
           ConstReferenceTypeWrapper<boost::mpl::_1>>::type>::type;
 
  public:
+  using result_type = typename Computer::result_type;
+
   // TODO msati3: Fix initialization of GeometryInducedDistance field to make
   // parameters not dependent on extent, indexExtent, etc
   SeparableGeometryInducedField() {}
@@ -64,10 +64,10 @@ class SeparableGeometryInducedField {
         });
   }*/
 
-  InducedFieldType pointSample(const Kernel::Point_3& point) const {
-    InducedFieldType sampledValue = std::accumulate(
-        m_representations.begin(), m_representations.end(), InducedFieldType(0),
-        [this, point, &sampledValue](const InducedFieldType& init,
+  result_type operator()(const Kernel::Point_3& point) const {
+    result_type sampledValue = std::accumulate(
+        m_representations.begin(), m_representations.end(), result_type(0),
+        [this, point, &sampledValue](const result_type& init,
                                      GeometryReferenceTypesVariant repRef) {
           Computer computer(point);
           WrappedVariantInvoker<Computer> invoker(computer);

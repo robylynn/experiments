@@ -21,6 +21,7 @@
 
 #include "separableGeometryInducedField.h"
 #include "distanceFieldComputers.h"
+#include "fieldSampler.h"
 #include "levelSetMeshBuilder.h"
 #include "triangleMeshGeometryProvider.h"
 
@@ -92,7 +93,7 @@ int main(int argc, char* argv[]) {
     std::function<Kernel::FT(const Kernel::Point_3&)>
         samplingFunction = [inducedFieldCRef = std::cref(inducedField)](
             const Kernel::Point_3& point) {
-      return inducedFieldCRef.get().pointSample(point) - 1;
+      return inducedFieldCRef.get()(point) - 20;
     };
 
     using TMeshRepresentation = typename LevelSetMeshBuilder<>::Representation;

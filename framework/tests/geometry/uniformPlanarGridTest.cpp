@@ -42,6 +42,7 @@ TEST_F(UniformPlanarGridTest, iterationInitPlane) {
     ASSERT_LT(count++, grid1->size());
     EXPECT_EQ(point, *expectedIter++);
   }
+  EXPECT_EQ(count, grid1->size());
 }
 
 TEST_F(UniformPlanarGridTest, iterationInitPoints) {
@@ -51,6 +52,7 @@ TEST_F(UniformPlanarGridTest, iterationInitPoints) {
     ASSERT_LT(count++, grid2->size());
     EXPECT_EQ(point, *expectedIter++);
   }
+  EXPECT_EQ(count, grid2->size());
 }
 
 TEST_F(UniformPlanarGridTest, iterationNonSquarePoints) {
@@ -63,4 +65,18 @@ TEST_F(UniformPlanarGridTest, iterationNonSquarePoints) {
     ASSERT_LT(count++, nonSquareGrid.size());
     EXPECT_EQ(point, *expectedIter++ + Kernel::Vector_3(0, 0.5, 0));
   }
+  EXPECT_EQ(count, nonSquareGrid.size());
+}
+
+TEST_F(UniformPlanarGridTest, iterationUnitGrid) {
+  auto expectedIter = expected.begin();
+  UniformPlanarGrid unitGrid(planePoints[0], planePoints[1], planePoints[2], 1,
+                             1, GRID_EXTENT, GRID_EXTENT);
+  size_t count = 0;
+  EXPECT_EQ(unitGrid.size(), 1);
+  for (const auto& point : unitGrid) {
+    ASSERT_LT(count++, unitGrid.size());
+    EXPECT_EQ(point, Kernel::Point_3(0, 0, 0));
+  }
+  EXPECT_EQ(count, 1);
 }
