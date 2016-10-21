@@ -86,9 +86,9 @@ int main(int argc, char* argv[]) {
     sceneManager->getRootSceneNode()->createChildSceneNode()->attachObject(
         loopRenderable);
 
-    using InducedField =
+    using Field =
         SeparableGeometryInducedField<SquaredDistanceFieldComputer>;
-    InducedField inducedField;
+    Field inducedField;
     inducedField.addGeometry(p);
     std::function<Kernel::FT(const Kernel::Point_3&)>
         samplingFunction = [inducedFieldCRef = std::cref(inducedField)](

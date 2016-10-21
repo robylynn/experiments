@@ -7,6 +7,7 @@
 #include "distanceFieldComputers.h"
 #include "fieldSampler.h"
 #include "uniformPlanarGrid.h"
+#include "gradientComputer.h"
 
 class DistanceFieldTest : public ::testing::Test {
  protected:
@@ -41,4 +42,12 @@ TEST_F(DistanceFieldTest, fieldSamplerTest) {
     ++numSamples;
   }
   EXPECT_EQ(numSamples, 1);
+}
+
+TEST_F(DistanceFieldTest, gradientEstimationTest) {
+  NaiveGradientEstimator estimator(0.1);
+  GradientComputer<Field> gradientComputer(field, estimator);
+  EXPECT_EQ(gradientComputer(Kernel::Point_3(0, 0.5, 0)).y(), 0);
+  EXPECT_FLOAT_EQ(gradientComputer(Kernel::Point_3(0, 0.5, 0)).x(),
+            0.4 * 0.4 - 0.5 * 0.5);
 }

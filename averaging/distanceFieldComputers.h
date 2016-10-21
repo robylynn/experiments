@@ -17,7 +17,7 @@ class SquaredDistanceFieldComputer : public boost::static_visitor<Kernel::FT> {
   SquaredDistanceFieldComputer(const Kernel::Point_3&& point) = delete;
 
   template <typename RepType>
-  Kernel::FT operator()(const RepType& rep) const {
+  result_type operator()(const RepType& rep) const {
     return CGAL::squared_distance(rep, *m_point);
   }
 
