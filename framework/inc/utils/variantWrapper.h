@@ -20,18 +20,18 @@ struct ConstReferenceTypeWrapper {
 };
 
 // Given a variant that wraps another, invokes operations on the wrapped
-// variant type. The operation must inherit from boost::static_visitor for the
-// wrapped type.
-template <typename WrappingType, typename Operation>
+// variant type after unwrapping.
+// Concepts: The operation must proide for a result_type
+// wrapped type. The wrapping types must provide operation get.
+template <typename Operation>
 class WrappedVariantInvoker
-    : public boost::static_visitor<
-          typename WrappingType::type::type::result_type> {
+    : public boost::static_visitor<typename Operation::result_type> {
  public:
   WrappedVariantInvoker(const Operation& operation) : m_operation(operation) {}
 
-  template <typename WrappingVariantType>
-  typename WrappingType::type::type::result_type operator()(
-      const WrappingVariantType& wrappingType) {
+  template <typename WrappingType>
+  typename Operation::result_type operator()(
+      const WrappingType& wrappingType) const {
     return m_operation(wrappingType.get());
   }
 

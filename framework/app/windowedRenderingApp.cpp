@@ -68,7 +68,8 @@ bool WindowedRenderingApp::init(unsigned int width, unsigned int height) {
 
 // Non-fullscreen mode shouldn't capture mouse :(
 #if VE_PLATFORM == VE_PLATFORM_LINUX
-  paramList.insert({"x11_mouse_grab", "false"});
+  // Enable mouse grab, as that makes zooming work
+  // paramList.insert({"x11_mouse_grab", "false"});
   paramList.insert({"x11_mouse_hide", "false"});
   paramList.insert({"x11_keyboard_grab", "false"});
   paramList.insert({"XAutoRepeatOn", "true"});

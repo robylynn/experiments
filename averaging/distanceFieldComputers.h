@@ -9,7 +9,7 @@
 // squared distance of the sample from a given geometry representation.
 class SquaredDistanceFieldComputer : public boost::static_visitor<Kernel::FT> {
  public:
-  using ComputedFieldType = Kernel::FT;
+  using result_type = Kernel::FT;
 
   SquaredDistanceFieldComputer(const Kernel::Point_3& point)
       : m_point(&point) {}

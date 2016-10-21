@@ -19,6 +19,8 @@
 #include <geometryRenderable.h>
 #include <prefabs.h>
 
+#include "separableGeometryInducedField.h"
+#include "distanceFieldComputers.h"
 #include "levelSetMeshBuilder.h"
 #include "triangleMeshGeometryProvider.h"
 
@@ -63,8 +65,8 @@ int main(int argc, char* argv[]) {
 
   Polyloop<CGAL::Point_3<Kernel>> p;
   p.addPoint(CGAL::Point_3<Kernel>(0, 0, 0));
-  p.addPoint(CGAL::Point_3<Kernel>(100, 100, -100));
-  p.addPoint(CGAL::Point_3<Kernel>(100, 0, -100));
+  p.addPoint(CGAL::Point_3<Kernel>(10, 0, 0));
+  p.addPoint(CGAL::Point_3<Kernel>(0, 10, 0));
 
   if (app.init(800, 800)) {
     initScene(app.getWindowName(), "PrimaryScene");
@@ -83,10 +85,15 @@ int main(int argc, char* argv[]) {
     sceneManager->getRootSceneNode()->createChildSceneNode()->attachObject(
         loopRenderable);
 
-    std::function<Kernel::FT(const Kernel::Point_3&)> samplingFunction =
-        [](const Kernel::Point_3& point) {
-          return CGAL::squared_distance(point, Kernel::Point_3(0, 0, 0)) - 400;
-        };
+    using InducedField =
+        SeparableGeometryInducedField<SquaredDistanceFieldComputer>;
+    InducedField inducedField;
+    inducedField.addGeometry(p);
+    std::function<Kernel::FT(const Kernel::Point_3&)>
+        samplingFunction = [inducedFieldCRef = std::cref(inducedField)](
+            const Kernel::Point_3& point) {
+      return inducedFieldCRef.get().pointSample(point) - 1;
+    };
 
     using TMeshRepresentation = typename LevelSetMeshBuilder<>::Representation;
     using TMeshGeometryProvider =

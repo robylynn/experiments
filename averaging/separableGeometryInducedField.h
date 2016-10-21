@@ -4,6 +4,7 @@
 #include <boost/variant.hpp>
 #include <boost/mpl/transform.hpp>
 
+#include "geometryVariants.h"
 #include "polyloop.h"
 #include "uniformVoxelGrid.h"
 #include "variantWrapper.h"
@@ -27,10 +28,11 @@
 //
 // The aggregation of the computed values for each primitive is performed by
 // the Aggregator.
-template <typename GeometryTypesVariant, typename Computer  //,
+template <typename Computer,
+          typename GeometryTypesVariant = PointDistanceComputableTypes  //,
           /*typename Aggregator = UseDefault*/>
 class SeparableGeometryInducedField {
-  using InducedFieldType = typename Computer::ComputedFieldType;
+  using InducedFieldType = typename Computer::result_type;
 
   using GeometryReferenceTypesVariant =
       typename boost::make_variant_over<typename boost::mpl::transform<
@@ -62,14 +64,14 @@ class SeparableGeometryInducedField {
         });
   }*/
 
-  InducedFieldType pointSample(const Kernel::Point_3& point) {
+  InducedFieldType pointSample(const Kernel::Point_3& point) const {
     InducedFieldType sampledValue = std::accumulate(
         m_representations.begin(), m_representations.end(), InducedFieldType(0),
         [this, point, &sampledValue](const InducedFieldType& init,
-                                     GeometryReferenceTypesVariant rep) {
-          WrappedVariantInvoker<GeometryReferenceTypesVariant, Computer>
-              invoker(Computer(point));
-          return init + boost::apply_visitor(invoker, rep);
+                                     GeometryReferenceTypesVariant repRef) {
+          Computer computer(point);
+          WrappedVariantInvoker<Computer> invoker(computer);
+          return init + boost::apply_visitor(invoker, repRef);
         });
     return sampledValue;
   }
