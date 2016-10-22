@@ -30,10 +30,18 @@ include_directories(${GTEST_INCLUDE_DIRS})
 enable_testing()
 
 target_link_libraries(frameworkTest ${GTEST_LIBRARIES}
-  ${CMAKE_THREAD_LIBS_INIT}
   ${Boost_LIBRARIES}
+  ${CMAKE_THREAD_LIBS_INIT}
   CGAL
   gmp
   mpfr
-  geometry)
+  geometry
+  ${GLOG_LIBRARIES})
 
+add_custom_command(TARGET frameworkTest POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E  make_directory
+  ${CMAKE_CURRENT_SOURCE_DIR}/data)
+add_custom_command(TARGET frameworkTest POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E  copy_directory
+  ${CMAKE_CURRENT_SOURCE_DIR}/data
+  ${CMAKE_CURRENT_BINARY_DIR}/data)

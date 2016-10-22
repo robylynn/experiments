@@ -15,7 +15,7 @@
 // with adjacent points implicitly understood to be connected to each other.
 
 // The polyloop also exposes a const iterator for its composing LineSegments
-template <typename PointType>
+template <typename PointType = Kernel::Point_3>
 class Polyloop {
   using PointsContainer = std::vector<PointType>;
 
@@ -120,6 +120,11 @@ class Polyloop {
     return Kernel::Segment_3(*iterator, *next(iterator));
   }
 };
+
+// Build a polyloop from Obj file format
+template <typename PointType>
+bool buildPolyloopFromObj(const std::string& filePath,
+                          Polyloop<PointType>& polyloop);
 
 // Add distance computation from point to CGAL
 namespace CGAL {

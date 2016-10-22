@@ -7,7 +7,6 @@ target_link_libraries(polylineVisualization ${Boost_LIBRARIES}
   ${OGRE_LIBRARIES}
   ${GLOG_LIBRARIES}
   ${OIS_LIBRARIES}
-  ${GLOG_LIBRARIES}
   ${GFLAGS_LIBRARIES}
   CGAL
   gmp

@@ -27,6 +27,14 @@ class PolyloopGeometryProviderTest : public ::testing::Test {
   Polyloop<Kernel::Point_3> p;
 };
 
+class PolyloopLoaderTest : public ::testing::Test {
+ protected:
+  virtual void SetUp() {}
+  virtual void TearDown() {}
+
+  Polyloop<Kernel::Point_3> p;
+};
+
 TEST_F(PolyloopTest, size) { EXPECT_EQ(3, p.size()); }
 
 TEST_F(PolyloopTest, next) {
@@ -56,4 +64,9 @@ TEST_F(PolyloopGeometryProviderTest, iterate) {
   for (; iter != provider.end(); ++iter)
     ;
   EXPECT_EQ(*iter, *p.begin());
+}
+
+TEST_F(PolyloopLoaderTest, loading) {
+  EXPECT_EQ(buildPolyloopFromObj("data/polyloopLoad.obj", p), true);
+  EXPECT_EQ(p.size(), 96);
 }
