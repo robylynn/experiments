@@ -46,18 +46,22 @@ bool initScene(const std::string& windowName, const std::string& sceneName) {
 
   mainCamera->setAspectRatio((float)viewport->getActualWidth() /
                              viewport->getActualHeight());
-  mainCamera->setPosition(Ogre::Vector3(0, 0, 200));
-  mainCamera->lookAt(Ogre::Vector3(0, 0, 0));
-  mainCamera->setNearClipDistance(5);
+  mainCamera->setNearClipDistance(0.1);
 
   CameraController* cameraController =
       new CameraController("mainCamera", mainCamera);
+  cameraController->setYawPitchDist(Ogre::Degree(0), Ogre::Degree(15), 10);
 }
 
 template <typename T>
 using RenderBufferProvider = PositionOnlyBufferProvider<T>;
 template <typename T>
 using Renderable = GeometryRenderable<RenderBufferProvider<T>>;
+template <typename T, typename U = DefaultMaterialPolicy<
+                          DefaultRenderPolicy<RenderBufferProvider<T>>>>
+using MaterialRenderable =
+    GeometryRenderable<RenderBufferProvider<T>,
+                       DefaultRenderPolicy<RenderBufferProvider<T>>, U>;
 
 int main(int argc, char* argv[]) {
   google::InitGoogleLogging(argv[0]);
@@ -65,9 +69,12 @@ int main(int argc, char* argv[]) {
   WindowedRenderingApp app("Smoothing");
 
   Polyloop<CGAL::Point_3<Kernel>> p;
-  p.addPoint(CGAL::Point_3<Kernel>(0, 0, 0));
-  p.addPoint(CGAL::Point_3<Kernel>(10, 0, 0));
-  p.addPoint(CGAL::Point_3<Kernel>(0, 10, 0));
+  buildPolyloopFromObj("data/loop1.obj", p);
+
+  // Customize some materials
+  using MaterialPolicyFunctor = std::function<std::string(void)>;
+  MaterialPolicyFunctor transparentMeshPolicy =
+      []() { return "Materials/DefaultTransparentTriangles"; };
 
   if (app.init(800, 800)) {
     initScene(app.getWindowName(), "PrimaryScene");
@@ -92,7 +99,7 @@ int main(int argc, char* argv[]) {
     std::function<Kernel::FT(const Kernel::Point_3&)>
         samplingFunction = [inducedFieldCRef = std::cref(inducedField)](
             const Kernel::Point_3& point) {
-      return inducedFieldCRef.get()(point) - 20;
+      return inducedFieldCRef.get()(point) - 2;
     };
 
     using TMeshRepresentation = typename LevelSetMeshBuilder<>::Representation;
@@ -101,10 +108,12 @@ int main(int argc, char* argv[]) {
 
     LevelSetMeshBuilder<> meshBuilder;
     CGAL::Polyhedron_3<Kernel> meshRep;
-    meshBuilder.buildMesh(samplingFunction,
-                          Kernel::Sphere_3(CGAL::ORIGIN, 1000), 1, meshRep);
+    meshBuilder.buildMesh(samplingFunction, Kernel::Sphere_3(CGAL::ORIGIN, 100),
+                          1, meshRep);
     TMeshGeometryProvider meshGeometryProvider(meshRep);
-    auto meshRenderable = new Renderable<TMeshGeometryProvider>();
+    auto meshRenderable =
+        new MaterialRenderable<TMeshGeometryProvider, MaterialPolicyFunctor>(
+            transparentMeshPolicy);
     meshRenderable->setVertexData(
         RenderBufferProvider<TMeshGeometryProvider>(meshGeometryProvider));
     sceneManager->getRootSceneNode()->createChildSceneNode()->attachObject(
@@ -113,12 +122,12 @@ int main(int argc, char* argv[]) {
     Ogre::SceneNode* planeNode =
         sceneManager->getRootSceneNode()->createChildSceneNode();
     planeNode->attachObject(getPrefab(Prefab::PLANE));
-    planeNode->setScale(100, 100, 100);
+    planeNode->setScale(10, 10, 10);
 
     Ogre::SceneNode* axesNode =
         sceneManager->getRootSceneNode()->createChildSceneNode();
     axesNode->attachObject(getPrefab(Prefab::AXES));
-    axesNode->setScale(10, 10, 10);
+    axesNode->setScale(1, 1, 1);
 
     /*UniformVoxelGrid voxelGrid(30.0, 5);
     using VoxelGeometryProvider =

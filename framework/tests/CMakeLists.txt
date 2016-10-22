@@ -1,5 +1,6 @@
 set(GEOMETRY_TEST_SOURCE_FILES
   "geometry/cuboidTest.cpp"
+  "geometry/polylineTest.cpp"
   "geometry/polyloopTest.cpp"
   "geometry/triangleMeshTest.cpp"
   "geometry/uniformPlanarGridTest.cpp"
@@ -38,9 +39,6 @@ target_link_libraries(frameworkTest ${GTEST_LIBRARIES}
   geometry
   ${GLOG_LIBRARIES})
 
-add_custom_command(TARGET frameworkTest POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E  make_directory
-  ${CMAKE_CURRENT_SOURCE_DIR}/data)
 add_custom_command(TARGET frameworkTest POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E  copy_directory
   ${CMAKE_CURRENT_SOURCE_DIR}/data

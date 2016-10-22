@@ -31,4 +31,5 @@ TEST_F(PositionOnlyProviderTest, iterate) {
     EXPECT_EQ(*iter, *expectedValuePtr++);
     ++count;
   }
+  EXPECT_EQ(count, sizeof(unrolledValues) / sizeof(unrolledValues[0]));
 }

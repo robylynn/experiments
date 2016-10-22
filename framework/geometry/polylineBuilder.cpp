@@ -2,21 +2,19 @@
 
 #include <glog/logging.h>
 
-#include <CGAL/Point_3.h>
-#include "polyloop.h"
+#include "polyline.h"
 
-// Creates a polyloop from an obj file
+// Creates a polyline from an obj file
 template <>
-bool buildPolyloopFromObj<Kernel::Point_3>(
-    const std::string& filePath, Polyloop<Kernel::Point_3>& polyloop) {
+bool buildPolylineFromObj<Kernel::Point_3>(
+    const std::string& filePath, Polyline<Kernel::Point_3>& polyline) {
   std::ifstream file(filePath);
 
   if (!file.good()) {
-    LOG(ERROR) << "File handle not accesible for building polyloop from file "
+    LOG(ERROR) << "File handle not accesible for building polyline from file "
                << filePath;
   }
 
-  bool fClosedLoop = false;
   std::string word;
 
   // TODO msati3: Currently, just ensures consistency of numbering, more
@@ -25,23 +23,12 @@ bool buildPolyloopFromObj<Kernel::Point_3>(
   size_t lastIndex = START_INDEX;
   size_t nextIndex;
 
-  // Do not add the last point, which is repeated, and implicitly represented
-  // in the polyloop representation.
-  Kernel::Point_3 lastPoint;
-  size_t numVertices = 0;
   while (file >> word) {
     if (word == "v") {
       Kernel::Point_3 point;
       file >> point;
-      if (numVertices++ != 0) {
-        polyloop.addPoint(lastPoint);
-      }
-      lastPoint = point;
+      polyline.addPoint(point);
     } else if (word == "l") {
-      if (fClosedLoop) {
-        LOG(ERROR) << "Encountered additional segment after loop was closed";
-        return false;
-      }
       file >> nextIndex;
       if (nextIndex != lastIndex) {
         LOG(ERROR) << "Curve in obj file skips an index (last, next) indices: "
@@ -51,7 +38,6 @@ bool buildPolyloopFromObj<Kernel::Point_3>(
       file >> nextIndex;
       if (nextIndex != ++lastIndex) {
         if (nextIndex == START_INDEX) {
-          fClosedLoop = true;
         } else {
           LOG(ERROR)
               << "Curve in obj file is not ordered (last, next) indices: "
@@ -61,9 +47,5 @@ bool buildPolyloopFromObj<Kernel::Point_3>(
       }
     }
   }
-
-  if (!fClosedLoop) {
-    LOG(ERROR) << "Polyloop is not closed";
-  }
-  return fClosedLoop;
+  return true;
 }

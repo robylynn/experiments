@@ -1,5 +1,6 @@
 add_library(geometry
   cuboidGeometryProvider.cpp
+  polylineBuilder.cpp
   polyloopBuilder.cpp
   uniformVoxelGrid.cpp)
 

@@ -20,23 +20,12 @@ template <typename VertexBufferDataProvider,
           typename MaterialPolicy = DefaultMaterialPolicy<RenderPolicy>>
 class GeometryRenderable : public Ogre::SimpleRenderable {
  public:
-  GeometryRenderable() : m_materialPolicy(m_renderPolicy) {
-    mRenderOp.useIndexes = m_renderPolicy.useIndexes;
-    mRenderOp.operationType = m_renderPolicy.operationType;
-
-    LOG(INFO) << "Creating a geometry renderable, with renderPolicy type "
-              << m_renderPolicy.operationType << " and material "
-              << m_materialPolicy.getMaterial();
-
-    // Set material from material policy
-    setMaterial(m_materialPolicy.getMaterial());
-
-    // Set to infinite bounding box
-    // TODO msati3: Perhaps remove this hardcoding later
-    Ogre::AxisAlignedBox aabInf;
-    aabInf.setInfinite();
-    setBoundingBox(aabInf);
+  GeometryRenderable(const MaterialPolicy& materialPolicy)
+      : m_materialPolicy(materialPolicy) {
+    init();
   }
+
+  GeometryRenderable() : m_materialPolicy(m_renderPolicy) { init(); }
 
   void setVertexData(const VertexBufferDataProvider& geometryProvider) {
     using Params = typename VertexBufferDataProvider::Params;
@@ -63,6 +52,24 @@ class GeometryRenderable : public Ogre::SimpleRenderable {
   Ogre::Real getBoundingRadius() const override { return 1000; }
 
  private:
+  void init() {
+    mRenderOp.useIndexes = m_renderPolicy.useIndexes;
+    mRenderOp.operationType = m_renderPolicy.operationType;
+
+    LOG(INFO) << "Creating a geometry renderable, with renderPolicy type "
+              << m_renderPolicy.operationType << " and material "
+              << m_materialPolicy();
+
+    // Set material from material policy
+    setMaterial(m_materialPolicy());
+
+    // Set to infinite bounding box
+    // TODO msati3: Perhaps remove this hardcoding later
+    Ogre::AxisAlignedBox aabInf;
+    aabInf.setInfinite();
+    setBoundingBox(aabInf);
+  }
+
   RenderPolicy m_renderPolicy;
   MaterialPolicy m_materialPolicy;
 };

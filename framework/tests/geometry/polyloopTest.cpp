@@ -61,12 +61,12 @@ TEST_F(PolyloopGeometryProviderTest, size) {
 TEST_F(PolyloopGeometryProviderTest, iterate) {
   PolyloopGeometryProvider<Kernel::Point_3> provider(p);
   auto iter = provider.begin();
-  for (; iter != provider.end(); ++iter)
-    ;
+  for (; iter != provider.end(); ++iter) {
+  }
   EXPECT_EQ(*iter, *p.begin());
 }
 
 TEST_F(PolyloopLoaderTest, loading) {
   EXPECT_EQ(buildPolyloopFromObj("data/polyloopLoad.obj", p), true);
-  EXPECT_EQ(p.size(), 96);
+  EXPECT_EQ(p.size(), 95);
 }

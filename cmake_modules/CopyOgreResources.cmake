@@ -8,9 +8,6 @@ add_custom_command(TARGET ${TargetName} POST_BUILD
   ${CMAKE_CURRENT_SOURCE_DIR}/resources.cfg
   ${PROJECT_BINARY_DIR})
 add_custom_command(TARGET ${TargetName} POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E  make_directory
-  ${CMAKE_CURRENT_SOURCE_DIR}/materials)
-add_custom_command(TARGET ${TargetName} POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E  copy_directory
   ${CMAKE_CURRENT_SOURCE_DIR}/materials
   ${PROJECT_BINARY_DIR}/materials)

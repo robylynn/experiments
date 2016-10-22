@@ -32,4 +32,14 @@ target_link_libraries(averaging ${Boost_LIBRARIES}
   averagingLib)
 
 copy_standard_ogre_resources(averaging)
+
+# Copy data folder
+#add_custom_command(TARGET averaging POST_BUILD
+#  COMMAND ${CMAKE_COMMAND} -E  make_directory
+#  ${CMAKE_CURRENT_SOURCE_DIR}/data)
+add_custom_command(TARGET averaging POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E  copy_directory
+  ${CMAKE_CURRENT_SOURCE_DIR}/data
+  ${CMAKE_CURRENT_BINARY_DIR}/data)
+
 add_subdirectory(tests)

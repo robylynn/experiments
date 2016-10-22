@@ -18,12 +18,8 @@ class DefaultRenderPolicy {
       VertexBufferDataProvider::Params::useIndexes;
 };
 
-// The default MaterialPolicy specifies that, depending on the RenderPolicy
-// primitive type, the material is such that, for point primitives, black color
-// is used, for line primitives, black colored lines with red colored points
-// are drawn, while, for triangle primitives, yellow filled triangles, with
-// black edges, and red vertices are drawn. These colors are parameterized in
-// the materials constructor, though, and can be overridden.
+// The default MaterialPolicy is a unary functor that, depending on the
+// RenderPolicy primitive type provides a default material.
 template <typename RenderPolicy>
 class DefaultMaterialPolicy {
  public:
@@ -49,7 +45,7 @@ class DefaultMaterialPolicy {
     }
   }
 
-  std::string getMaterial() { return m_material; }
+  std::string operator()() { return m_material; }
 
  private:
   std::string m_material;
