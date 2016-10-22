@@ -86,8 +86,7 @@ int main(int argc, char* argv[]) {
     sceneManager->getRootSceneNode()->createChildSceneNode()->attachObject(
         loopRenderable);
 
-    using Field =
-        SeparableGeometryInducedField<SquaredDistanceFieldComputer>;
+    using Field = SeparableGeometryInducedField<SquaredDistanceFieldComputer>;
     Field inducedField;
     inducedField.addGeometry(p);
     std::function<Kernel::FT(const Kernel::Point_3&)>
@@ -110,6 +109,11 @@ int main(int argc, char* argv[]) {
         RenderBufferProvider<TMeshGeometryProvider>(meshGeometryProvider));
     sceneManager->getRootSceneNode()->createChildSceneNode()->attachObject(
         meshRenderable);
+
+    Ogre::SceneNode* planeNode =
+        sceneManager->getRootSceneNode()->createChildSceneNode();
+    planeNode->attachObject(getPrefab(Prefab::PLANE));
+    planeNode->setScale(100, 100, 100);
 
     Ogre::SceneNode* axesNode =
         sceneManager->getRootSceneNode()->createChildSceneNode();

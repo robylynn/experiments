@@ -18,6 +18,9 @@ class PrefabFactory {
         case Prefab::AXES:
           createdObject = createCoordinateAxes();
           break;
+        case Prefab::PLANE:
+          createdObject = createPlane();
+          break;
         default:
           LOG(ERROR) << "Requested a prefab that is not present in the "
                         "prefab library";

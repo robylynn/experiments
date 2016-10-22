@@ -8,6 +8,7 @@
 
 enum class Prefab : unsigned int {
   AXES,
+  PLANE,
 };
 
 Ogre::ManualObject* getPrefab(const Prefab& prefab);
