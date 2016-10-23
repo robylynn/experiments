@@ -37,9 +37,9 @@ before_install:
   - sudo apt-get install libois-dev
 
     # install CEGUI
-  - curl -L -o CEGUI.tar.bz2 http://downloads.sourceforge.net/project/crayzedsgui/CEGUI%20Mk-2/0.8/cegui-0.8.7.tar.bz2?r=http%3A%2F%2Fcegui.org.uk%2Fdownload&ts=1477257533&use_mirror=pilotfiber
+  - curl -L -o CEGUI.tar.bz2 "http://downloads.sourceforge.net/project/crayzedsgui/CEGUI%20Mk-2/0.8/cegui-0.8.7.tar.bz2?r=http%3A%2F%2Fcegui.org.uk%2Fdownload&ts=1477257533&use_mirror=pilotfiber"
   - tar xvf CEGUI.tar.bz2
-  - (cd CEGUI; mkdir build; cd build; cmake -D CMAKE_BUILD_TYPE=Release ..; make; sudo make install; sudo ldconfig)
+  - (cd cegui-0.8.7; mkdir build; cd build; cmake -D CMAKE_BUILD_TYPE=Release ..; make; sudo make install; sudo ldconfig)
 
 script:
   - ./build.sh
