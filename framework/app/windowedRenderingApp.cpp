@@ -3,6 +3,7 @@
 #include <glog/logging.h>
 
 #include <OGRE/Ogre.h>
+#include <CEGUI/CEGUI.h>
 
 #include "windowedRenderingApp.h"
 #include "inputManager.h"
@@ -85,13 +86,30 @@ bool WindowedRenderingApp::init(unsigned int width, unsigned int height) {
 
   Ogre::ConfigFile::SectionIterator secIt = cf.getSectionIterator();
   while (secIt.hasMoreElements()) {
+    std::string sectionName = secIt.peekNextKey();
     Ogre::ConfigFile::SettingsMultiMap* settings = secIt.getNext();
     for (auto iter = settings->begin(); iter != settings->end(); ++iter) {
       Ogre::ResourceGroupManager::getSingleton().addResourceLocation(
-          iter->second, iter->first);
+          iter->second, iter->first, sectionName);
     }
   }
   Ogre::ResourceGroupManager::getSingleton().initialiseAllResourceGroups();
+
+  // Set up the CEGUI system
+  m_guiRenderer =
+      &CEGUI::OgreRenderer::bootstrapSystem(*m_root->getRenderTarget(m_name));
+  CEGUI::ImageManager::setImagesetDefaultResourceGroup("ImageSets");
+  CEGUI::Font::setDefaultResourceGroup("Fonts");
+  CEGUI::Scheme::setDefaultResourceGroup("Schemes");
+  CEGUI::WidgetLookManager::setDefaultResourceGroup("LookNFeel");
+  CEGUI::WindowManager::setDefaultResourceGroup("Layouts");
+
+  // Set some default look, font and mouse arrow
+  CEGUI::SchemeManager::getSingleton().createFromFile("TaharezLook.scheme");
+  CEGUI::System::getSingleton()
+      .getDefaultGUIContext()
+      .getMouseCursor()
+      .setDefaultImage("TaharezLook/MouseArrow");
 
   m_inputSystemManager = OIS::InputManager::createInputSystem(paramList);
   m_renderLoopInputListener.reset(new RenderLoopInputListener(*this));

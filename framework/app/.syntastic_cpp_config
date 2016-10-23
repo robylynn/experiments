@@ -1,1 +1,2 @@
 -I../inc/app
+-I/usr/local/include/cegui-0/

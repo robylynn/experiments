@@ -3,6 +3,8 @@
 
 #include <memory>
 
+#include <CEGUI/CEGUI.h>
+#include <CEGUI/RendererModules/Ogre/Renderer.h>
 #include <OGRE/OgreFrameListener.h>
 #include <OIS/OIS.h>
 
@@ -42,6 +44,10 @@ class WindowedRenderingApp : public InputSystemPoller {
 
   OIS::Mouse* m_mouse;
   OIS::Keyboard* m_keyboard;
+
+  // The renderer that is provided to CEGUI -- we provide Ogre's rendering
+  // interface for CEGUI for its widget rendering
+  CEGUI::OgreRenderer* m_guiRenderer;
 
   std::unique_ptr<Ogre::Root> m_root;
   std::string m_name;

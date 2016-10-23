@@ -1,10 +1,9 @@
+include(OgreRenderingApplication)
 include(CopyOgreResources)
 
 project(averaging)
 
 # TODO msati3: Going forward, split windowing component into library
-find_package(OGRE REQUIRED)
-find_package(OIS REQUIRED)
 
 add_executable(averaging
   main.cpp)
@@ -21,22 +20,18 @@ include_directories(${ROOT_DIR}/averaging)
 link_directories(${Boost_LIBRARY_DIRS})
 
 target_link_libraries(averaging ${Boost_LIBRARIES}
-  ${OGRE_LIBRARIES}
   ${GLOG_LIBRARIES}
   ${GFLAGS_LIBRARIES}
-  ${OIS_LIBRARIES}
   ${CGAL_LIBS}
   app
   geometry
   rendering
   averagingLib)
 
+add_ogre_rendering_libraries(averaging)
 copy_standard_ogre_resources(averaging)
 
 # Copy data folder
-#add_custom_command(TARGET averaging POST_BUILD
-#  COMMAND ${CMAKE_COMMAND} -E  make_directory
-#  ${CMAKE_CURRENT_SOURCE_DIR}/data)
 add_custom_command(TARGET averaging POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E  copy_directory
   ${CMAKE_CURRENT_SOURCE_DIR}/data
