@@ -66,15 +66,18 @@ using MaterialRenderable =
 // View class that allows for rendering level set of height field
 template <class Field>
 class LevelSetMeshVisualizer {
+  static constexpr Kernel::FT MAX_LEVEL = 20;
+  static constexpr Kernel::FT MIN_LEVEL = 1;
+
  public:
   LevelSetMeshVisualizer(const Field& inducedField, Ogre::SceneNode* parent)
       : m_inducedField(&inducedField) {
     m_levelSetSceneNode = parent->createChildSceneNode();
-    setLevel(2);
+    setNormalizedLevel(0.1);
   }
 
-  void setLevel(Kernel::FT value) {
-    m_value = value;
+  void setNormalizedLevel(Kernel::FT value) {
+    m_value = (MAX_LEVEL - MIN_LEVEL) * value + MIN_LEVEL;
     addLevelSetMeshToScene();
   }
 
@@ -124,17 +127,8 @@ int main(int argc, char* argv[]) {
   Polyloop<CGAL::Point_3<Kernel>> p;
   buildPolyloopFromObj("data/loop1.obj", p);
 
-  if (app.init(800, 800)) {
+  if (app.init(1200, 900)) {
     initScene(app.getWindowName(), "PrimaryScene");
-
-    // Add widgets
-    CEGUI::WindowManager& windowManager = CEGUI::WindowManager::getSingleton();
-    CEGUI::Window* rootWindow =
-        windowManager.createWindow("DefaultWindow", "rootWin");
-    CEGUI::System::getSingleton().getDefaultGUIContext().setRootWindow(rootWindow);
-    CEGUI::Window* levelSetWindow =
-        windowManager.loadLayoutFromFile("AveragingMain.layout");
-    rootWindow->addChild(levelSetWindow);
 
     Ogre::Root* root = Ogre::Root::getSingletonPtr();
     Ogre::SceneManager* sceneManager = root->getSceneManager("PrimaryScene");
@@ -165,6 +159,24 @@ int main(int argc, char* argv[]) {
         sceneManager->getRootSceneNode()->createChildSceneNode();
     axesNode->attachObject(getPrefab(Prefab::AXES));
     axesNode->setScale(1, 1, 1);
+
+    // Add widgets and setup callbacks
+    CEGUI::WindowManager& windowManager = CEGUI::WindowManager::getSingleton();
+    CEGUI::Window* averagingLayout =
+        windowManager.loadLayoutFromFile("Averaging.layout");
+    CEGUI::GUIContext& guiContext =
+        CEGUI::System::getSingleton().getDefaultGUIContext();
+    guiContext.getRootWindow()->addChild(averagingLayout);
+    auto levelSetSliderChangeHandler =
+        [&meshVisualizer](const CEGUI::EventArgs& eventArgs) {
+          meshVisualizer->setNormalizedLevel(
+              static_cast<CEGUI::Slider*>(
+                  static_cast<const CEGUI::WindowEventArgs*>(&eventArgs)
+                      ->window)->getCurrentValue());
+        };
+    guiContext.getRootWindow()->getChild("LevelSetSlider")
+        ->subscribeEvent(CEGUI::Slider::EventThumbTrackEnded,
+                         CEGUI::Event::Subscriber(levelSetSliderChangeHandler));
 
     /*UniformVoxelGrid voxelGrid(30.0, 5);
     using VoxelGeometryProvider =

@@ -96,6 +96,24 @@ bool WindowedRenderingApp::init(unsigned int width, unsigned int height) {
   }
   Ogre::ResourceGroupManager::getSingleton().initialiseAllResourceGroups();
 
+  m_inputSystemManager = OIS::InputManager::createInputSystem(paramList);
+  m_renderLoopInputListener.reset(new RenderLoopInputListener(*this));
+  m_root->addFrameListener(m_renderLoopInputListener.get());
+
+  m_keyboard = static_cast<OIS::Keyboard*>(
+      m_inputSystemManager->createInputObject(OIS::OISKeyboard, true));
+  std::shared_ptr<KeyboardManager> keyboardManager(new KeyboardManager());
+  m_keyboard->setEventCallback(keyboardManager.get());
+  m_notificationsManager.registerNotifier(KeyboardManager::NOTIFIER_NAME,
+                                          keyboardManager);
+
+  m_mouse = static_cast<OIS::Mouse*>(
+      m_inputSystemManager->createInputObject(OIS::OISMouse, true));
+  std::shared_ptr<MouseManager> mouseManager(new MouseManager());
+  m_mouse->setEventCallback(mouseManager.get());
+  m_notificationsManager.registerNotifier(MouseManager::NOTIFIER_NAME,
+                                          mouseManager);
+
   // Set up the CEGUI system
   m_guiRenderer =
       &CEGUI::OgreRenderer::bootstrapSystem(*m_root->getRenderTarget(m_name));
@@ -114,33 +132,28 @@ bool WindowedRenderingApp::init(unsigned int width, unsigned int height) {
       .getMouseCursor()
       .setDefaultImage("TaharezLook/MouseArrow");
 
-  m_inputSystemManager = OIS::InputManager::createInputSystem(paramList);
-  m_renderLoopInputListener.reset(new RenderLoopInputListener(*this));
-  m_root->addFrameListener(m_renderLoopInputListener.get());
+  // Create root window for CEGUI. Any layout, etc are parented to this
+  CEGUI::WindowManager& windowManager = CEGUI::WindowManager::getSingleton();
+  CEGUI::Window* rootWindow =
+      windowManager.createWindow("DefaultWindow", "rootWin");
+  // Events received to the DefaultWindow are passed thru, allowing
+  // application to handle it.
+  rootWindow->setMousePassThroughEnabled(true);
+  CEGUI::System::getSingleton().getDefaultGUIContext().setRootWindow(
+      rootWindow);
 
-  m_keyboard = static_cast<OIS::Keyboard*>(
-      m_inputSystemManager->createInputObject(OIS::OISKeyboard, true));
-  std::shared_ptr<KeyboardManager> keyboardManager(new KeyboardManager());
-  m_keyboard->setEventCallback(keyboardManager.get());
-  m_notificationsManager.registerNotifier(KeyboardManager::NOTIFIER_NAME,
-                                          keyboardManager);
-
-  m_mouse = static_cast<OIS::Mouse*>(
-      m_inputSystemManager->createInputObject(OIS::OISMouse, true));
-  std::shared_ptr<MouseManager> mouseManager(new MouseManager());
-  m_mouse->setEventCallback(mouseManager.get());
-  m_notificationsManager.registerNotifier(MouseManager::NOTIFIER_NAME,
-                                          mouseManager);
+  // Attach CEGUI mouse handler, and set position
   m_guiMouseEventSubscriber.reset(new SubscriberRAIIWrapper(
       m_notificationsManager.getNotifier(MouseManager::NOTIFIER_NAME),
       m_name + "_guiHandler",
       std::bind(&WindowedRenderingApp::onMouseEvent, this,
                 std::placeholders::_1, std::placeholders::_2),
       NOTIFICATIONPRIORITY_HIGHEST));
-
   const OIS::MouseState& mouseState = m_mouse->getMouseState();
   mouseState.width = width;
   mouseState.height = height;
+  CEGUI::MouseCursor::setInitialMousePosition(
+      CEGUI::Vector2f(mouseState.X.abs, mouseState.Y.abs));
 
   return true;
 }
@@ -162,14 +175,23 @@ bool WindowedRenderingApp::onMouseEvent(const std::string& name,
   const MouseEventParams& params =
       boost::any_cast<std::reference_wrapper<const MouseEventParams>>(
           parameters);
+  CEGUI::GUIContext& guiContext =
+      CEGUI::System::getSingleton().getDefaultGUIContext();
+  static bool fMousePressCaptured = false;
 
   if (name == MouseManager::MOVED) {
-    // CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseMove()
+    guiContext.injectMousePosition(std::get<0>(params).state.X.abs,
+                                   std::get<0>(params).state.Y.abs);
+    // Always pass thru moved events
   } else if (name == MouseManager::PRESSED) {
-    return CEGUI::System::getSingleton()
-        .getDefaultGUIContext()
-        .injectMouseButtonDown(
-            static_cast<CEGUI::MouseButton>(std::get<1>(params)));
+    fMousePressCaptured = guiContext.injectMouseButtonDown(
+        static_cast<CEGUI::MouseButton>(std::get<1>(params)));
+    return fMousePressCaptured;
+  } else if (name == MouseManager::RELEASED) {
+    bool releaseHandled = guiContext.injectMouseButtonUp(
+        static_cast<CEGUI::MouseButton>(std::get<1>(params)));
+    // Handle mouse release only if mouse press is captured
+    return releaseHandled & fMousePressCaptured;
   }
   return false;
 }
