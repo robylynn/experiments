@@ -18,6 +18,7 @@
 #include <uniformVoxelGridGeometryProvider.h>
 #include <geometryRenderable.h>
 #include <prefabs.h>
+#include <geometryBackedSelectableObject.h>
 
 #include "separableGeometryInducedField.h"
 #include "distanceFieldComputers.h"
@@ -143,6 +144,9 @@ int main(int argc, char* argv[]) {
 
     sceneManager->getRootSceneNode()->createChildSceneNode()->attachObject(
         loopRenderable);
+    GeometryBackedSelectableObject<decltype(p)> selectableLoop(loopRenderable);
+    app.getSelectionManager().addSelectableObject(&selectableLoop);
+
 
     using Field = SeparableGeometryInducedField<SquaredDistanceFieldComputer>;
     Field inducedField;

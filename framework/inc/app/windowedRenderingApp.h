@@ -10,6 +10,7 @@
 #include <OIS/OIS.h>
 
 #include "notifier.h"
+#include "selectionManager.h"
 
 class InputSystemPoller {
  public:
@@ -36,9 +37,11 @@ class WindowedRenderingApp : public InputSystemPoller {
   NotificationsManager& getNotificationsManager() {
     return m_notificationsManager;
   }
+  SelectionManager& getSelectionManager() { return m_selectionManager; }
 
  private:
   NotificationsManager m_notificationsManager;
+  SelectionManager m_selectionManager;
 
   bool onMouseEvent(const std::string& name, const boost::any& parameters);
 

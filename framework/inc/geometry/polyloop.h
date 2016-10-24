@@ -101,16 +101,18 @@ class Polyloop {
   }
 
   // Algorithms on Polyloops
-  // Given a query point, find the squared distance from the polyloop
-  FieldType squaredDistance(const Kernel::Point_3& point) const {
+  // Given a query for OtherRep, implement distance as the minimum over
+  // constituent line segments
+  template <typename OtherRep>
+  FieldType squaredDistance(const OtherRep& other) const {
     const Kernel::Segment_3& closestSegment =
         *(std::min_element(beginSegment(), endSegment(),
-                           [&point](const Kernel::Segment_3& first,
+                           [&other](const Kernel::Segment_3& first,
                                     const Kernel::Segment_3& second) {
-                             return CGAL::squared_distance(point, first) <
-                                    CGAL::squared_distance(point, second);
+                             return CGAL::squared_distance(other, first) <
+                                    CGAL::squared_distance(other, second);
                            }));
-    return CGAL::squared_distance(point, closestSegment);
+    return CGAL::squared_distance(other, closestSegment);
   }
 
  private:
@@ -125,16 +127,5 @@ class Polyloop {
 template <typename PointType>
 bool buildPolyloopFromObj(const std::string& filePath,
                           Polyloop<PointType>& polyloop);
-
-// Add distance computation from point to CGAL
-namespace CGAL {
-
-template <typename PointType>
-Kernel::FT squared_distance(const Polyloop<PointType>& polyloop,
-                            const Kernel::Point_3& point) {
-  return polyloop.squaredDistance(point);
-}
-
-}  // namespace CGAL
 
 #endif  //_POLYLOOP_H_

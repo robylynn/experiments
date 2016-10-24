@@ -101,16 +101,18 @@ class Polyline {
   }
 
   // Algorithms on Polylines
-  // Given a query point, find the squared distance from the polyline
-  FieldType squaredDistance(const Kernel::Point_3& point) const {
+  // Given a query for OtherRep, implement distance as the minimum over
+  // constituent line segments
+  template <typename OtherRep>
+  FieldType squaredDistance(const OtherRep& other) const {
     const Kernel::Segment_3& closestSegment =
         *(std::min_element(beginSegment(), endSegment(),
-                           [&point](const Kernel::Segment_3& first,
+                           [&other](const Kernel::Segment_3& first,
                                     const Kernel::Segment_3& second) {
-                             return CGAL::squared_distance(point, first) <
-                                    CGAL::squared_distance(point, second);
+                             return CGAL::squared_distance(other, first) <
+                                    CGAL::squared_distance(other, second);
                            }));
-    return CGAL::squared_distance(point, closestSegment);
+    return CGAL::squared_distance(other, closestSegment);
   }
 
  private:
@@ -125,16 +127,5 @@ class Polyline {
 template <typename PointType>
 bool buildPolylineFromObj(const std::string& filePath,
                           Polyline<PointType>& polyline);
-
-// Add distance computation from point to CGAL
-namespace CGAL {
-
-template <typename PointType>
-Kernel::FT squared_distance(const Polyline<PointType>& polyline,
-                            const Kernel::Point_3& point) {
-  return polyline.squaredDistance(point);
-}
-
-}  // namespace CGAL
 
 #endif  //_POLYLINE_H_

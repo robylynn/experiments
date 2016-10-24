@@ -2,6 +2,7 @@
 
 #include "geometryVariants.h"
 #include "polyloop.h"
+#include "squaredDistance.h"
 
 #include "separableGeometryInducedField.h"
 #include "distanceFieldComputers.h"
