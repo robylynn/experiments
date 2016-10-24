@@ -238,7 +238,7 @@ void CameraController::injectMouseUp(const OIS::MouseEvent& evt,
   }
 }
 
-void CameraController::onKeyboardEvent(const std::string& name,
+bool CameraController::onKeyboardEvent(const std::string& name,
                                        const boost::any& parameters) {
   const KeyboardEventParams& params =
       boost::any_cast<std::reference_wrapper<const KeyboardEventParams>>(
@@ -248,9 +248,10 @@ void CameraController::onKeyboardEvent(const std::string& name,
   } else if (name == KeyboardManager::RELEASED) {
     injectKeyUp(params);
   }
+  return true;
 }
 
-void CameraController::onMouseEvent(const std::string& name,
+bool CameraController::onMouseEvent(const std::string& name,
                                     const boost::any& parameters) {
   const MouseEventParams& params =
       boost::any_cast<std::reference_wrapper<const MouseEventParams>>(
@@ -262,4 +263,5 @@ void CameraController::onMouseEvent(const std::string& name,
   } else if (name == MouseManager::RELEASED) {
     injectMouseUp(std::get<0>(params), std::get<1>(params));
   }
+  return true;
 }

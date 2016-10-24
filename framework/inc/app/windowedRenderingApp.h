@@ -2,6 +2,7 @@
 #define _WINDOWED_RENDERING_APP_H_
 
 #include <memory>
+#include <functional>
 
 #include <CEGUI/CEGUI.h>
 #include <CEGUI/RendererModules/Ogre/Renderer.h>
@@ -39,6 +40,8 @@ class WindowedRenderingApp : public InputSystemPoller {
  private:
   NotificationsManager m_notificationsManager;
 
+  bool onMouseEvent(const std::string& name, const boost::any& parameters);
+
   OIS::InputManager* m_inputSystemManager;
   std::unique_ptr<Ogre::FrameListener> m_renderLoopInputListener;
 
@@ -48,6 +51,7 @@ class WindowedRenderingApp : public InputSystemPoller {
   // The renderer that is provided to CEGUI -- we provide Ogre's rendering
   // interface for CEGUI for its widget rendering
   CEGUI::OgreRenderer* m_guiRenderer;
+  std::unique_ptr<SubscriberRAIIWrapper> m_guiMouseEventSubscriber;
 
   std::unique_ptr<Ogre::Root> m_root;
   std::string m_name;

@@ -4,8 +4,10 @@
 
 #include <OGRE/Ogre.h>
 #include <CEGUI/CEGUI.h>
-#include "windowedRenderingApp.h"
+
 #include "inputManager.h"
+#include "notifier.h"
+#include "windowedRenderingApp.h"
 
 namespace {
 
@@ -129,6 +131,12 @@ bool WindowedRenderingApp::init(unsigned int width, unsigned int height) {
   m_mouse->setEventCallback(mouseManager.get());
   m_notificationsManager.registerNotifier(MouseManager::NOTIFIER_NAME,
                                           mouseManager);
+  m_guiMouseEventSubscriber.reset(new SubscriberRAIIWrapper(
+      m_notificationsManager.getNotifier(MouseManager::NOTIFIER_NAME),
+      m_name + "_guiHandler",
+      std::bind(&WindowedRenderingApp::onMouseEvent, this,
+                std::placeholders::_1, std::placeholders::_2),
+      NOTIFICATIONPRIORITY_HIGHEST));
 
   const OIS::MouseState& mouseState = m_mouse->getMouseState();
   mouseState.width = width;
@@ -147,4 +155,21 @@ bool WindowedRenderingApp::poll() {
   m_keyboard->capture();
 
   return m_keyboard->isKeyDown(OIS::KC_ESCAPE);
+}
+
+bool WindowedRenderingApp::onMouseEvent(const std::string& name,
+                                        const boost::any& parameters) {
+  const MouseEventParams& params =
+      boost::any_cast<std::reference_wrapper<const MouseEventParams>>(
+          parameters);
+
+  if (name == MouseManager::MOVED) {
+    // CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseMove()
+  } else if (name == MouseManager::PRESSED) {
+    return CEGUI::System::getSingleton()
+        .getDefaultGUIContext()
+        .injectMouseButtonDown(
+            static_cast<CEGUI::MouseButton>(std::get<1>(params)));
+  }
+  return false;
 }

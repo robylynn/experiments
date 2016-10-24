@@ -13,6 +13,7 @@ bool buildPolylineFromObj<Kernel::Point_3>(
   if (!file.good()) {
     LOG(ERROR) << "File handle not accesible for building polyline from file "
                << filePath;
+    return false;
   }
 
   std::string word;

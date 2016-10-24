@@ -120,9 +120,9 @@ class CameraController {
   virtual void injectMouseUp(const OIS::MouseEvent& evt,
                              OIS::MouseButtonID id);
 
-  void onKeyboardEvent(const std::string& name, const boost::any& parameters);
+  bool onKeyboardEvent(const std::string& name, const boost::any& parameters);
 
-  void onMouseEvent(const std::string& name, const boost::any& parameters);
+  bool onMouseEvent(const std::string& name, const boost::any& parameters);
 
  private:
   SubscriberRAIIWrapper mMouseEventSubscriber;

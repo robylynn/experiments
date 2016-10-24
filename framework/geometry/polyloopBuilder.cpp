@@ -14,6 +14,7 @@ bool buildPolyloopFromObj<Kernel::Point_3>(
   if (!file.good()) {
     LOG(ERROR) << "File handle not accesible for building polyloop from file "
                << filePath;
+    return false;
   }
 
   bool fClosedLoop = false;
@@ -62,8 +63,6 @@ bool buildPolyloopFromObj<Kernel::Point_3>(
     }
   }
 
-  if (!fClosedLoop) {
-    LOG(ERROR) << "Polyloop is not closed";
-  }
+  DLOG_IF(ERROR, !fClosedLoop) << "Polyloop is not closed";
   return fClosedLoop;
 }
