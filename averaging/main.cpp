@@ -63,6 +63,59 @@ using MaterialRenderable =
     GeometryRenderable<RenderBufferProvider<T>,
                        DefaultRenderPolicy<RenderBufferProvider<T>>, U>;
 
+// View class that allows for rendering level set of height field
+template <class Field>
+class LevelSetMeshVisualizer {
+ public:
+  LevelSetMeshVisualizer(const Field& inducedField, Ogre::SceneNode* parent)
+      : m_inducedField(&inducedField) {
+    m_levelSetSceneNode = parent->createChildSceneNode();
+    setLevel(2);
+  }
+
+  void setLevel(Kernel::FT value) {
+    m_value = value;
+    addLevelSetMeshToScene();
+  }
+
+  void addLevelSetMeshToScene() {
+    // Customize some materials
+    using MaterialPolicyFunctor = std::function<std::string(void)>;
+    MaterialPolicyFunctor transparentMeshPolicy =
+        []() { return "Materials/DefaultTransparentTriangles"; };
+
+    using TMeshRepresentation = typename LevelSetMeshBuilder<>::Representation;
+    using TMeshGeometryProvider =
+        TriangleMeshGeometryProvider<TMeshRepresentation>;
+
+    std::function<Kernel::FT(const Kernel::Point_3&)> samplingFunction =
+        [ this, inducedFieldCRef = std::cref(*m_inducedField) ](
+            const Kernel::Point_3& point) {
+      return inducedFieldCRef.get()(point) - m_value;
+    };
+
+    LevelSetMeshBuilder<> meshBuilder;
+    CGAL::Polyhedron_3<Kernel> meshRep;
+    meshBuilder.buildMesh(samplingFunction, Kernel::Sphere_3(CGAL::ORIGIN, 100),
+                          1, meshRep);
+    TMeshGeometryProvider meshGeometryProvider(meshRep);
+    auto meshRenderable =
+        new MaterialRenderable<TMeshGeometryProvider, MaterialPolicyFunctor>(
+            transparentMeshPolicy);
+    meshRenderable->setVertexData(
+        RenderBufferProvider<TMeshGeometryProvider>(meshGeometryProvider));
+
+    // Remove all children from scene node, and re-populate with new level-set
+    m_levelSetSceneNode->removeAndDestroyAllChildren();
+    m_levelSetSceneNode->attachObject(meshRenderable);
+  }
+
+ private:
+  Kernel::FT m_value;
+  Ogre::SceneNode* m_levelSetSceneNode;
+  const Field* m_inducedField;
+};
+
 int main(int argc, char* argv[]) {
   google::InitGoogleLogging(argv[0]);
 
@@ -71,13 +124,17 @@ int main(int argc, char* argv[]) {
   Polyloop<CGAL::Point_3<Kernel>> p;
   buildPolyloopFromObj("data/loop1.obj", p);
 
-  // Customize some materials
-  using MaterialPolicyFunctor = std::function<std::string(void)>;
-  MaterialPolicyFunctor transparentMeshPolicy =
-      []() { return "Materials/DefaultTransparentTriangles"; };
-
   if (app.init(800, 800)) {
     initScene(app.getWindowName(), "PrimaryScene");
+
+    // Add widgets
+    CEGUI::WindowManager& windowManager = CEGUI::WindowManager::getSingleton();
+    CEGUI::Window* rootWindow =
+        windowManager.createWindow("DefaultWindow", "rootWin");
+    CEGUI::System::getSingleton().getDefaultGUIContext().setRootWindow(rootWindow);
+    CEGUI::Window* levelSetWindow =
+        windowManager.loadLayoutFromFile("AveragingMain.layout");
+    rootWindow->addChild(levelSetWindow);
 
     Ogre::Root* root = Ogre::Root::getSingletonPtr();
     Ogre::SceneManager* sceneManager = root->getSceneManager("PrimaryScene");
@@ -96,28 +153,8 @@ int main(int argc, char* argv[]) {
     using Field = SeparableGeometryInducedField<SquaredDistanceFieldComputer>;
     Field inducedField;
     inducedField.addGeometry(p);
-    std::function<Kernel::FT(const Kernel::Point_3&)>
-        samplingFunction = [inducedFieldCRef = std::cref(inducedField)](
-            const Kernel::Point_3& point) {
-      return inducedFieldCRef.get()(point) - 2;
-    };
-
-    using TMeshRepresentation = typename LevelSetMeshBuilder<>::Representation;
-    using TMeshGeometryProvider =
-        TriangleMeshGeometryProvider<TMeshRepresentation>;
-
-    LevelSetMeshBuilder<> meshBuilder;
-    CGAL::Polyhedron_3<Kernel> meshRep;
-    meshBuilder.buildMesh(samplingFunction, Kernel::Sphere_3(CGAL::ORIGIN, 100),
-                          1, meshRep);
-    TMeshGeometryProvider meshGeometryProvider(meshRep);
-    auto meshRenderable =
-        new MaterialRenderable<TMeshGeometryProvider, MaterialPolicyFunctor>(
-            transparentMeshPolicy);
-    meshRenderable->setVertexData(
-        RenderBufferProvider<TMeshGeometryProvider>(meshGeometryProvider));
-    sceneManager->getRootSceneNode()->createChildSceneNode()->attachObject(
-        meshRenderable);
+    auto meshVisualizer = new LevelSetMeshVisualizer<Field>(
+        inducedField, sceneManager->getRootSceneNode());
 
     Ogre::SceneNode* planeNode =
         sceneManager->getRootSceneNode()->createChildSceneNode();

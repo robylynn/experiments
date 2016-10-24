@@ -4,7 +4,6 @@
 
 #include <OGRE/Ogre.h>
 #include <CEGUI/CEGUI.h>
-
 #include "windowedRenderingApp.h"
 #include "inputManager.h"
 
@@ -106,6 +105,8 @@ bool WindowedRenderingApp::init(unsigned int width, unsigned int height) {
 
   // Set some default look, font and mouse arrow
   CEGUI::SchemeManager::getSingleton().createFromFile("TaharezLook.scheme");
+  CEGUI::System::getSingleton().getDefaultGUIContext().setDefaultFont(
+      "DejaVuSans-12");
   CEGUI::System::getSingleton()
       .getDefaultGUIContext()
       .getMouseCursor()

@@ -1,0 +1,5 @@
+-I/usr/local/include/cegui-0
+-I../framework/inc/app
+-I../framework/inc/geometry
+-I../framework/inc/rendering
+-I../framework/inc/utils
