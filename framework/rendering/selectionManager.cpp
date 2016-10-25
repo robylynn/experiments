@@ -1,6 +1,9 @@
 #include <queue>
 
 #include <OGRE/OgreSceneManager.h>
+#include <OGRE/OgreRoot.h>
+#include <OGRE/OgreManualObject.h>
+#include <OGRE/OgreRenderOperation.h>
 
 #include "selectionManager.h"
 
@@ -8,8 +11,34 @@ void SelectionManager::selectionQuery(float mouseX, float mouseY) {
   Ogre::Ray selectionRay = m_camera->getCameraToViewportRay(mouseX, mouseY);
   Ogre::RaySceneQuery* rayQuery =
       m_camera->getSceneManager()->createRayQuery(Ogre::Ray());
+  rayQuery->setQueryTypeMask(SELECTIONQUERYFLAG_SELECTABLE);
   rayQuery->setRay(selectionRay);
   rayQuery->setSortByDistance(false);
+
+  Ogre::Root* root = Ogre::Root::getSingletonPtr();
+  Ogre::SceneManager* sceneManager = root->getSceneManager("PrimaryScene");
+  Ogre::AxisAlignedBox box;
+  Ogre::Vector3 max(100000, 100000, 100000);
+  box.setExtents(-max, max);
+  sceneManager->setOption("Size", &box);
+
+  // Debug ray query
+  /*
+  Ogre::Root* root = Ogre::Root::getSingletonPtr();
+  Ogre::SceneManager* sceneManager = root->getSceneManager("PrimaryScene");
+  Ogre::ManualObject* rayObject =
+      sceneManager->createManualObject("rayQueryManual");
+  rayObject->begin("Materials/DefaultLines",
+                   Ogre::RenderOperation::OT_LINE_LIST);
+  rayObject->position(selectionRay.getOrigin().x,
+  selectionRay.getOrigin().y,
+                      selectionRay.getOrigin().z);
+  rayObject->position(
+      selectionRay.getOrigin().x + selectionRay.getDirection().x * 50,
+      selectionRay.getOrigin().y + selectionRay.getDirection().y * 50,
+      selectionRay.getOrigin().z + selectionRay.getDirection().z * 50);
+  rayObject->end();
+  sceneManager->getRootSceneNode()->attachObject(rayObject);*/
 
   Ogre::RaySceneQueryResult& result = rayQuery->execute();
 
@@ -27,5 +56,8 @@ void SelectionManager::selectionQuery(float mouseX, float mouseY) {
           selectableObject->queryDistance(selectionRay), selectableObject));
     }
   }
-  std::get<1>(distanceQueue.top())->setSelected(selectionRay);
+  if (!distanceQueue.empty()) {
+    std::cout << "Selected" << std::endl;
+    std::get<1>(distanceQueue.top())->setSelected(selectionRay);
+  }
 }

@@ -3,9 +3,14 @@
 
 #include <glog/logging.h>
 
+#include <CGAL/bounding_box.h>
+
 #include <OGRE/OgreRenderOperation.h>
 
+#include "containerAlgorithms.h"
+#include "geometryInterop.h"
 #include "renderingConstants.h"
+#include "vertexElement.h"
 
 // The default RenderPolicy specifies that the operation type is the typedef
 // GeometryProvider::PRIMIIVE_TYPE
@@ -49,6 +54,30 @@ class DefaultMaterialPolicy {
 
  private:
   std::string m_material;
+};
+
+// Computes a bounding box off the VertexBufferDataProvider, or, returns a
+// default constructed infinite bounding box
+template <typename VertexBufferDataProvider>
+class DefaultBoundingBoxProvider {
+ public:
+  DefaultBoundingBoxProvider() { m_boundingBox.setInfinite(); }
+
+  DefaultBoundingBoxProvider(const VertexBufferDataProvider& dataProvider) {
+    auto pointIterBegin = utils::tuple_iterator<
+        decltype(dataProvider.begin(PositionVertexElement())), 3,
+        Kernel::Point_3>::begin(dataProvider.begin(PositionVertexElement()),
+                                dataProvider.end(PositionVertexElement()));
+    Kernel::Iso_cuboid_3 cuboid = CGAL::bounding_box(
+        pointIterBegin, utils::make_end_tuple_iterator(pointIterBegin));
+
+    m_boundingBox = GeometryInterop::renderingFromGeom(cuboid);
+  }
+
+  Ogre::AxisAlignedBox operator()() { return m_boundingBox; }
+
+ private:
+  Ogre::AxisAlignedBox m_boundingBox;
 };
 
 #endif  // _FRAMEWORK_RENDERING_DEFAULTRENDERINGPOLICIES_H_

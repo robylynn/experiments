@@ -17,7 +17,9 @@
 // out of the SequentialGeometryRenderable as two policies
 template <typename VertexBufferDataProvider,
           typename RenderPolicy = DefaultRenderPolicy<VertexBufferDataProvider>,
-          typename MaterialPolicy = DefaultMaterialPolicy<RenderPolicy>>
+          typename MaterialPolicy = DefaultMaterialPolicy<RenderPolicy>,
+          typename BoundingBoxProvider =
+              DefaultBoundingBoxProvider<VertexBufferDataProvider>>
 class GeometryRenderable : public Ogre::SimpleRenderable {
  public:
   GeometryRenderable(const MaterialPolicy& materialPolicy)
@@ -29,6 +31,9 @@ class GeometryRenderable : public Ogre::SimpleRenderable {
 
   void setVertexData(const VertexBufferDataProvider& geometryProvider) {
     using Params = typename VertexBufferDataProvider::Params;
+
+    setBoundingBox(BoundingBoxProvider(geometryProvider)());
+
     createVertexData<Params>(&mRenderOp.vertexData);
     populateVertexData<VertexBufferDataProvider>(mRenderOp.vertexData,
                                                  geometryProvider);
@@ -62,12 +67,6 @@ class GeometryRenderable : public Ogre::SimpleRenderable {
 
     // Set material from material policy
     setMaterial(m_materialPolicy());
-
-    // Set to infinite bounding box
-    // TODO msati3: Perhaps remove this hardcoding later
-    Ogre::AxisAlignedBox aabInf;
-    aabInf.setInfinite();
-    setBoundingBox(aabInf);
   }
 
   RenderPolicy m_renderPolicy;

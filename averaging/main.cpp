@@ -34,16 +34,18 @@ DEFINE_bool(write_generated_level_set_mesh, false,
 template <typename T>
 using PositionRenderable = GeometryRenderable<PositionOnlyBufferProvider<T>>;
 
-bool initScene(const std::string& windowName, const std::string& sceneName) {
+bool initScene(WindowedRenderingApp& app, const std::string& sceneName) {
+  std::string windowName = app.getWindowName();
   Ogre::Root* root = Ogre::Root::getSingletonPtr();
   Ogre::SceneManager* sceneManager =
       root->createSceneManager(Ogre::ST_GENERIC, sceneName);
   sceneManager->setAmbientLight(Ogre::ColourValue(0.5, 0.5, 0.5));
 
   Ogre::Camera* mainCamera = sceneManager->createCamera("PrimaryCamera");
+  app.getSelectionManager().setCamera(*mainCamera);
   Ogre::Viewport* viewport =
       root->getRenderTarget(windowName)->addViewport(mainCamera);
-  viewport->setBackgroundColour(Ogre::ColourValue(1, 1, 1));
+  viewport->setBackgroundColour(Ogre::ColourValue(0.5, 0.5, 0.5));
 
   mainCamera->setAspectRatio((float)viewport->getActualWidth() /
                              viewport->getActualHeight());
@@ -129,7 +131,7 @@ int main(int argc, char* argv[]) {
   buildPolyloopFromObj("data/loop1.obj", p);
 
   if (app.init(1200, 900)) {
-    initScene(app.getWindowName(), "PrimaryScene");
+    initScene(app, "PrimaryScene");
 
     Ogre::Root* root = Ogre::Root::getSingletonPtr();
     Ogre::SceneManager* sceneManager = root->getSceneManager("PrimaryScene");

@@ -190,8 +190,16 @@ bool WindowedRenderingApp::onMouseEvent(const std::string& name,
   } else if (name == MouseManager::RELEASED) {
     bool releaseHandled = guiContext.injectMouseButtonUp(
         static_cast<CEGUI::MouseButton>(std::get<1>(params)));
-    // Handle mouse release only if mouse press is captured
-    return releaseHandled & fMousePressCaptured;
+
+    // Pass through to selectables if mouse press is not captured
+    if (!(releaseHandled & fMousePressCaptured)) {
+      m_selectionManager.selectionQuery(
+          std::get<0>(params).state.X.abs /
+              (float)std::get<0>(params).state.width,
+          std::get<0>(params).state.Y.abs /
+              (float)std::get<0>(params).state.height);
+    }
+    return (releaseHandled & fMousePressCaptured);
   }
   return false;
 }

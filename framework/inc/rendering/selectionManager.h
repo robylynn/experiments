@@ -7,6 +7,10 @@
 
 #include "selectableObject.h"
 
+enum SelectionQueryFlags {
+  SELECTIONQUERYFLAG_SELECTABLE = 10,
+};
+
 // Handles selection of objects based on rayshooting from the camera's
 // viewpoint. This is done thru a SelectableObject interface. Any object that
 // needs to provide selection functionality, will be a SelectableObject. A
@@ -30,6 +34,8 @@ class SelectionManager {
   void addSelectableObject(ISelectableObject* object) {
     m_selectableObjectsMap.insert(
         std::make_pair(object->movableObject(), object));
+    object->movableObject()->setQueryFlags(SELECTIONQUERYFLAG_SELECTABLE);
+    object->movableObject()->getParentSceneNode()->showBoundingBox(true);
   }
 
   void selectionQuery(float mouseX, float mouseY);

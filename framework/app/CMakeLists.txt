@@ -7,3 +7,4 @@ add_library(app
 
 add_ogre_rendering_includes(app)
 include_directories(${PROJECT_SOURCE_DIR}/inc/app)
+include_directories(${PROJECT_SOURCE_DIR}/inc/rendering)

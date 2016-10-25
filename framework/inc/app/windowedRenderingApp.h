@@ -38,6 +38,7 @@ class WindowedRenderingApp : public InputSystemPoller {
     return m_notificationsManager;
   }
   SelectionManager& getSelectionManager() { return m_selectionManager; }
+  const SelectionManager& getSelectionManager() const { return m_selectionManager; }
 
  private:
   NotificationsManager m_notificationsManager;
