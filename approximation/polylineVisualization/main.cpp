@@ -89,7 +89,7 @@ int main(int argc, char* argv[]) {
 
     LoopGeometryProvider loopGeometryProvider(p);
     auto loopRenderable = new Renderable<LoopGeometryProvider>();
-    loopRenderable->setVertexData(
+    loopRenderable->setVertexBufferData(
         RenderBufferProvider<LoopGeometryProvider>(loopGeometryProvider));
     sceneManager->getRootSceneNode()->createChildSceneNode()->attachObject(
         loopRenderable);

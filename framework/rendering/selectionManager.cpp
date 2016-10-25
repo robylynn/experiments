@@ -11,16 +11,16 @@ void SelectionManager::selectionQuery(float mouseX, float mouseY) {
   Ogre::Ray selectionRay = m_camera->getCameraToViewportRay(mouseX, mouseY);
   Ogre::RaySceneQuery* rayQuery =
       m_camera->getSceneManager()->createRayQuery(Ogre::Ray());
-  rayQuery->setQueryTypeMask(SELECTIONQUERYFLAG_SELECTABLE);
+  rayQuery->setQueryMask(SELECTIONQUERYFLAG_SELECTABLE);
   rayQuery->setRay(selectionRay);
   rayQuery->setSortByDistance(false);
 
-  Ogre::Root* root = Ogre::Root::getSingletonPtr();
+  /*Ogre::Root* root = Ogre::Root::getSingletonPtr();
   Ogre::SceneManager* sceneManager = root->getSceneManager("PrimaryScene");
   Ogre::AxisAlignedBox box;
   Ogre::Vector3 max(100000, 100000, 100000);
   box.setExtents(-max, max);
-  sceneManager->setOption("Size", &box);
+  sceneManager->setOption("Size", &box);*/
 
   // Debug ray query
   /*
@@ -41,6 +41,7 @@ void SelectionManager::selectionQuery(float mouseX, float mouseY) {
   sceneManager->getRootSceneNode()->attachObject(rayObject);*/
 
   Ogre::RaySceneQueryResult& result = rayQuery->execute();
+  std::cout << "Size of query result " << result.size() << std::endl;
 
   // Finer queries for SelectableObjects whose bounding box is intersected
   // by the ray-scene query. The query mechanism ensures that post a
@@ -59,5 +60,7 @@ void SelectionManager::selectionQuery(float mouseX, float mouseY) {
   if (!distanceQueue.empty()) {
     std::cout << "Selected" << std::endl;
     std::get<1>(distanceQueue.top())->setSelected(selectionRay);
+  } else {
+    std::cout << "Nothing selected by ray query" << std::endl;
   }
 }

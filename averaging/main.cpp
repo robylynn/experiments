@@ -17,6 +17,7 @@
 #include <uniformVoxelGrid.h>
 #include <uniformVoxelGridGeometryProvider.h>
 #include <geometryRenderable.h>
+#include <geometryMesh.h>
 #include <prefabs.h>
 #include <geometryBackedSelectableObject.h>
 
@@ -30,9 +31,6 @@
 DEFINE_bool(write_generated_level_set_mesh, false,
             "Should the mesh created by the level set mesh builder be written "
             "out to file?");
-
-template <typename T>
-using PositionRenderable = GeometryRenderable<PositionOnlyBufferProvider<T>>;
 
 bool initScene(WindowedRenderingApp& app, const std::string& sceneName) {
   std::string windowName = app.getWindowName();
@@ -57,9 +55,17 @@ bool initScene(WindowedRenderingApp& app, const std::string& sceneName) {
 }
 
 template <typename T>
+using PositionRenderable = GeometryRenderable<PositionOnlyBufferProvider<T>>;
+
+template <typename T>
 using RenderBufferProvider = PositionOnlyBufferProvider<T>;
+
 template <typename T>
 using Renderable = GeometryRenderable<RenderBufferProvider<T>>;
+
+template <typename T>
+using Meshable = GeometryMeshCreator<RenderBufferProvider<T>>;
+
 template <typename T, typename U = DefaultMaterialPolicy<
                           DefaultRenderPolicy<RenderBufferProvider<T>>>>
 using MaterialRenderable =
@@ -108,7 +114,7 @@ class LevelSetMeshVisualizer {
     auto meshRenderable =
         new MaterialRenderable<TMeshGeometryProvider, MaterialPolicyFunctor>(
             transparentMeshPolicy);
-    meshRenderable->setVertexData(
+    meshRenderable->setVertexBufferData(
         RenderBufferProvider<TMeshGeometryProvider>(meshGeometryProvider));
 
     // Remove all children from scene node, and re-populate with new level-set
@@ -140,15 +146,17 @@ int main(int argc, char* argv[]) {
         PolyloopGeometryProvider<CGAL::Point_3<Kernel>>;
 
     LoopGeometryProvider loopGeometryProvider(p);
-    auto loopRenderable = new Renderable<LoopGeometryProvider>();
-    loopRenderable->setVertexData(
+    auto loopMeshable = new Meshable<LoopGeometryProvider>("polyloop1");
+    loopMeshable->setVertexBufferData(
         RenderBufferProvider<LoopGeometryProvider>(loopGeometryProvider));
+    Ogre::Entity* loop1Entity =
+        sceneManager->createEntity("entityPolyloop1", "polyloop1");
+    loop1Entity->setMaterialName("Materials/DefaultLines");
 
     sceneManager->getRootSceneNode()->createChildSceneNode()->attachObject(
-        loopRenderable);
-    GeometryBackedSelectableObject<decltype(p)> selectableLoop(loopRenderable);
+        loop1Entity);
+    GeometryBackedSelectableObject<decltype(p)> selectableLoop(loop1Entity);
     app.getSelectionManager().addSelectableObject(&selectableLoop);
-
 
     using Field = SeparableGeometryInducedField<SquaredDistanceFieldComputer>;
     Field inducedField;
@@ -180,7 +188,8 @@ int main(int argc, char* argv[]) {
                   static_cast<const CEGUI::WindowEventArgs*>(&eventArgs)
                       ->window)->getCurrentValue());
         };
-    guiContext.getRootWindow()->getChild("LevelSetSlider")
+    guiContext.getRootWindow()
+        ->getChild("LevelSetSlider")
         ->subscribeEvent(CEGUI::Slider::EventThumbTrackEnded,
                          CEGUI::Event::Subscriber(levelSetSliderChangeHandler));
 

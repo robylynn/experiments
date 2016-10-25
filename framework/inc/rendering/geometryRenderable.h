@@ -29,17 +29,17 @@ class GeometryRenderable : public Ogre::SimpleRenderable {
 
   GeometryRenderable() : m_materialPolicy(m_renderPolicy) { init(); }
 
-  void setVertexData(const VertexBufferDataProvider& geometryProvider) {
+  void setVertexBufferData(const VertexBufferDataProvider& vertexDataProvider) {
     using Params = typename VertexBufferDataProvider::Params;
 
-    setBoundingBox(BoundingBoxProvider(geometryProvider)());
+    setBoundingBox(BoundingBoxProvider(vertexDataProvider)());
 
     createVertexData<Params>(&mRenderOp.vertexData);
     populateVertexData<VertexBufferDataProvider>(mRenderOp.vertexData,
-                                                 geometryProvider);
-    LOG(INFO)
-        << "Added a geometry renderable to a scene, with number of vertices "
-        << geometryProvider.size() << std::endl;
+                                                 vertexDataProvider);
+    LOG(INFO) << "Added a geometry renderable to a scene, with number of "
+                 "vertex coordinates " << vertexDataProvider.size()
+              << std::endl;
     if (!mRenderOp.useIndexes) {
       mRenderOp.indexData = 0;
     } else {

@@ -63,6 +63,6 @@ bool buildPolyloopFromObj<Kernel::Point_3>(
     }
   }
 
-  DLOG_IF(ERROR, !fClosedLoop) << "Polyloop is not closed";
+  LOG_IF(ERROR, !fClosedLoop) << "Polyloop is not closed";
   return fClosedLoop;
 }

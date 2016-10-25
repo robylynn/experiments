@@ -19,20 +19,20 @@ material Materials/DefaultLines
 {
   technique
   {
-    pass segmentspass
-    {
-      lighting off
-        polygon_mode wireframe
-        texture_unit
-        {
-          colour_op_ex source1 src_manual src_current 0 0 0
-        }
-    }
     pass verticespass
     {
       lighting off
         point_size 5
         polygon_mode points
+        texture_unit
+        {
+          colour_op_ex source1 src_manual src_current 0 0 0
+        }
+    }
+    pass segmentspass
+    {
+      lighting off
+        polygon_mode wireframe
         texture_unit
         {
           colour_op_ex source1 src_manual src_current 0 0 0

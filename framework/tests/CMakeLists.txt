@@ -7,6 +7,7 @@ set(GEOMETRY_TEST_SOURCE_FILES
   "geometry/uniformVoxelGridTest.cpp")
 
 set(UTILS_TEST_SOURCE_FILES
+  "utils/tupleIteratorTest.cpp"
   "utils/variantWrapperTest.cpp")
 
 set(RENDERING_TEST_SOURCE_FILES
