@@ -70,3 +70,4 @@ TEST_F(PolyloopLoaderTest, loading) {
   EXPECT_EQ(buildPolyloopFromObj("data/polyloopLoad.obj", p), true);
   EXPECT_EQ(p.size(), 95);
 }
+

@@ -159,10 +159,10 @@ int main(int argc, char* argv[]) {
         sceneManager->createEntity("entityPolyloop1", "polyloop1");
     loop1Entity->setMaterialName("Materials/DefaultLines");
 
-    sceneManager->getRootSceneNode()->createChildSceneNode()->attachObject(
+    /*sceneManager->getRootSceneNode()->createChildSceneNode()->attachObject(
         loop1Entity);
     GeometryBackedSelectableObject<decltype(p)> selectableLoop(loop1Entity);
-    app.getSelectionManager().addSelectableObject(&selectableLoop);
+    app.getSelectionManager().addSelectableObject(&selectableLoop);*/
 
     LoopGeometryProvider2D loopGeometryProvider2D(p2D);
     auto loopMeshable2D = new Meshable<LoopGeometryProvider2D>("polyloop2");

@@ -19,6 +19,7 @@ bool buildPolyloopFromObj(const std::string& filePath, Polyloop_2& polyloop2) {
 
   for (const Kernel::Point_3& point : polyloop3) {
     polyloop2.addPoint(Kernel::Point_2(point[*coordinateAxes.begin()],
-                                       point[*coordinateAxes.begin() + 1]));
+                                       point[*(++coordinateAxes.begin())]));
   }
+  return true;
 }
