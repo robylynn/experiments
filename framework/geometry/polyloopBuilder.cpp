@@ -3,6 +3,8 @@
 #include <glog/logging.h>
 
 #include <CGAL/Point_3.h>
+#include <CGAL/Polygon_2.h>
+#include <CGAL/bounding_box.h>
 #include "polyloop.h"
 
 // Creates a polyloop from an obj file
@@ -66,3 +68,4 @@ bool buildPolyloopFromObj<Kernel::Point_3>(
   LOG_IF(ERROR, !fClosedLoop) << "Polyloop is not closed";
   return fClosedLoop;
 }
+

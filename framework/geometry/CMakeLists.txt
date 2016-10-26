@@ -2,6 +2,7 @@ add_library(geometry
   cuboidGeometryProvider.cpp
   polylineBuilder.cpp
   polyloopBuilder.cpp
+  polyloop2Builder.cpp
   uniformVoxelGrid.cpp)
 
 include_directories(${PROJECT_SOURCE_DIR}/inc/geometry)

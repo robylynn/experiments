@@ -54,12 +54,12 @@ TEST_F(PolyloopTest, squaredDistance) {
 }
 
 TEST_F(PolyloopGeometryProviderTest, size) {
-  PolyloopGeometryProvider<Kernel::Point_3> provider(p);
+  PolyloopGeometryProvider<Polyloop<Kernel::Point_3>> provider(p);
   EXPECT_EQ(4, provider.size());
 }
 
 TEST_F(PolyloopGeometryProviderTest, iterate) {
-  PolyloopGeometryProvider<Kernel::Point_3> provider(p);
+  PolyloopGeometryProvider<Polyloop<Kernel::Point_3>> provider(p);
   auto iter = provider.begin();
   for (; iter != provider.end(); ++iter) {
   }

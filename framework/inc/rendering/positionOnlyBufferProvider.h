@@ -25,6 +25,8 @@
 // begin and end (return type = const_iterator)
 template <typename SequentialGeometryProvider>
 class PositionOnlyBufferProvider {
+  using GeometryIterator = typename SequentialGeometryProvider::const_iterator;
+
  public:
   PositionOnlyBufferProvider() : m_provider(nullptr) {}
 
@@ -40,21 +42,17 @@ class PositionOnlyBufferProvider {
 
   // Use to provide own sequential geometry provider, as well as functions that
   // return begin and end iterators over the geometry provider's geometry.
-  PositionOnlyBufferProvider(
-      const SequentialGeometryProvider& geometryProvider,
-      std::function<typename SequentialGeometryProvider::const_iterator()>
-          beginFn,
-      std::function<typename SequentialGeometryProvider::const_iterator()>
-          endFn)
+  PositionOnlyBufferProvider(const SequentialGeometryProvider& geometryProvider,
+                             std::function<GeometryIterator()> beginFn,
+                             std::function<GeometryIterator()> endFn)
       : m_provider(geometryProvider), m_beginFn(beginFn), m_endFn(endFn) {}
 
   // Convenience wrapper over member functions for begin and end
   PositionOnlyBufferProvider(
       const SequentialGeometryProvider& geometryProvider,
-      std::function<typename SequentialGeometryProvider::const_iterator(
-          const SequentialGeometryProvider*)> beginFn,
-      std::function<typename SequentialGeometryProvider::const_iterator(
-          const SequentialGeometryProvider*)> endFn)
+      std::function<GeometryIterator(const SequentialGeometryProvider*)>
+          beginFn,
+      std::function<GeometryIterator(const SequentialGeometryProvider*)> endFn)
       : m_provider(geometryProvider),
         m_beginFn(std::bind(beginFn, geometryProvider)),
         m_endFn(std::bind(endFn, geometryProvider)) {}
@@ -62,14 +60,13 @@ class PositionOnlyBufferProvider {
   PositionOnlyBufferProvider(
       const SequentialGeometryProvider&& geometryProvider) = delete;
 
+  template <typename GeometryIter = GeometryIterator>
   class CoordinateIterator
-      : public boost::iterator_facade<CoordinateIterator, float,
+      : public boost::iterator_facade<CoordinateIterator<GeometryIter>, float,
                                       boost::forward_traversal_tag, float> {
    public:
     CoordinateIterator(const PositionOnlyBufferProvider* positionProvider,
-                       typename SequentialGeometryProvider::const_iterator
-                           sequentialProviderIter,
-                       int coordinateIndex)
+                       GeometryIter sequentialProviderIter, int coordinateIndex)
         : m_positionProvider(positionProvider),
           m_sequentialProviderIter(sequentialProviderIter),
           m_coordinateIndex(coordinateIndex) {}
@@ -90,13 +87,29 @@ class PositionOnlyBufferProvider {
              (m_positionProvider == other.m_positionProvider);
     }
 
+    // Forward to dereference delegate to allow being overloaded based on
+    // GeometryPointType
     float dereference() const {
-      return (*m_sequentialProviderIter)[m_coordinateIndex];
+      return dereferenceDelegate(*m_sequentialProviderIter);
+    }
+
+    template <typename = typename std::enable_if<
+                  !std::is_same<typename GeometryIter::value_type,
+                                Kernel::Point_2>::value>>
+    float dereferenceDelegate(
+        const typename GeometryIter::value_type& point) const {
+      return point[m_coordinateIndex];
+    }
+
+    float dereferenceDelegate(const Kernel::Point_2& point) const {
+      if (m_coordinateIndex == NUM_POSITION_COORDS - 1) {
+        return 0.0f;
+      }
+      return point[m_coordinateIndex];
     }
 
     const PositionOnlyBufferProvider* m_positionProvider;
-    typename SequentialGeometryProvider::const_iterator
-        m_sequentialProviderIter;
+    GeometryIter m_sequentialProviderIter;
     int m_coordinateIndex;
   };
 
@@ -111,51 +124,54 @@ class PositionOnlyBufferProvider {
   }
 
   // Accept just the vertexElement, and forward calls using stored instance
-  CoordinateIterator begin(const PositionVertexElement& vertexElement) const {
+  CoordinateIterator<GeometryIterator> begin(
+      const PositionVertexElement& vertexElement) const {
     assert(m_provider != nullptr);
     return begin(*m_provider, vertexElement);
   }
 
-  CoordinateIterator end(const PositionVertexElement& vertexElement) const {
+  CoordinateIterator<GeometryIterator> end(
+      const PositionVertexElement& vertexElement) const {
     assert(m_provider != nullptr);
     return end(*m_provider, vertexElement);
   }
 
   // Accept the provider itself, and use stored m_begin and m_end to forward
-  CoordinateIterator begin(const SequentialGeometryProvider& provider,
-                           const PositionVertexElement& vertexElement) const {
+  CoordinateIterator<GeometryIterator> begin(
+      const SequentialGeometryProvider& provider,
+      const PositionVertexElement& vertexElement) const {
     return begin(m_beginFn(), vertexElement);
   }
 
-  CoordinateIterator end(const SequentialGeometryProvider& provider,
-                         const PositionVertexElement& vertexElement) const {
+  CoordinateIterator<GeometryIterator> end(
+      const SequentialGeometryProvider& provider,
+      const PositionVertexElement& vertexElement) const {
     return end(m_endFn(), vertexElement);
   }
 
   // Accept iterators to the provider begin and end, allowing for non-standard
   // names to the iterators being used
-  CoordinateIterator begin(
-      typename SequentialGeometryProvider::const_iterator providerBegin,
+  CoordinateIterator<GeometryIterator> begin(
+      GeometryIterator providerBegin,
       const PositionVertexElement& /*vertexElement*/) const {
-    return CoordinateIterator(this, providerBegin, 0);
+    return CoordinateIterator<GeometryIterator>(this, providerBegin, 0);
   }
 
-  CoordinateIterator end(
-      typename SequentialGeometryProvider::const_iterator providerEnd,
+  CoordinateIterator<GeometryIterator> end(
+      GeometryIterator providerEnd,
       const PositionVertexElement& /*vertexElement*/) const {
-    return CoordinateIterator(this, providerEnd, 0);
+    return CoordinateIterator<GeometryIterator>(this, providerEnd, 0);
   }
 
-  using const_iterator = CoordinateIterator;
+  using const_iterator = CoordinateIterator<GeometryIterator>;
   using GeometryProvider = SequentialGeometryProvider;
   using Params = VertexBufferDataProviderParams<
       PositionOnlyBufferProvider<GeometryProvider>>;
 
  private:
   const SequentialGeometryProvider* m_provider;
-  std::function<typename SequentialGeometryProvider::const_iterator()>
-      m_beginFn;
-  std::function<typename SequentialGeometryProvider::const_iterator()> m_endFn;
+  std::function<GeometryIterator()> m_beginFn;
+  std::function<GeometryIterator()> m_endFn;
 };
 
 template <typename GP>

@@ -63,7 +63,7 @@ int main(int argc, char* argv[]) {
 
   WindowedRenderingApp app("Smoothing");
 
-  Polyloop<CGAL::Point_3<Kernel>> p;
+  Polyloop<Kernel::Point_3> p;
   std::ifstream ffile;
   std::cout << "Reading polyloop from " << FLAGS_polyloop_file << std::endl;
   ffile.open(FLAGS_polyloop_file);
@@ -85,7 +85,7 @@ int main(int argc, char* argv[]) {
     Ogre::SceneManager* sceneManager = root->getSceneManager("PrimaryScene");
 
     using LoopGeometryProvider =
-        PolyloopGeometryProvider<CGAL::Point_3<Kernel>>;
+        PolyloopGeometryProvider<Polyloop<Kernel::Point_3>>;
 
     LoopGeometryProvider loopGeometryProvider(p);
     auto loopRenderable = new Renderable<LoopGeometryProvider>();

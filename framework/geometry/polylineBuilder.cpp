@@ -50,3 +50,4 @@ bool buildPolylineFromObj<Kernel::Point_3>(
   }
   return true;
 }
+

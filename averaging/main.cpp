@@ -12,6 +12,7 @@
 #include <windowedRenderingApp.h>
 
 #include <polyloop.h>
+#include <polyloop_2.h>
 #include <polyloopGeometryProvider.h>
 #include <positionOnlyBufferProvider.h>
 #include <uniformVoxelGrid.h>
@@ -136,6 +137,9 @@ int main(int argc, char* argv[]) {
   Polyloop<CGAL::Point_3<Kernel>> p;
   buildPolyloopFromObj("data/loop1.obj", p);
 
+  Polyloop_2 p2D;
+  buildPolyloopFromObj("data/loop1_2D.obj", p2D);
+
   if (app.init(1200, 900)) {
     initScene(app, "PrimaryScene");
 
@@ -143,7 +147,9 @@ int main(int argc, char* argv[]) {
     Ogre::SceneManager* sceneManager = root->getSceneManager("PrimaryScene");
 
     using LoopGeometryProvider =
-        PolyloopGeometryProvider<CGAL::Point_3<Kernel>>;
+        PolyloopGeometryProvider<Polyloop<Kernel::Point_3>>;
+    using LoopGeometryProvider2D =
+        PolyloopGeometryProvider<Polyloop_2>;
 
     LoopGeometryProvider loopGeometryProvider(p);
     auto loopMeshable = new Meshable<LoopGeometryProvider>("polyloop1");
@@ -157,6 +163,17 @@ int main(int argc, char* argv[]) {
         loop1Entity);
     GeometryBackedSelectableObject<decltype(p)> selectableLoop(loop1Entity);
     app.getSelectionManager().addSelectableObject(&selectableLoop);
+
+    LoopGeometryProvider2D loopGeometryProvider2D(p2D);
+    auto loopMeshable2D = new Meshable<LoopGeometryProvider2D>("polyloop2");
+    loopMeshable2D->setVertexBufferData(
+        RenderBufferProvider<LoopGeometryProvider2D>(loopGeometryProvider2D));
+    Ogre::Entity* loop2Entity =
+        sceneManager->createEntity("entityPolyloop2", "polyloop2");
+    loop2Entity->setMaterialName("Materials/DefaultLines");
+
+    sceneManager->getRootSceneNode()->createChildSceneNode()->attachObject(
+        loop2Entity);
 
     using Field = SeparableGeometryInducedField<SquaredDistanceFieldComputer>;
     Field inducedField;

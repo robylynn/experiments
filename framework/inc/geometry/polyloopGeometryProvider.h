@@ -18,23 +18,23 @@ class PolyloopStripPolicy {
 // A geometry provider for the polyloop representation. The polyloop
 // representation object itself must remain valid during the use of this
 // adaptor class.
-template <typename PointType, typename ProviderPolicy = PolyloopStripPolicy>
+template <typename LoopType, typename ProviderPolicy = PolyloopStripPolicy>
 class PolyloopGeometryProvider : public ProviderPolicy {
  private:
-  const Polyloop<PointType>* m_polyloop;
+  const LoopType* m_polyloop;
   using LoopCirculator = CGAL::Circulator_from_iterator<
-      typename Polyloop<PointType>::const_iterator>;
+      typename LoopType::const_iterator>;
   LoopCirculator m_circulator;
   using CirculatorContainer = CGAL::Container_from_circulator<LoopCirculator>;
   CirculatorContainer m_circularContainer;
 
  public:
-  static constexpr int HINT_MAX_BOUND = Polyloop<PointType>::HINT_MAX_BOUND;
+  static constexpr int HINT_MAX_BOUND = LoopType::HINT_MAX_BOUND;
   using const_iterator = decltype(std::declval<CirculatorContainer&>().begin());
 
  public:
-  PolyloopGeometryProvider(const Polyloop<PointType>& polyloop);
-  PolyloopGeometryProvider(const Polyloop<PointType>&& polyloop) = delete;
+  PolyloopGeometryProvider(const LoopType& polyloop);
+  PolyloopGeometryProvider(const LoopType&& polyloop) = delete;
   ~PolyloopGeometryProvider() {}
 
   size_t size() const { return m_polyloop->size() + 1; }
@@ -47,9 +47,9 @@ class PolyloopGeometryProvider : public ProviderPolicy {
   }
 };
 
-template <typename PointType, typename ProviderPolicy>
-PolyloopGeometryProvider<PointType, ProviderPolicy>::PolyloopGeometryProvider(
-    const Polyloop<PointType>& polyloop)
+template <typename LoopType, typename ProviderPolicy>
+PolyloopGeometryProvider<LoopType, ProviderPolicy>::PolyloopGeometryProvider(
+    const LoopType& polyloop)
     : m_polyloop(&polyloop),
       m_circulator(m_polyloop->begin(), m_polyloop->end()),
       m_circularContainer(m_circulator) {}

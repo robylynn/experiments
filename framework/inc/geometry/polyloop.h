@@ -18,7 +18,6 @@
 template <typename PointType = Kernel::Point_3>
 class Polyloop {
   using PointsContainer = std::vector<PointType>;
-
   PointsContainer m_points;
 
  public:
