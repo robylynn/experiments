@@ -15,6 +15,14 @@ class PolyloopStripPolicy {
       Ogre::RenderOperation::OT_LINE_STRIP;
 };
 
+// This policy plays nice when using to supply the vertex buffer data for a
+// manual mesh created via the GeometryMeshCreator.
+class PolyloopMeshPolicy {
+ public:
+  static constexpr Ogre::RenderOperation::OperationType PRIMITIVE_TYPE =
+      Ogre::RenderOperation::OT_TRIANGLE_LIST;
+};
+
 // A geometry provider for the polyloop representation. The polyloop
 // representation object itself must remain valid during the use of this
 // adaptor class.
@@ -22,8 +30,8 @@ template <typename LoopType, typename ProviderPolicy = PolyloopStripPolicy>
 class PolyloopGeometryProvider : public ProviderPolicy {
  private:
   const LoopType* m_polyloop;
-  using LoopCirculator = CGAL::Circulator_from_iterator<
-      typename LoopType::const_iterator>;
+  using LoopCirculator =
+      CGAL::Circulator_from_iterator<typename LoopType::const_iterator>;
   LoopCirculator m_circulator;
   using CirculatorContainer = CGAL::Container_from_circulator<LoopCirculator>;
   CirculatorContainer m_circularContainer;
@@ -33,7 +41,10 @@ class PolyloopGeometryProvider : public ProviderPolicy {
   using const_iterator = decltype(std::declval<CirculatorContainer&>().begin());
 
  public:
-  PolyloopGeometryProvider(const LoopType& polyloop);
+  PolyloopGeometryProvider(const LoopType& polyloop)
+      : m_polyloop(&polyloop),
+        m_circulator(m_polyloop->begin(), m_polyloop->end()),
+        m_circularContainer(m_circulator) {}
   PolyloopGeometryProvider(const LoopType&& polyloop) = delete;
   ~PolyloopGeometryProvider() {}
 
@@ -47,11 +58,35 @@ class PolyloopGeometryProvider : public ProviderPolicy {
   }
 };
 
-template <typename LoopType, typename ProviderPolicy>
-PolyloopGeometryProvider<LoopType, ProviderPolicy>::PolyloopGeometryProvider(
-    const LoopType& polyloop)
-    : m_polyloop(&polyloop),
-      m_circulator(m_polyloop->begin(), m_polyloop->end()),
-      m_circularContainer(m_circulator) {}
+// For the MeshPolicy, we specialize to send across degenerate triangles (v,
+// next(v), v)
+/*template <typename LoopType>
+class PolyloopGeometryProvider<PolyloopMeshPolicy> : public PolyloopMeshPolicy {
+ private:
+  const LoopType* m_polyloop;
+  using LoopCirculator =
+      CGAL::Circulator_from_iterator<typename LoopType::const_iterator>;
+  LoopCirculator m_circulator;
+  using CirculatorContainer = CGAL::Container_from_circulator<LoopCirculator>;
+  CirculatorContainer m_circularContainer;
+
+ public:
+  static constexpr int HINT_MAX_BOUND = LoopType::HINT_MAX_BOUND;
+  using const_iterator = decltype(std::declval<CirculatorContainer&>().begin());
+
+ public:
+  PolyloopGeometryProvider(const LoopType& polyloop);
+  PolyloopGeometryProvider(const LoopType&& polyloop) = delete;
+  ~PolyloopGeometryProvider() {}
+
+  size_t size() const { return 3 * (m_polyloop->size() + 1); }
+
+  auto begin() const -> decltype(std::declval<CirculatorContainer&>().begin()) {
+    return m_circularContainer.begin();
+  }
+  auto end() const -> decltype(std::declval<CirculatorContainer&>().end()) {
+    return m_circularContainer.end();
+  }
+};*/
 
 #endif  //_POLYLOOP_GEOMETRY_PROVIDER_H_

@@ -129,6 +129,40 @@ class LevelSetMeshVisualizer {
   const Field* m_inducedField;
 };
 
+template <class Field>
+class PlanarDistanceFieldVisualizer {
+  static constexpr Kernel::FT MAX_LEVEL = 20;
+  static constexpr Kernel::FT MIN_LEVEL = 1;
+
+ public:
+  PlanarDistanceFieldVisualizer(const Field& inducedField, Ogre::SceneNode* parent)
+      : m_inducedField(&inducedField) {
+    m_distanceFieldSceneNode = parent->createChildSceneNode();
+  }
+
+  void addDistanceHeatMapMeshToScene() {
+    // Customize some materials
+    using MaterialPolicyFunctor = std::function<std::string(void)>;
+    MaterialPolicyFunctor transparentMeshPolicy =
+        []() { return "Materials/DefaultTransparentTriangles"; };
+
+    std::function<Kernel::FT(const Kernel::Point_3&)> samplingFunction =
+        [ this, inducedFieldCRef = std::cref(*m_inducedField) ](
+            const Kernel::Point_3& point) {
+      return inducedFieldCRef.get()(point) - m_value;
+    };
+
+    // Remove all children from scene node, and re-populate with new level-set
+    m_distanceFieldSceneNode->removeAndDestroyAllChildren();
+    // m_distanceFieldSceneNode->attachObject(meshRenderable);
+  }
+
+ private:
+  Kernel::FT m_value;
+  Ogre::SceneNode* m_distanceFieldSceneNode;
+  const Field* m_inducedField;
+};
+
 int main(int argc, char* argv[]) {
   google::InitGoogleLogging(argv[0]);
 
@@ -148,8 +182,7 @@ int main(int argc, char* argv[]) {
 
     using LoopGeometryProvider =
         PolyloopGeometryProvider<Polyloop<Kernel::Point_3>>;
-    using LoopGeometryProvider2D =
-        PolyloopGeometryProvider<Polyloop_2>;
+    using LoopGeometryProvider2D = PolyloopGeometryProvider<Polyloop_2>;
 
     LoopGeometryProvider loopGeometryProvider(p);
     auto loopMeshable = new Meshable<LoopGeometryProvider>("polyloop1");
@@ -175,7 +208,8 @@ int main(int argc, char* argv[]) {
     sceneManager->getRootSceneNode()->createChildSceneNode()->attachObject(
         loop2Entity);
 
-    using Field = SeparableGeometryInducedField<SquaredDistanceFieldComputer>;
+    using Field = SeparableGeometryInducedField <
+                  SquaredDistanceFieldComputer<Kernel::Point_3>>;
     Field inducedField;
     inducedField.addGeometry(p);
     auto meshVisualizer = new LevelSetMeshVisualizer<Field>(

@@ -1,3 +1,6 @@
+#ifndef _FRAMEWORK_GEOMETRY_SQUARED_DISTANCE_H_
+#define _FRAMEWORK_GEOMETRY_SQUARED_DISTANCE_H_
+
 #include "polyline.h"
 #include "polyloop.h"
 
@@ -53,3 +56,5 @@ Kernel::FT squared_distance(const Kernel::Ray_3& ray,
 }
 
 }  // end namespace CGAL
+
+#endif //_FRAMEWORK_GEOMETRY_SQUARED_DISTANCE_H_
