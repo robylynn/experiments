@@ -19,12 +19,20 @@ class PolyloopGeometryProviderTest : public ::testing::Test {
  protected:
   virtual void SetUp() {
     p.addPoint(Kernel::Point_3(0, 0, 0));
-    p.addPoint(Kernel::Point_3(100, 100, -100));
-    p.addPoint(Kernel::Point_3(100, 0, -100));
+    p.addPoint(Kernel::Point_3(1, 1, -1));
+
+    unrolledStripPolicy = {*p.begin(), *(p.begin() + 1), *p.begin()};
+    unrolledListPolicy = {*p.begin(), *(p.begin() + 1), *(p.begin() + 1),
+                          *p.begin()};
+    unrolledMeshPolicy = {*p.begin(),       *(p.begin() + 1), *p.begin(),
+                          *(p.begin() + 1), *p.begin(),       *(p.begin() + 1)};
   }
   virtual void TearDown() {}
 
   Polyloop_3 p;
+  std::vector<Kernel::Point_3> unrolledStripPolicy;
+  std::vector<Kernel::Point_3> unrolledListPolicy;
+  std::vector<Kernel::Point_3> unrolledMeshPolicy;
 };
 
 class PolyloopLoaderTest : public ::testing::Test {
@@ -54,20 +62,31 @@ TEST_F(PolyloopTest, squaredDistance) {
 }
 
 TEST_F(PolyloopGeometryProviderTest, size) {
-  PolyloopGeometryProvider<Polyloop_3> provider(p);
-  EXPECT_EQ(4, provider.size());
+  PolyloopGeometryProvider<Polyloop_3, PolyloopListPolicy> provider(p);
+  EXPECT_EQ(PolyloopListPolicy::VERTICES_PER_BASE * p.size(), provider.size());
 }
 
-TEST_F(PolyloopGeometryProviderTest, iterate) {
-  PolyloopGeometryProvider<Polyloop_3> provider(p);
+TEST_F(PolyloopGeometryProviderTest, iterateListPolicy) {
+  PolyloopGeometryProvider<Polyloop_3, PolyloopListPolicy> provider(p);
   auto iter = provider.begin();
-  for (; iter != provider.end(); ++iter) {
+  auto iterUnrolled = unrolledListPolicy.begin();
+  for (; iterUnrolled != unrolledListPolicy.end(); ++iter, ++iterUnrolled) {
+    EXPECT_EQ(*iter, *iterUnrolled);
   }
-  EXPECT_EQ(*iter, *p.begin());
+  EXPECT_EQ(iter, provider.end());
+}
+
+TEST_F(PolyloopGeometryProviderTest, iterateMeshPolicy) {
+  PolyloopGeometryProvider<Polyloop_3, PolyloopMeshPolicy> provider(p);
+  auto iter = provider.begin();
+  auto iterUnrolled = unrolledMeshPolicy.begin();
+  for (; iterUnrolled != unrolledMeshPolicy.end(); ++iter, ++iterUnrolled) {
+    EXPECT_EQ(*iter, *iterUnrolled);
+  }
+  EXPECT_EQ(iter, provider.end());
 }
 
 TEST_F(PolyloopLoaderTest, loading) {
   EXPECT_EQ(buildPolyloopFromObj("data/polyloopLoad.obj", p), true);
   EXPECT_EQ(p.size(), 95);
 }
-

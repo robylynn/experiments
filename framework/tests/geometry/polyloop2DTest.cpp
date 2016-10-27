@@ -54,16 +54,18 @@ TEST_F(Polyloop_2RepTest, squaredDistance) {
 }
 
 TEST_F(Polyloop_2GeometryProviderTest, size) {
-  PolyloopGeometryProvider<Polyloop_2> provider(p);
-  EXPECT_EQ(4, provider.size());
+  PolyloopGeometryProvider<Polyloop_2, PolyloopListPolicy> provider(p);
+  EXPECT_EQ(PolyloopListPolicy::VERTICES_PER_BASE * p.size(), provider.size());
 }
 
 TEST_F(Polyloop_2GeometryProviderTest, iterate) {
-  PolyloopGeometryProvider<Polyloop_2> provider(p);
+  PolyloopGeometryProvider<Polyloop_2, PolyloopListPolicy> provider(p);
   auto iter = provider.begin();
+  int numElements = 0;
   for (; iter != provider.end(); ++iter) {
+    ASSERT_LT(numElements++, provider.size());
   }
-  EXPECT_EQ(*iter, *p.begin());
+  EXPECT_EQ(numElements, provider.size());
 }
 
 TEST_F(Polyloop_2LoaderTest, loading) {
@@ -71,5 +73,3 @@ TEST_F(Polyloop_2LoaderTest, loading) {
   EXPECT_EQ(p.size(), 47);
   EXPECT_EQ(*p.begin(), Kernel::Point_2(-1.0f, 0.0f));
 }
-
-

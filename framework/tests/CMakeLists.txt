@@ -9,6 +9,7 @@ set(GEOMETRY_TEST_SOURCE_FILES
 
 set(UTILS_TEST_SOURCE_FILES
   "utils/tupleIteratorTest.cpp"
+  "utils/stencilCirculatorIteratorTest.cpp"
   "utils/variantWrapperTest.cpp")
 
 set(RENDERING_TEST_SOURCE_FILES

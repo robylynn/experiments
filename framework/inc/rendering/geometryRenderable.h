@@ -24,10 +24,18 @@ class GeometryRenderable : public Ogre::SimpleRenderable {
  public:
   GeometryRenderable(const MaterialPolicy& materialPolicy)
       : m_materialPolicy(materialPolicy) {
-    init();
+    mRenderOp.useIndexes = m_renderPolicy.useIndexes;
+    mRenderOp.operationType = m_renderPolicy.operationType;
+
+    // Set material from material policy
+    setMaterial(m_materialPolicy());
+
+    LOG(INFO) << "Created a geometry renderable, with renderPolicy type "
+              << m_renderPolicy.operationType << " and material "
+              << m_materialPolicy();
   }
 
-  GeometryRenderable() : m_materialPolicy(m_renderPolicy) { init(); }
+  GeometryRenderable() : GeometryRenderable(MaterialPolicy(m_renderPolicy)) {}
 
   void setVertexBufferData(const VertexBufferDataProvider& vertexDataProvider) {
     using Params = typename VertexBufferDataProvider::Params;
@@ -57,18 +65,6 @@ class GeometryRenderable : public Ogre::SimpleRenderable {
   Ogre::Real getBoundingRadius() const override { return 1000; }
 
  private:
-  void init() {
-    mRenderOp.useIndexes = m_renderPolicy.useIndexes;
-    mRenderOp.operationType = m_renderPolicy.operationType;
-
-    LOG(INFO) << "Creating a geometry renderable, with renderPolicy type "
-              << m_renderPolicy.operationType << " and material "
-              << m_materialPolicy();
-
-    // Set material from material policy
-    setMaterial(m_materialPolicy());
-  }
-
   RenderPolicy m_renderPolicy;
   MaterialPolicy m_materialPolicy;
 };

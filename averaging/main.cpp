@@ -135,7 +135,8 @@ class PlanarDistanceFieldVisualizer {
   static constexpr Kernel::FT MIN_LEVEL = 1;
 
  public:
-  PlanarDistanceFieldVisualizer(const Field& inducedField, Ogre::SceneNode* parent)
+  PlanarDistanceFieldVisualizer(const Field& inducedField,
+                                Ogre::SceneNode* parent)
       : m_inducedField(&inducedField) {
     m_distanceFieldSceneNode = parent->createChildSceneNode();
   }
@@ -180,8 +181,7 @@ int main(int argc, char* argv[]) {
     Ogre::Root* root = Ogre::Root::getSingletonPtr();
     Ogre::SceneManager* sceneManager = root->getSceneManager("PrimaryScene");
 
-    using LoopGeometryProvider3D =
-        PolyloopGeometryProvider<Polyloop_3>;
+    using LoopGeometryProvider3D = PolyloopGeometryProvider<Polyloop_3>;
     using LoopGeometryProvider2D = PolyloopGeometryProvider<Polyloop_2>;
 
     LoopGeometryProvider3D loopGeometryProvider(p);
@@ -192,10 +192,10 @@ int main(int argc, char* argv[]) {
         sceneManager->createEntity("entityPolyloop1", "polyloop1");
     loop1Entity->setMaterialName("Materials/DefaultLines");
 
-    /*sceneManager->getRootSceneNode()->createChildSceneNode()->attachObject(
+    sceneManager->getRootSceneNode()->createChildSceneNode()->attachObject(
         loop1Entity);
     GeometryBackedSelectableObject<decltype(p)> selectableLoop(loop1Entity);
-    app.getSelectionManager().addSelectableObject(&selectableLoop);*/
+    app.getSelectionManager().addSelectableObject(&selectableLoop);
 
     LoopGeometryProvider2D loopGeometryProvider2D(p2D);
     auto loopMeshable2D = new Meshable<LoopGeometryProvider2D>("polyloop2");
@@ -208,8 +208,8 @@ int main(int argc, char* argv[]) {
     sceneManager->getRootSceneNode()->createChildSceneNode()->attachObject(
         loop2Entity);
 
-    using Field = SeparableGeometryInducedField <
-                  SquaredDistanceFieldComputer<Kernel::Point_3>>;
+    using Field = SeparableGeometryInducedField<
+        SquaredDistanceFieldComputer<Kernel::Point_3>>;
     Field inducedField;
     inducedField.addGeometry(p);
     auto meshVisualizer = new LevelSetMeshVisualizer<Field>(

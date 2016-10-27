@@ -19,11 +19,12 @@ class PositionOnlyProviderTest : public ::testing::Test {
 
   Polyloop_3 loop3D;
   Polyloop_2 loop2D;
-  float unrolledValues[6] = {0, 1, 0, 0, 0, 0};
+  float unrolledValues[12] = {0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0};
 };
 
 TEST_F(PositionOnlyProviderTest, iterate) {
-  using GeometryProvider = PolyloopGeometryProvider<Polyloop_3>;
+  using GeometryProvider =
+      PolyloopGeometryProvider<Polyloop_3, PolyloopListPolicy>;
   using BufferProvider = PositionOnlyBufferProvider<GeometryProvider>;
   using BufferIter = BufferProvider::const_iterator;
   GeometryProvider geometry(loop3D);
@@ -40,7 +41,8 @@ TEST_F(PositionOnlyProviderTest, iterate) {
 }
 
 TEST_F(PositionOnlyProviderTest, iterate2D) {
-  using GeometryProvider = PolyloopGeometryProvider<Polyloop_2>;
+  using GeometryProvider =
+      PolyloopGeometryProvider<Polyloop_2, PolyloopListPolicy>;
   using BufferProvider = PositionOnlyBufferProvider<GeometryProvider>;
   using BufferIter = BufferProvider::const_iterator;
   GeometryProvider geometry(loop2D);
