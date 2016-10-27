@@ -1,5 +1,5 @@
-#ifndef _POLYLOOP_H_
-#define _POLYLOOP_H_
+#ifndef _POLYLOOP_3_H_
+#define _POLYLOOP_3_H_
 
 #include <boost/iterator/iterator_adaptor.hpp>
 
@@ -15,13 +15,12 @@
 // with adjacent points implicitly understood to be connected to each other.
 
 // The polyloop also exposes a const iterator for its composing LineSegments
-template <typename PointType = Kernel::Point_3>
-class Polyloop {
-  using PointsContainer = std::vector<PointType>;
+class Polyloop_3 {
+  using PointsContainer = std::vector<Kernel::Point_3>;
   PointsContainer m_points;
 
  public:
-  using value_type = PointType;
+  using value_type = Kernel::Point_3;
   using iterator = typename PointsContainer::iterator;
   using const_iterator = typename PointsContainer::const_iterator;
 
@@ -29,26 +28,23 @@ class Polyloop {
   // for rendering in non-immediate mode.
   static constexpr size_t HINT_MAX_BOUND = 10000;
 
-  Polyloop() {}
+  Polyloop_3() {}
 
   // The size of a Polyloop is the number of points it contains
   size_t size() const { return m_points.size(); }
 
   // Add a point at specified location to the Polyloop.
-  void addPoint(iterator iter, const PointType& point) {
+  void addPoint(iterator iter, const value_type& point) {
     m_points.insert(iter, point);
   }
 
   // Add a point after the last point. If no point in the Polyloop, add
   // point as first point.
-  void addPoint(const PointType& point) { m_points.push_back(point); }
+  void addPoint(const value_type& point) { m_points.push_back(point); }
 
   iterator removePoint(iterator iter) { return m_points.erase(iter); }
 
-  void updatePoint(typename PointsContainer::iterator iter,
-                   const PointType& point) {
-    m_points.assign(iter, iter + 1, point);
-  }
+  void updatePoint(iterator iter, const value_type& point) { *iter = point; }
 
   // The polyloop allows for iteration over points by pass through to container,
   // and conforms to the CGAL MeshPolyline_3 concept
@@ -70,7 +66,7 @@ class Polyloop {
     // reference must be Kernel::Segment_3, as, otherwise, consumers would be
     // storing a reference to a temporary that is already destructed when
     // operator* exits.
-    explicit SegmentIterator(const Polyloop<PointType>* loop,
+    explicit SegmentIterator(const Polyloop_3* loop,
                              const const_iterator& baseIter)
         : boost::iterator_adaptor<SegmentIterator, const_iterator,
                                   Kernel::Segment_3, boost::use_default,
@@ -82,7 +78,7 @@ class Polyloop {
     Kernel::Segment_3 dereference() const {
       return m_loop->getSegment(this->base());
     }
-    const Polyloop<PointType>* m_loop;
+    const Polyloop_3* m_loop;
   };
 
   SegmentIterator beginSegment() const {
@@ -123,8 +119,6 @@ class Polyloop {
 };
 
 // Build a polyloop from Obj file format
-template <typename PointType>
-bool buildPolyloopFromObj(const std::string& filePath,
-                          Polyloop<PointType>& polyloop);
+bool buildPolyloopFromObj(const std::string& filePath, Polyloop_3& polyloop);
 
-#endif  //_POLYLOOP_H_
+#endif  //_POLYLOOP_3_H_

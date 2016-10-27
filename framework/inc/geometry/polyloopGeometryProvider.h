@@ -7,7 +7,7 @@
 
 #include <OGRE/OgreRenderOperation.h>
 
-#include "polyloop.h"
+#include "polyloop_3.h"
 
 class PolyloopStripPolicy {
  public:

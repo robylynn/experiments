@@ -11,7 +11,7 @@
 #include <cameraController.h>
 #include <windowedRenderingApp.h>
 
-#include <polyloop.h>
+#include <polyloop_3.h>
 #include <polyloop_2.h>
 #include <polyloopGeometryProvider.h>
 #include <positionOnlyBufferProvider.h>
@@ -168,7 +168,7 @@ int main(int argc, char* argv[]) {
 
   WindowedRenderingApp app("Smoothing");
 
-  Polyloop<CGAL::Point_3<Kernel>> p;
+  Polyloop_3 p;
   buildPolyloopFromObj("data/loop1.obj", p);
 
   Polyloop_2 p2D;
@@ -180,14 +180,14 @@ int main(int argc, char* argv[]) {
     Ogre::Root* root = Ogre::Root::getSingletonPtr();
     Ogre::SceneManager* sceneManager = root->getSceneManager("PrimaryScene");
 
-    using LoopGeometryProvider =
-        PolyloopGeometryProvider<Polyloop<Kernel::Point_3>>;
+    using LoopGeometryProvider3D =
+        PolyloopGeometryProvider<Polyloop_3>;
     using LoopGeometryProvider2D = PolyloopGeometryProvider<Polyloop_2>;
 
-    LoopGeometryProvider loopGeometryProvider(p);
-    auto loopMeshable = new Meshable<LoopGeometryProvider>("polyloop1");
+    LoopGeometryProvider3D loopGeometryProvider(p);
+    auto loopMeshable = new Meshable<LoopGeometryProvider3D>("polyloop1");
     loopMeshable->setVertexBufferData(
-        RenderBufferProvider<LoopGeometryProvider>(loopGeometryProvider));
+        RenderBufferProvider<LoopGeometryProvider3D>(loopGeometryProvider));
     Ogre::Entity* loop1Entity =
         sceneManager->createEntity("entityPolyloop1", "polyloop1");
     loop1Entity->setMaterialName("Materials/DefaultLines");

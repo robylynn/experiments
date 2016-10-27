@@ -5,12 +5,11 @@
 #include <CGAL/Point_3.h>
 #include <CGAL/Polygon_2.h>
 #include <CGAL/bounding_box.h>
-#include "polyloop.h"
+#include "polyloop_3.h"
 
 // Creates a polyloop from an obj file
-template <>
-bool buildPolyloopFromObj<Kernel::Point_3>(
-    const std::string& filePath, Polyloop<Kernel::Point_3>& polyloop) {
+bool buildPolyloopFromObj(
+    const std::string& filePath, Polyloop_3& polyloop) {
   std::ifstream file(filePath);
 
   if (!file.good()) {

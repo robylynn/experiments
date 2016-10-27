@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "polyloop.h"
+#include "polyloop_3.h"
 #include "polyloop_2.h"
 #include "polyloopGeometryProvider.h"
 #include "positionOnlyBufferProvider.h"
@@ -17,13 +17,13 @@ class PositionOnlyProviderTest : public ::testing::Test {
   }
   virtual void TearDown() {}
 
-  Polyloop<Kernel::Point_3> loop3D;
+  Polyloop_3 loop3D;
   Polyloop_2 loop2D;
   float unrolledValues[6] = {0, 1, 0, 0, 0, 0};
 };
 
 TEST_F(PositionOnlyProviderTest, iterate) {
-  using GeometryProvider = PolyloopGeometryProvider<Polyloop<Kernel::Point_3>>;
+  using GeometryProvider = PolyloopGeometryProvider<Polyloop_3>;
   using BufferProvider = PositionOnlyBufferProvider<GeometryProvider>;
   using BufferIter = BufferProvider::const_iterator;
   GeometryProvider geometry(loop3D);

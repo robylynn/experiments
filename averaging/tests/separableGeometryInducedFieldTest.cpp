@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
 #include "geometryVariants.h"
-#include "polyloop.h"
+#include "polyloop_3.h"
 #include "squaredDistance.h"
 
 #include "separableGeometryInducedField.h"
@@ -21,7 +21,7 @@ class DistanceFieldTest : public ::testing::Test {
   using Field = SeparableGeometryInducedField <
                 SquaredDistanceFieldComputer<Kernel::Point_3>>;
   Field field;
-  Polyloop<Kernel::Point_3> p;
+  Polyloop_3 p;
 };
 
 TEST_F(DistanceFieldTest, queryFieldValueTest) {

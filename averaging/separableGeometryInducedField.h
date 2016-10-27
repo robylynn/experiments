@@ -4,9 +4,9 @@
 #include <boost/variant.hpp>
 #include <boost/mpl/transform.hpp>
 
+#include <CGAL/Point_3.h>
+
 #include "geometryVariants.h"
-#include "polyloop.h"
-#include "uniformVoxelGrid.h"
 #include "variantWrapper.h"
 
 // A "separable" field in R3 that is induced by a group of geometric objects.

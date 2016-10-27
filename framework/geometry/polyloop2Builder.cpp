@@ -1,10 +1,10 @@
 #include <CGAL/bounding_box.h>
 
 #include "polyloop_2.h"
-#include "polyloop.h"
+#include "polyloop_3.h"
 
 bool buildPolyloopFromObj(const std::string& filePath, Polyloop_2& polyloop2) {
-  Polyloop<Kernel::Point_3> polyloop3;
+  Polyloop_3 polyloop3;
   bool retValue = buildPolyloopFromObj(filePath, polyloop3);
   if (!retValue) return retValue;
 

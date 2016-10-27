@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "polyloop.h"
+#include "polyloop_3.h"
 #include "polyloopGeometryProvider.h"
 
 class PolyloopTest : public ::testing::Test {
@@ -12,7 +12,7 @@ class PolyloopTest : public ::testing::Test {
   }
   virtual void TearDown() {}
 
-  Polyloop<Kernel::Point_3> p;
+  Polyloop_3 p;
 };
 
 class PolyloopGeometryProviderTest : public ::testing::Test {
@@ -24,7 +24,7 @@ class PolyloopGeometryProviderTest : public ::testing::Test {
   }
   virtual void TearDown() {}
 
-  Polyloop<Kernel::Point_3> p;
+  Polyloop_3 p;
 };
 
 class PolyloopLoaderTest : public ::testing::Test {
@@ -32,7 +32,7 @@ class PolyloopLoaderTest : public ::testing::Test {
   virtual void SetUp() {}
   virtual void TearDown() {}
 
-  Polyloop<Kernel::Point_3> p;
+  Polyloop_3 p;
 };
 
 TEST_F(PolyloopTest, size) { EXPECT_EQ(3, p.size()); }
@@ -54,12 +54,12 @@ TEST_F(PolyloopTest, squaredDistance) {
 }
 
 TEST_F(PolyloopGeometryProviderTest, size) {
-  PolyloopGeometryProvider<Polyloop<Kernel::Point_3>> provider(p);
+  PolyloopGeometryProvider<Polyloop_3> provider(p);
   EXPECT_EQ(4, provider.size());
 }
 
 TEST_F(PolyloopGeometryProviderTest, iterate) {
-  PolyloopGeometryProvider<Polyloop<Kernel::Point_3>> provider(p);
+  PolyloopGeometryProvider<Polyloop_3> provider(p);
   auto iter = provider.begin();
   for (; iter != provider.end(); ++iter) {
   }
