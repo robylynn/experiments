@@ -146,13 +146,11 @@ class PlanarDistanceFieldVisualizer {
     // Customize some materials
     UniformPlanarGrid planarGrid(Kernel::Plane_3(0, 0, 1, 0), 10, 10, 5, 5);
     typedef CGAL::Projection_traits_xy_3<Kernel> GeometryTraits;
-    typedef CGAL::Delaunay_triangulation_2<GeometryTraits> Delaunay;
-    Delaunay triangulation(planarGrid.begin(), planarGrid.end());
+    typedef CGAL::Delaunay_triangulation_2<GeometryTraits> Triangulation;
+    Triangulation triangulation(planarGrid.begin(), planarGrid.end());
 
-    using TMeshRepresentation = typename Delaunay::Triangulation_data_structure;
-    using TMeshGeometryProvider =
-        TriangleMeshGeometryProvider<TMeshRepresentation>;
-    TMeshGeometryProvider meshGeometryProvider(triangulation.tds());
+    using TMeshGeometryProvider = TriangleMeshGeometryProvider<Triangulation>;
+    TMeshGeometryProvider meshGeometryProvider(triangulation);
     auto gridMeshRenderable =
         new Meshable<TMeshGeometryProvider>("scalarFieldHeatMap");
     gridMeshRenderable->setVertexBufferData(
@@ -232,8 +230,9 @@ int main(int argc, char* argv[]) {
     auto meshVisualizer = new LevelSetMeshVisualizer<Field>(
         inducedField, sceneManager->getRootSceneNode());
 
-    using SignedField = SeparableGeometryInducedField<
-        Kernel::Point_2, SignedDistanceFieldComputer>;
+    using SignedField =
+        SeparableGeometryInducedField<Kernel::Point_2,
+                                      SignedDistanceFieldComputer>;
     SignedField inducedSignedField;
     inducedSignedField.addGeometry(p2D);
     auto planarDistanceFieldVisualizer =

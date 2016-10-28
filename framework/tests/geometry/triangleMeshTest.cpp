@@ -22,7 +22,7 @@ class MeshProviderTest : public ::testing::Test {
       Kernel::Point_3(0, 1, 0), Kernel::Point_3(0, 0, 1)};
   using MeshRepPoly = CGAL::Polyhedron_3<Kernel>;
   using MeshRepTriangulation2 =
-      CGAL::Triangulation_2<Kernel>::Triangulation_data_structure;
+      CGAL::Triangulation_2<CGAL::Projection_traits_xy_3<Kernel>>;
 };
 
 TEST_F(MeshProviderTest, size) {
@@ -42,10 +42,13 @@ TEST_F(MeshProviderTest, iterationPolyhedron) {
 TEST_F(MeshProviderTest, iterationTriangulation2) {
   CGAL::Triangulation_2<CGAL::Projection_traits_xy_3<Kernel>> triangulation;
   triangulation.insert(&points[0], &points[3]);
-  TriangleMeshGeometryProvider<MeshRepTriangulation2> provider(triangulation.tds());
+  TriangleMeshGeometryProvider<MeshRepTriangulation2> provider(triangulation);
   size_t count = 0;
   for (auto iter = provider.begin(); iter != provider.end(); ++iter, ++count) {
     ASSERT_LT(count, provider.size());
-    EXPECT_EQ(*iter, points[unrolledIndices[count]]);
   }
+  EXPECT_EQ(count, provider.size());
+  std::set<Kernel::Point_3> triangulationPoints(provider.begin(), provider.end());
+  std::set<Kernel::Point_3> expectedPoints(&points[0], &points[3]);
+  EXPECT_EQ(triangulationPoints, expectedPoints);
 }
