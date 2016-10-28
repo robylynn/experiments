@@ -28,17 +28,18 @@
 //
 // The aggregation of the computed values for each primitive is performed by
 // the Aggregator.
-template <typename Computer,
-          typename GeometryTypesVariant = PointDistanceComputableTypes  //,
+template <typename Domain, template <typename D> class Computer,
+          typename GeometryTypesVariant =
+              typename Computer<Domain>::ComputableVariantType
           /*typename Aggregator = UseDefault*/>
 class SeparableGeometryInducedField {
   using GeometryReferenceTypesVariant =
       typename boost::make_variant_over<typename boost::mpl::transform<
-          typename GeometryTypesVariant::types,
+          typename GeometryTypesVariant::type::types,
           ConstReferenceTypeWrapper<boost::mpl::_1>>::type>::type;
 
  public:
-  using result_type = typename Computer::result_type;
+  using result_type = typename Computer<Domain>::result_type;
 
   // TODO msati3: Fix initialization of GeometryInducedDistance field to make
   // parameters not dependent on extent, indexExtent, etc
@@ -64,13 +65,13 @@ class SeparableGeometryInducedField {
         });
   }*/
 
-  result_type operator()(const Kernel::Point_3& point) const {
+  result_type operator()(const Domain& point) const {
     result_type sampledValue = std::accumulate(
         m_representations.begin(), m_representations.end(), result_type(0),
         [this, point, &sampledValue](const result_type& init,
                                      GeometryReferenceTypesVariant repRef) {
-          Computer computer(point);
-          WrappedVariantInvoker<Computer> invoker(computer);
+          Computer<Domain> computer(point);
+          WrappedVariantInvoker<Computer<Domain>> invoker(computer);
           return init + boost::apply_visitor(invoker, repRef);
         });
     return sampledValue;

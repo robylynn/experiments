@@ -34,9 +34,10 @@ class TriangleMeshGeometryProvider : public ProviderPolicy {
   ~TriangleMeshGeometryProvider() {}
 
   class FacetOrderedVertexIterator
-      : public boost::iterator_facade<FacetOrderedVertexIterator,
-                                      const Kernel::Point_3,
-                                      boost::forward_traversal_tag> {
+      : public boost::iterator_facade<
+            FacetOrderedVertexIterator,
+            const typename MeshAdaptor::value_type,
+            boost::forward_traversal_tag> {
    public:
     FacetOrderedVertexIterator(const MeshAdaptor* adaptor,
                                typename MeshAdaptor::facet_iterator facetIter,
@@ -64,7 +65,7 @@ class TriangleMeshGeometryProvider : public ProviderPolicy {
              (m_adaptor == other.m_adaptor);
     }
 
-    const Kernel::Point_3& dereference() const {
+    const typename MeshAdaptor::value_type& dereference() const {
       return m_adaptor->dereference(m_facetVertexIter);
     }
 

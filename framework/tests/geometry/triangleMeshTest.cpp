@@ -1,6 +1,8 @@
 #include <gtest/gtest.h>
 
 #include <CGAL/Polyhedron_3.h>
+#include <CGAL/Projection_traits_xy_3.h>
+#include <CGAL/Triangulation_2.h>
 
 #include "geometryTypes.h"
 #include "triangleMeshGeometryProvider.h"
@@ -18,16 +20,29 @@ class MeshProviderTest : public ::testing::Test {
   Kernel::Point_3 points[4] = {
       Kernel::Point_3(0, 0, 0), Kernel::Point_3(1, 0, 0),
       Kernel::Point_3(0, 1, 0), Kernel::Point_3(0, 0, 1)};
-  using MeshRepresentation = CGAL::Polyhedron_3<Kernel>;
+  using MeshRepPoly = CGAL::Polyhedron_3<Kernel>;
+  using MeshRepTriangulation2 =
+      CGAL::Triangulation_2<Kernel>::Triangulation_data_structure;
 };
 
 TEST_F(MeshProviderTest, size) {
-  TriangleMeshGeometryProvider<MeshRepresentation> provider(tetrahedron);
+  TriangleMeshGeometryProvider<MeshRepPoly> provider(tetrahedron);
   EXPECT_EQ(4 * 3, provider.size());
 }
 
-TEST_F(MeshProviderTest, geomIteration) {
-  TriangleMeshGeometryProvider<MeshRepresentation> provider(tetrahedron);
+TEST_F(MeshProviderTest, iterationPolyhedron) {
+  TriangleMeshGeometryProvider<MeshRepPoly> provider(tetrahedron);
+  size_t count = 0;
+  for (auto iter = provider.begin(); iter != provider.end(); ++iter, ++count) {
+    ASSERT_LT(count, provider.size());
+    EXPECT_EQ(*iter, points[unrolledIndices[count]]);
+  }
+}
+
+TEST_F(MeshProviderTest, iterationTriangulation2) {
+  CGAL::Triangulation_2<CGAL::Projection_traits_xy_3<Kernel>> triangulation;
+  triangulation.insert(&points[0], &points[3]);
+  TriangleMeshGeometryProvider<MeshRepTriangulation2> provider(triangulation.tds());
   size_t count = 0;
   for (auto iter = provider.begin(); iter != provider.end(); ++iter, ++count) {
     ASSERT_LT(count, provider.size());

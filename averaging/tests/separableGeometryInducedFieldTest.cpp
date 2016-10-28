@@ -18,8 +18,8 @@ class DistanceFieldTest : public ::testing::Test {
     p.addPoint(Kernel::Point_3(0.5, 1, 0));
     field.addGeometry(p);
   }
-  using Field = SeparableGeometryInducedField <
-                SquaredDistanceFieldComputer<Kernel::Point_3>>;
+  using Field = SeparableGeometryInducedField<Kernel::Point_3,
+                                              SquaredDistanceFieldComputer>;
   Field field;
   Polyloop_3 p;
 };

@@ -47,6 +47,26 @@ Kernel::FT squared_distance(const Kernel::Ray_3& ray,
   return squared_distance(polyloop, ray);
 }
 
+Kernel::FT squared_distance(const Polyloop_2& polyloop,
+                            const Kernel::Point_2& point) {
+  return polyloop.squaredDistance(point);
+}
+
+Kernel::FT squared_distance(const Kernel::Point_2& point,
+                            const Polyloop_2& polyloop) {
+  return squared_distance(polyloop, point);
+}
+
+Kernel::FT squared_distance(const Polyloop_2& polyloop,
+                            const Kernel::Ray_2& ray) {
+  return polyloop.squaredDistance(ray);
+}
+
+Kernel::FT squared_distance(const Kernel::Ray_2& ray,
+                            const Polyloop_2& polyloop) {
+  return squared_distance(polyloop, ray);
+}
+
 }  // end namespace CGAL
 
-#endif //_FRAMEWORK_GEOMETRY_SQUARED_DISTANCE_H_
+#endif  //_FRAMEWORK_GEOMETRY_SQUARED_DISTANCE_H_

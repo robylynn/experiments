@@ -14,6 +14,11 @@ CGAL::Oriented_side oriented_side(const Polyloop_2& polyloop,
                                Kernel());
 }
 
+CGAL::Oriented_side oriented_side(const Kernel::Line_2& line,
+                                  const Kernel::Point_2& point) {
+  return line.oriented_side(point);
+}
+
 }  // end namespace CGAL
 
-#endif //_FRAMEWORK_GEOMETRY_ORIENTED_SIDE_H_
+#endif  //_FRAMEWORK_GEOMETRY_ORIENTED_SIDE_H_

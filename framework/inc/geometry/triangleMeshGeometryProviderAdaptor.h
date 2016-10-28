@@ -9,6 +9,7 @@
 
 #include <CGAL/Surface_mesh_complex_2_in_triangulation_3.h>
 #include <CGAL/Polyhedron_3.h>
+#include <CGAL/Triangulation_2.h>
 
 // If the MeshRepresentation is based on HalfEdge data-structure, we can reuse
 // some of the code.
@@ -53,6 +54,7 @@ class TriangleMeshGeometryProviderAdaptor<
       std::function<const Kernel::Point_3&(int)>,
       boost::filter_iterator<std::function<int(int)>,
                              boost::counting_iterator<int>>>;
+  using value_type = Kernel::Point_3;
 
   // Hold a facet, and, upon dereference, use the stored facet and the passed
   // in counting iterator index to look yield the vertex being referred to in
@@ -115,6 +117,7 @@ class TriangleMeshGeometryProviderAdaptor<CGAL::Polyhedron_3<Kernel>>
       typename CGAL::Polyhedron_3<Kernel>::Facet_const_iterator;
   using facet_vertex_iterator =
       typename CGAL::Polyhedron_3<Kernel>::Halfedge_const_handle;
+  using value_type = Kernel::Point_3;
 
   size_t size(const MeshType* mesh) const { return mesh->size_of_facets(); }
 
@@ -124,6 +127,59 @@ class TriangleMeshGeometryProviderAdaptor<CGAL::Polyhedron_3<Kernel>>
 
   facet_iterator facets_end(const MeshType* mesh) const {
     return mesh->facets_end();
+  }
+};
+
+// Adaptor for all class that are a triangulation, providing a triangulation
+// data structure
+template <typename VB, typename FB>
+class TriangleMeshGeometryProviderAdaptor<
+    CGAL::Triangulation_data_structure_2<VB, FB>> {
+  using MeshType = typename CGAL::Triangulation_data_structure_2<VB, FB>;
+
+ public:
+  using facet_iterator = typename MeshType::Face_iterator;
+  using facet_vertex_iterator =
+      boost::transform_iterator<std::function<const Kernel::Point_2&(int)>,
+                                boost::counting_iterator<int>>;
+  using value_type = Kernel::Point_2;
+
+  // Hold a facet, and, upon dereference, use the stored facet and the passed
+  // in counting iterator index to look yield the vertex being referred to in
+  // the triangulation data-structure.
+  struct FacetHolderFunctor {
+    FacetHolderFunctor(facet_iterator fIter) : facetIter(fIter) {}
+
+    const Kernel::Point_2& operator()(int index) const {
+      return facetIter->vertex(index)->point();
+    }
+
+    facet_iterator facetIter;
+  };
+
+  // For each triangle face, loop over the vertices
+  facet_vertex_iterator fv_iterator(facet_iterator facetIter) const {
+    FacetHolderFunctor facetHolder(facetIter);
+    return boost::make_transform_iterator(boost::counting_iterator<int>(0),
+                                          facetHolder);
+  }
+
+  const Kernel::Point_2& dereference(facet_vertex_iterator vertexIter) const {
+    return *vertexIter;
+  }
+
+  facet_vertex_iterator next(facet_vertex_iterator vertexIter) const {
+    return ++vertexIter;
+  }
+
+  size_t size(const MeshType* mesh) const { return mesh->number_of_faces(); }
+
+  facet_iterator facets_begin(const MeshType* mesh) const {
+    return mesh->faces_begin();
+  }
+
+  facet_iterator facets_end(const MeshType* mesh) const {
+    return mesh->faces_end();
   }
 };
 

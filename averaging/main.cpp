@@ -4,6 +4,9 @@
 #include <glog/logging.h>
 #include <gflags/gflags.h>
 
+#include <CGAL/Projection_traits_xy_3.h>
+#include <CGAL/Delaunay_triangulation_2.h>
+
 #include <OGRE/Ogre.h>
 #include <OGRE/OgreRectangle2D.h>
 #include <OGRE/OgreConfigFile.h>
@@ -15,6 +18,7 @@
 #include <polyloop_2.h>
 #include <polyloopGeometryProvider.h>
 #include <positionOnlyBufferProvider.h>
+#include <uniformPlanarGrid.h>
 #include <uniformVoxelGrid.h>
 #include <uniformVoxelGridGeometryProvider.h>
 #include <geometryRenderable.h>
@@ -131,9 +135,6 @@ class LevelSetMeshVisualizer {
 
 template <class Field>
 class PlanarDistanceFieldVisualizer {
-  static constexpr Kernel::FT MAX_LEVEL = 20;
-  static constexpr Kernel::FT MIN_LEVEL = 1;
-
  public:
   PlanarDistanceFieldVisualizer(const Field& inducedField,
                                 Ogre::SceneNode* parent)
@@ -141,21 +142,37 @@ class PlanarDistanceFieldVisualizer {
     m_distanceFieldSceneNode = parent->createChildSceneNode();
   }
 
-  void addDistanceHeatMapMeshToScene() {
+  void addToScene() {
     // Customize some materials
-    using MaterialPolicyFunctor = std::function<std::string(void)>;
-    MaterialPolicyFunctor transparentMeshPolicy =
-        []() { return "Materials/DefaultTransparentTriangles"; };
+    UniformPlanarGrid planarGrid(Kernel::Plane_3(0, 0, 1, 0), 10, 10, 5, 5);
+    typedef CGAL::Projection_traits_xy_3<Kernel> GeometryTraits;
+    typedef CGAL::Delaunay_triangulation_2<GeometryTraits> Delaunay;
+    Delaunay triangulation(planarGrid.begin(), planarGrid.end());
 
-    std::function<Kernel::FT(const Kernel::Point_3&)> samplingFunction =
+    using TMeshRepresentation = typename Delaunay::Triangulation_data_structure;
+    using TMeshGeometryProvider =
+        TriangleMeshGeometryProvider<TMeshRepresentation>;
+    TMeshGeometryProvider meshGeometryProvider(triangulation.tds());
+    auto gridMeshRenderable =
+        new Meshable<TMeshGeometryProvider>("scalarFieldHeatMap");
+    gridMeshRenderable->setVertexBufferData(
+        RenderBufferProvider<TMeshGeometryProvider>(meshGeometryProvider));
+
+    Ogre::Root* root = Ogre::Root::getSingletonPtr();
+    Ogre::SceneManager* sceneManager = root->getSceneManager("PrimaryScene");
+    Ogre::Entity* gridEntity =
+        sceneManager->createEntity("heatMap", "scalarFieldHeatMap");
+    gridEntity->setMaterialName("Materials/DefaultTriangles");
+
+    std::function<Kernel::FT(const Kernel::Point_2&)> samplingFunction =
         [ this, inducedFieldCRef = std::cref(*m_inducedField) ](
-            const Kernel::Point_3& point) {
+            const Kernel::Point_2& point) {
       return inducedFieldCRef.get()(point) - m_value;
     };
 
     // Remove all children from scene node, and re-populate with new level-set
     m_distanceFieldSceneNode->removeAndDestroyAllChildren();
-    // m_distanceFieldSceneNode->attachObject(meshRenderable);
+    m_distanceFieldSceneNode->attachObject(gridEntity);
   }
 
  private:
@@ -208,12 +225,21 @@ int main(int argc, char* argv[]) {
     sceneManager->getRootSceneNode()->createChildSceneNode()->attachObject(
         loop2Entity);
 
-    using Field = SeparableGeometryInducedField<
-        SquaredDistanceFieldComputer<Kernel::Point_3>>;
+    using Field = SeparableGeometryInducedField<Kernel::Point_3,
+                                                SquaredDistanceFieldComputer>;
     Field inducedField;
     inducedField.addGeometry(p);
     auto meshVisualizer = new LevelSetMeshVisualizer<Field>(
         inducedField, sceneManager->getRootSceneNode());
+
+    using SignedField = SeparableGeometryInducedField<
+        Kernel::Point_2, SignedDistanceFieldComputer>;
+    SignedField inducedSignedField;
+    inducedSignedField.addGeometry(p2D);
+    auto planarDistanceFieldVisualizer =
+        new PlanarDistanceFieldVisualizer<SignedField>(
+            inducedSignedField, sceneManager->getRootSceneNode());
+    planarDistanceFieldVisualizer->addToScene();
 
     Ogre::SceneNode* planeNode =
         sceneManager->getRootSceneNode()->createChildSceneNode();

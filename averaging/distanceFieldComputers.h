@@ -11,14 +11,15 @@
 
 // Given a sample location, computes the scalar field that is equal to the
 // squared distance of the sample from a given geometry representation.
-template <typename PointType>
+template <typename Domain>
 class SquaredDistanceFieldComputer : public boost::static_visitor<Kernel::FT> {
  public:
   using result_type = Kernel::FT;
+  using ComputableVariantType = PointDistanceComputableTypes<Domain>;
 
-  SquaredDistanceFieldComputer(const PointType& point) : m_point(&point) {}
+  SquaredDistanceFieldComputer(const Domain& point) : m_point(&point) {}
   // The distance field computer doesn't own any of the passed in points.
-  SquaredDistanceFieldComputer(const PointType&& point) = delete;
+  SquaredDistanceFieldComputer(const Domain&& point) = delete;
 
   template <typename RepType>
   result_type operator()(const RepType& rep) const {
@@ -26,30 +27,31 @@ class SquaredDistanceFieldComputer : public boost::static_visitor<Kernel::FT> {
   }
 
  private:
-  const PointType* m_point;
+  const Domain* m_point;
 };
 
-// Given a sample location in R3, computes the scalar field that is equal to the
+// Given a sample location, computes the scalar field that is equal to the
 // signed distance of the sample from a given geometry representation.
-template <typename PointType>
+template <typename Domain>
 class SignedDistanceFieldComputer : public boost::static_visitor<Kernel::FT> {
  public:
   using ComputedFieldType = Kernel::FT;
+  using ComputableVariantType = SignedDistanceComputableTypes<Domain>;
 
-  SignedDistanceFieldComputer(const PointType& point) : m_point(&point) {}
+  SignedDistanceFieldComputer(const Domain& point) : m_point(&point) {}
   // This distance field computer doesn't own any of the passed in points
-  SignedDistanceFieldComputer(const PointType&& point) = delete;
+  SignedDistanceFieldComputer(const Domain&& point) = delete;
 
   template <typename RepType>
-  Kernel::FT operator()(const RepType& geometryRep, const PointType& point) {
-    CGAL::Oriented_side side = CGAL::oriented_side(geometryRep, point);
-    Kernel::FT value = sqrt(CGAL::squared_distance(geometryRep, point));
+  Kernel::FT operator()(const RepType& geometryRep) const {
+    CGAL::Oriented_side side = CGAL::oriented_side(geometryRep, *m_point);
+    Kernel::FT value = sqrt(CGAL::squared_distance(geometryRep, *m_point));
     if (side == CGAL::ON_ORIENTED_BOUNDARY) return 0;
     return side == CGAL::ON_NEGATIVE_SIDE ? -value : value;
   }
 
  private:
-  const PointType* m_point;
+  const Domain* m_point;
 };
 
 #endif  //_DISTANCE_FIELD_COMPUTERS_H_
