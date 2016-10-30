@@ -6,6 +6,7 @@
 
 #include <CGAL/Projection_traits_xy_3.h>
 #include <CGAL/Delaunay_triangulation_2.h>
+#include <CGAL/Triangulation_vertex_base_with_info_2.h>
 
 #include <OGRE/Ogre.h>
 #include <OGRE/OgreRectangle2D.h>
@@ -137,16 +138,23 @@ template <class Field>
 class PlanarDistanceFieldVisualizer {
  public:
   PlanarDistanceFieldVisualizer(const Field& inducedField,
-                                Ogre::SceneNode* parent)
-      : m_inducedField(&inducedField) {
-    m_distanceFieldSceneNode = parent->createChildSceneNode();
-  }
+                                Ogre::SceneNode* polyloopsSceneNode)
+      : m_inducedField(&inducedField),
+        m_polyloopsSceneNode(polyloopsSceneNode),
+        m_distanceFieldSceneNode(
+            polyloopsSceneNode->getParentSceneNode()->createChildSceneNode()) {}
 
   void addToScene() {
-    // Customize some materials
-    UniformPlanarGrid planarGrid(Kernel::Plane_3(0, 0, 1, 0), 10, 10, 5, 5);
+    // Customize some materials. TODO msati3: Add a node listener to the
+    // polyloops scene node here.
+    Ogre::AxisAlignedBox loopBounds = m_polyloopsSceneNode->_getWorldAABB();
+    UniformPlanarGrid planarGrid(Kernel::Plane_3(0, 0, 1, 0), 10, 10, 6, 6);
     typedef CGAL::Projection_traits_xy_3<Kernel> GeometryTraits;
-    typedef CGAL::Delaunay_triangulation_2<GeometryTraits> Triangulation;
+    typedef CGAL::Delaunay_triangulation_2<
+        GeometryTraits,
+        CGAL::Triangulation_data_structure_2<
+            CGAL::Triangulation_vertex_base_with_info_2<CGAL::Color, Kernel>,
+            CGAL::Triangulation_face_base_2<Kernel>>> Triangulation;
     Triangulation triangulation(planarGrid.begin(), planarGrid.end());
 
     using TMeshGeometryProvider = TriangleMeshGeometryProvider<Triangulation>;
@@ -168,13 +176,21 @@ class PlanarDistanceFieldVisualizer {
       return inducedFieldCRef.get()(point) - m_value;
     };
 
+    Triangulation::Finite_vertices_iterator iter =
+        triangulation.finite_vertices_begin();
+    for (; iter != triangulation.finite_vertices_end(); ++iter) {
+      iter->info() = samplingFunction(iter->point());
+    }
+
     // Remove all children from scene node, and re-populate with new level-set
     m_distanceFieldSceneNode->removeAndDestroyAllChildren();
     m_distanceFieldSceneNode->attachObject(gridEntity);
+    m_distanceFieldSceneNode->showBoundingBox(true);
   }
 
  private:
   Kernel::FT m_value;
+  Ogre::SceneNode* m_polyloopsSceneNode;
   Ogre::SceneNode* m_distanceFieldSceneNode;
   const Field* m_inducedField;
 };
@@ -212,6 +228,13 @@ int main(int argc, char* argv[]) {
     GeometryBackedSelectableObject<decltype(p)> selectableLoop(loop1Entity);
     app.getSelectionManager().addSelectableObject(&selectableLoop);
 
+    using Field = SeparableGeometryInducedField<Kernel::Point_3,
+                                                SquaredDistanceFieldComputer>;
+    Field inducedField;
+    inducedField.addGeometry(p);
+    auto meshVisualizer = new LevelSetMeshVisualizer<Field>(
+        inducedField, sceneManager->getRootSceneNode());
+
     LoopGeometryProvider2D loopGeometryProvider2D(p2D);
     auto loopMeshable2D = new Meshable<LoopGeometryProvider2D>("polyloop2");
     loopMeshable2D->setVertexBufferData(
@@ -220,15 +243,9 @@ int main(int argc, char* argv[]) {
         sceneManager->createEntity("entityPolyloop2", "polyloop2");
     loop2Entity->setMaterialName("Materials/DefaultLines");
 
-    sceneManager->getRootSceneNode()->createChildSceneNode()->attachObject(
-        loop2Entity);
-
-    using Field = SeparableGeometryInducedField<Kernel::Point_3,
-                                                SquaredDistanceFieldComputer>;
-    Field inducedField;
-    inducedField.addGeometry(p);
-    auto meshVisualizer = new LevelSetMeshVisualizer<Field>(
-        inducedField, sceneManager->getRootSceneNode());
+    Ogre::SceneNode* signedDistanceFieldNode =
+        sceneManager->getRootSceneNode()->createChildSceneNode();
+    signedDistanceFieldNode->attachObject(loop2Entity);
 
     using SignedField =
         SeparableGeometryInducedField<Kernel::Point_2,
@@ -236,14 +253,14 @@ int main(int argc, char* argv[]) {
     SignedField inducedSignedField;
     inducedSignedField.addGeometry(p2D);
     auto planarDistanceFieldVisualizer =
-        new PlanarDistanceFieldVisualizer<SignedField>(
-            inducedSignedField, sceneManager->getRootSceneNode());
+        new PlanarDistanceFieldVisualizer<SignedField>(inducedSignedField,
+                                                       signedDistanceFieldNode);
     planarDistanceFieldVisualizer->addToScene();
 
-    Ogre::SceneNode* planeNode =
+    /*Ogre::SceneNode* planeNode =
         sceneManager->getRootSceneNode()->createChildSceneNode();
     planeNode->attachObject(getPrefab(Prefab::PLANE));
-    planeNode->setScale(10, 10, 10);
+    planeNode->setScale(10, 10, 10);*/
 
     Ogre::SceneNode* axesNode =
         sceneManager->getRootSceneNode()->createChildSceneNode();

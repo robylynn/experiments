@@ -12,19 +12,29 @@ enum VertexElementBindings {
   NORMAL_BINDING = 1,
   COLOR_BINDING = 2
 };
-constexpr int VertexDataElementSemantic[] = {
-    Ogre::VES_POSITION, Ogre::VES_NORMAL, Ogre::VES_DIFFUSE};
-constexpr int VertexDataElementTypes[] = {Ogre::VET_FLOAT3, Ogre::VET_FLOAT3,
-                                          Ogre::VET_FLOAT3};
 
 struct PositionVertexElement {
   constexpr static unsigned short bindingLocation =
       VertexElementBindings::POSITION_BINDING;
   constexpr static Ogre::VertexElementSemantic semantic = Ogre::VES_POSITION;
   constexpr static Ogre::VertexElementType type = Ogre::VET_FLOAT3;
+  constexpr static size_t elementSize = 3;
+  constexpr static size_t defaultExtension = 0;
+  using AtomicType = float;
 };
 
+struct ColorVertexElement {
+  constexpr static unsigned short bindingLocation =
+      VertexElementBindings::COLOR_BINDING;
+  constexpr static Ogre::VertexElementSemantic semantic = Ogre::VES_DIFFUSE;
+  constexpr static Ogre::VertexElementType type = Ogre::VET_FLOAT4;
+  constexpr static size_t elementSize = 4;
+  constexpr static size_t defaultExtension = 1;
+  using AtomicType = float;
+}
+
 // Variant of different VertexElement types
-using VertexElementsVariant = boost::variant<PositionVertexElement>;
+using VertexElementsVariant =
+    boost::variant<PositionVertexElement, ColorVertexElement>;
 
 #endif  //_FRAMEWORK_RENDERING_VERTEXELEMENT_H_

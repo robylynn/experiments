@@ -1,8 +1,11 @@
 #include <iostream>
 
 #include "temporaries.h"
+#include "variadicTemplates.h"
 
 int main() {
-  evaluateTemporaries();
+  // evaluateTemporaries();
+  evaluateVariadicTemplates();
+
   return 0;
 }

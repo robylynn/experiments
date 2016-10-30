@@ -11,31 +11,35 @@
 #include <CGAL/Polyhedron_3.h>
 #include <CGAL/Triangulation_2.h>
 
+#include "vertexElement.h"
+
 // Typetraits for mesh kernels. By default, the type of the Kernel for the mesh
 // is simply forwarded. This assumes that the user passes in a correct
 // KernelType that is derivable at calling location.
+template <typename Triangulation, typename VertexElement>
+struct MeshProviderTraits {};
+
 template <typename Triangulation>
-struct MeshPointTraits {
-  using type = typename Triangulation::Point;
-};
+struct MeshProviderTraits<Triangulation, PositionElement> {
+  using type = typename CGAL::Color;
+}
+
+template <typename Triangulation>
+struct MeshProviderTraits<Triangulation, ColorElement> {
+  using type = typename CGAL::Color;
+}
 
 template <typename Kernel>
-struct MeshPointTraits<CGAL::Polyhedron_3<Kernel>> {
+struct MeshProviderTraits<CGAL::Polyhedron_3<Kernel>, PositionElement> {
   using type = typename Kernel::Point_3;
-};
-
-template <typename Triangulation>
-struct MeshPointTraits<
-    CGAL::Surface_mesh_complex_2_in_triangulation_3<Triangulation>> {
-  using type = typename Triangulation::Point;
 };
 
 // Code to adapt some common triangle mesh containers of CGAL to use a uniform
 // interface for consumption by the geometry provider. Specialize this to adapt
 // mesh geometry provider to provide renderable geometry for custom types.
 // The base template provider for all "Triangulation" classes.
-template <typename Triangulation,
-          typename VT = typename MeshPointTraits<Triangulation>::type>
+template <typename Triangulation, typename VE = PositionElement,
+          typename VT = typename MeshProviderTraits<Triangulation, VE>::type>
 class TriangleMeshGeometryProviderAdaptor {
   using MeshType = Triangulation;
 
@@ -52,8 +56,17 @@ class TriangleMeshGeometryProviderAdaptor {
   struct FacetHolderFunctor {
     FacetHolderFunctor(facet_iterator fIter) : facetIter(fIter) {}
 
-    const value_type& operator()(int index) const {
+    template <typename VertexElement = VE>
+    const value_type& operator()(int index) const;
+
+    template <>
+    const value_type& operator()<PositionElement>(int index) {
       return facetIter->vertex(index)->point();
+    }
+
+    template <>
+    const value_type& operator()<ColorElement>(int index) {
+      return facetIter->vertex(index)->info();
     }
 
     facet_iterator facetIter;
@@ -112,7 +125,8 @@ template <typename Kernel>
 class TriangleMeshGeometryProviderAdaptor<CGAL::Polyhedron_3<Kernel>>
     : public HalfEdgeBasedGeometryProviderAdaptor<
           TriangleMeshGeometryProviderAdaptor<CGAL::Polyhedron_3<Kernel>>,
-          typename MeshPointTraits<CGAL::Polyhedron_3<Kernel>>::type,
+          typename MeshProviderTraits<CGAL::Polyhedron_3<Kernel>,
+                                      PointElement>::type,
           typename CGAL::Polyhedron_3<Kernel>::Facet_const_iterator,
           typename CGAL::Polyhedron_3<Kernel>::Halfedge_const_handle> {
   using MeshType = CGAL::Polyhedron_3<Kernel>;
@@ -146,7 +160,7 @@ class TriangleMeshGeometryProviderAdaptor<
 
  public:
   using facet_iterator = typename MeshType::Facet_iterator;
-  using value_type = typename MeshPointTraits<MeshType>::type;
+  using value_type = typename MeshProviderTraits<Triangulation>::type;
   using facet_vertex_iterator = boost::transform_iterator<
       std::function<const value_type&(int)>,
       boost::filter_iterator<std::function<int(int)>,

@@ -7,6 +7,7 @@
 #include "defaultRenderingPolicies.h"
 
 #include "vertexData.h"
+#include "vertexElement.h"
 
 // A sequential geometry mesh creator wraps provided geometry in a mesh, thus
 // allowing for instancing. It is assumed that the sequential geometry provider
@@ -36,25 +37,26 @@ class GeometryMeshCreator {
               << m_materialPolicy();
   }
 
-  void setVertexBufferData(const VertexBufferDataProvider& vertexDataProvider) {
-    createVertexData<typename VertexBufferDataProvider::Params>(
-        &m_mesh->sharedVertexData);
-    BoundingBoxProvider boundingBoxProvider(vertexDataProvider);
-    m_mesh->_setBounds(boundingBoxProvider());
+  void setVertexBufferData(const VertexBufferDataProvider& vertexDataProvider)
+      createVertexData<typename VertexBufferDataProvider::Params>(
+          &m_mesh->sharedVertexData, vertexElementsProvided);
+  BoundingBoxProvider boundingBoxProvider(vertexDataProvider);
+  m_mesh->_setBounds(boundingBoxProvider());
 
-    // TODO msati3: Fix this hardcoding
-    m_mesh->_setBoundingSphereRadius(1000);
-    populateVertexData<VertexBufferDataProvider>(m_mesh->sharedVertexData,
-                                                 vertexDataProvider);
+  // TODO msati3: Fix this hardcoding
+  m_mesh->_setBoundingSphereRadius(1000);
+  populateVertexData<VertexBufferDataProvider>(m_mesh->sharedVertexData,
+                                               vertexDataProvider,
+                                               vertexElementsProvided);
 
-    // Notify mesh loading completion
-    m_mesh->load();
-  }
+  // Notify mesh loading completion
+  m_mesh->load();
+}
 
- private:
-  Ogre::MeshPtr m_mesh;
-  RenderPolicy m_renderPolicy;
-  MaterialPolicy m_materialPolicy;
-};
+private : Ogre::MeshPtr m_mesh;
+RenderPolicy m_renderPolicy;
+MaterialPolicy m_materialPolicy;
+}
+;
 
 #endif  //_GEOMETRY_MESH_CREATOR_H_
