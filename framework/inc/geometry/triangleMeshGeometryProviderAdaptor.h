@@ -20,17 +20,17 @@ template <typename Triangulation, typename VertexElement>
 struct MeshProviderTraits {};
 
 template <typename Triangulation>
-struct MeshProviderTraits<Triangulation, PositionElement> {
-  using type = typename CGAL::Color;
-}
+struct MeshProviderTraits<Triangulation, PositionVertexElement> {
+  using type = CGAL::Color;
+};
 
 template <typename Triangulation>
-struct MeshProviderTraits<Triangulation, ColorElement> {
+struct MeshProviderTraits<Triangulation, ColorVertexElement> {
   using type = typename CGAL::Color;
-}
+};
 
 template <typename Kernel>
-struct MeshProviderTraits<CGAL::Polyhedron_3<Kernel>, PositionElement> {
+struct MeshProviderTraits<CGAL::Polyhedron_3<Kernel>, PositionVertexElement> {
   using type = typename Kernel::Point_3;
 };
 
@@ -38,7 +38,7 @@ struct MeshProviderTraits<CGAL::Polyhedron_3<Kernel>, PositionElement> {
 // interface for consumption by the geometry provider. Specialize this to adapt
 // mesh geometry provider to provide renderable geometry for custom types.
 // The base template provider for all "Triangulation" classes.
-template <typename Triangulation, typename VE = PositionElement,
+template <typename Triangulation, typename VE = PositionVertexElement,
           typename VT = typename MeshProviderTraits<Triangulation, VE>::type>
 class TriangleMeshGeometryProviderAdaptor {
   using MeshType = Triangulation;
@@ -57,15 +57,17 @@ class TriangleMeshGeometryProviderAdaptor {
     FacetHolderFunctor(facet_iterator fIter) : facetIter(fIter) {}
 
     template <typename VertexElement = VE>
-    const value_type& operator()(int index) const;
+    const value_type& operator()(int index) const {
+      return operator(index, VertexElement());
+    }
 
     template <>
-    const value_type& operator()<PositionElement>(int index) {
+    const value_type& operator()(int index, const PositionVertexElement& /**/) {
       return facetIter->vertex(index)->point();
     }
 
     template <>
-    const value_type& operator()<ColorElement>(int index) {
+    const value_type& operator()(int index, const ColorVertexElement& /**/) {
       return facetIter->vertex(index)->info();
     }
 

@@ -1,10 +1,13 @@
 #ifndef _FRAMEWORK_RENDERING_VERTEXELEMENT_H_
 #define _FRAMEWORK_RENDERING_VERTEXELEMENT_H_
 
-#include <boost/variant.hpp>
-
 #include <OGRE/OgreVertexIndexData.h>
 #include <OGRE/OgreHardwareVertexBuffer.h>
+
+template <typename ElementProvider, typename VertexElement>
+struct VertexElementProviderTraits {
+  using const_iterator = typename ElementProvider::const_iterator;
+};
 
 // Binding constants for commonly used vertex buffer attributes.
 enum VertexElementBindings {
@@ -31,10 +34,6 @@ struct ColorVertexElement {
   constexpr static size_t elementSize = 4;
   constexpr static size_t defaultExtension = 1;
   using AtomicType = float;
-}
-
-// Variant of different VertexElement types
-using VertexElementsVariant =
-    boost::variant<PositionVertexElement, ColorVertexElement>;
+};
 
 #endif  //_FRAMEWORK_RENDERING_VERTEXELEMENT_H_

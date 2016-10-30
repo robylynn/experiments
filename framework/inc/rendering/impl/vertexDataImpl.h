@@ -1,40 +1,41 @@
 #ifndef _FRAMEWORK_RENDERING_VERTEXDATAIMPL_H_
 #define _FRAMEWORK_RENDERING_VERTEXDATAIMPL_H_
 
+#include <experimental/tuple>
+
 #include "impl/vertexElementImpl.h"
+
+template <typename T>
+struct VertexBufferDataProviderParams {};
 
 namespace impl {
 // Populate vertex buffer data. Set the vertex count to maxBound when reserving
 // memory on the GPU.
-template <typename DataProviderParams>
-void createVertexData(
-    Ogre::VertexData** vertexData,
-    const std::vector<VertexElementsVariant>& vertexElementsProvided) {
-  *vertexData = OGRE_NEW Ogre::VertexData();
-  (*vertexData)->vertexStart = DataProviderParams::vertexStart;
-  (*vertexData)->vertexCount = DataProviderParams::maxBound;
+template <typename DataProvider>
+void createVertexData(Ogre::VertexData** vertexData) {
+  using ProviderParams = VertexBufferDataProviderParams<DataProvider>;
 
-  // Create vertex elements (attributes) for the types required
-  for (auto vertexElement : vertexElementsProvided) {
-    CreateVertexElementVisitor createVisitor(*vertexData);
-    boost::apply_visitor(createVisitor, vertexElement);
-  }
+  *vertexData = OGRE_NEW Ogre::VertexData();
+  (*vertexData)->vertexStart = ProviderParams::vertexStart;
+  (*vertexData)->vertexCount = ProviderParams::maxBound;
+
+  CreateVertexElementVisitor createVisitor(*vertexData);
+  std::experimental::apply(createVisitor, ProviderParams::ProvidedElements);
 }
 
 // Use a vertex buffer data provider that provides data for each of the
 // elements (attributes) of the vertex buffer to fill up the vertex buffer's
 // memory contents
 template <typename DataProvider>
-void populateVertexData(
-    Ogre::VertexData* vertexData, const DataProvider& provider,
-    const std::vector<VertexElementsVariant>& vertexElementsProvided) {
+void populateVertexData(Ogre::VertexData* vertexData,
+                        const DataProvider& provider) {
   vertexData->vertexCount = provider.size();
-  for (auto vertexElement : DataProvider::Params::vertexElementsProvided) {
-    PopulateVertexElementDataVisitor<DataProvider> populateVisitor(vertexData,
-                                                                   provider);
-    boost::apply_visitor(populateVisitor, vertexElement);
-  }
+  PopulateVertexElementDataVisitor<DataProvider> populateVisitor(vertexData,
+                                                                 provider);
+  std::experimental::apply(populateVisitor,
+             VertexBufferDataProviderParams<DataProvider>::ProvidedElements);
 }
+
 }  // end namespace impl
 
 #endif  //_FRAMEWORK_RENDERING_VERTEXDATAIMPL_H_

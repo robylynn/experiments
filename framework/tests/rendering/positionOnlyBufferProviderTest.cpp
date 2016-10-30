@@ -4,7 +4,6 @@
 #include "polyloop_2.h"
 #include "polyloopGeometryProvider.h"
 #include "positionOnlyBufferProvider.h"
-#include "vertexElement.h"
 
 class PositionOnlyProviderTest : public ::testing::Test {
  protected:
@@ -23,12 +22,13 @@ class PositionOnlyProviderTest : public ::testing::Test {
 };
 
 TEST_F(PositionOnlyProviderTest, iterate) {
-  using GeometryProvider =
-      PolyloopGeometryProvider<Polyloop_3, PolyloopListPolicy>;
+  using GeometryProvider = PolyloopGeometryProvider<Polyloop_3>;
   using BufferProvider = PositionOnlyBufferProvider<GeometryProvider>;
   using BufferIter = BufferProvider::const_iterator;
   GeometryProvider geometry(loop3D);
-  BufferProvider buffer;
+
+  BufferProvider provider(geometry);
+
   float* expectedValuePtr = unrolledValues;
   size_t count = 0;
   for (auto iter = buffer.begin(geometry.begin(), PositionVertexElement());
@@ -41,8 +41,7 @@ TEST_F(PositionOnlyProviderTest, iterate) {
 }
 
 TEST_F(PositionOnlyProviderTest, iterate2D) {
-  using GeometryProvider =
-      PolyloopGeometryProvider<Polyloop_2, PolyloopListPolicy>;
+  using GeometryProvider = PolyloopGeometryProvider<Polyloop_2>;
   using BufferProvider = PositionOnlyBufferProvider<GeometryProvider>;
   using BufferIter = BufferProvider::const_iterator;
   GeometryProvider geometry(loop2D);

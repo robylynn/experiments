@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.1)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake_modules")
 set(ROOT_DIR "${CMAKE_SOURCE_DIR}")
 # TODO msati3: add -Wall and clean up warnings
-set(CMAKE_CXX_FLAGS "-frounding-math -std=c++11")
+set(CMAKE_CXX_FLAGS "-frounding-math -std=c++1z")
 add_definitions(-DBOOST_RESULT_OF_USE_DECLTYPE)
 
 set (CGAL_LIBS
