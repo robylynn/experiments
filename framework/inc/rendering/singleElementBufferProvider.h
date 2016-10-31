@@ -14,41 +14,28 @@
 // VertexElement provider. This allows for simple STL containers to be used as
 // VertexElement providers.
 template <typename ElementProvider, typename ElementType>
-class SingleElementBufferProviderAdaptor {
- private:
-  const ElementProvider* m_provider;
+class SingleElementBufferProviderAdaptor
+    : VertexElementProviderTraits<ElementProvider,
+                                  ElementType>::storage_strategy {
+  using StorageStrategy =
+      typename VertexElementProviderTraits<ElementProvider,
+                                           ElementType>::storage_strategy;
+  using const_iterator =
+      typename VertexElementProviderTraits<ElementProvider,
+                                           ElementType>::const_iterator;
 
  public:
-  using const_iterator = decltype(m_provider->begin());
-
-  SingleElementBufferProviderAdaptor(
-      const SingleElementBufferProviderAdaptor& adaptor) {
-    m_provider = adaptor.m_provider;
-  }
-
-  SingleElementBufferProviderAdaptor& operator=(
-      const SingleElementBufferProviderAdaptor& adaptor) {
-    m_provider = adaptor.m_provider;
-  }
-
-  SingleElementBufferProviderAdaptor(
-      const SingleElementBufferProviderAdaptor&& adaptor) {
-    m_provider = adaptor.m_provider;
-  }
-
   SingleElementBufferProviderAdaptor(const ElementProvider& provider)
-      : m_provider(&provider) {}
-
-  const ElementProvider* get() const { return m_provider; }
-
-  SingleElementBufferProviderAdaptor(const ElementProvider&& provider) = delete;
+      : StorageStrategy(provider) {}
+  SingleElementBufferProviderAdaptor(const ElementProvider&& provider)
+      : StorageStrategy(provider) {}
 
   const_iterator begin(const ElementType& element) const {
-    return m_provider->begin();
+    return this->m_provider->begin();
   }
 
   const_iterator end(const ElementType& element) const {
-    return m_provider->end();
+    return this->m_provider->end();
   }
 };
 
@@ -58,27 +45,25 @@ class SingleElementBufferProviderAdaptor {
 // binding of this temporary to VertexElementBufferProvider.
 template <typename ElementProvider, typename ElementType>
 class ElementProviderStorageStrategy<
-    SingleElementBufferProviderAdaptor<ElementProvider, ElementType>> {
+    SingleElementBufferProviderAdaptor<ElementProvider, ElementType>>
+    : public CopyProviderStorageStrategy<
+          SingleElementBufferProviderAdaptor<ElementProvider, ElementType>> {
  protected:
-  ElementProviderStorageStrategy(const SingleElementBufferProviderAdaptor<
-      ElementProvider, ElementType>& provider)
-      : m_lightWeightProvider(provider), m_provider(&m_lightWeightProvider) {}
-
-  const SingleElementBufferProviderAdaptor<ElementProvider, ElementType>
-      m_lightWeightProvider;
-  const SingleElementBufferProviderAdaptor<ElementProvider, ElementType>*
-      m_provider;
+  using CopyProviderStorageStrategy<SingleElementBufferProviderAdaptor<
+      ElementProvider, ElementType>>::CopyProviderStorageStrategy;
 };
 
-// Convenience typedefs for common single element buffer providers
-template <typename GeometryProvider>
-using PositionOnlyBufferProvider = VertexElementBufferProvider<
-    SingleElementBufferProviderAdaptor<GeometryProvider, PositionVertexElement>,
-    PositionVertexElement>;
-
-template <typename ColorProvider>
-using ColorOnlyBufferProvider = VertexElementBufferProvider<
-    SingleElementBufferProviderAdaptor<ColorProvider, ColorVertexElement>,
-    ColorVertexElement>;
+// Also specialize the VertexElementProvider traits for a
+// SingleElementBufferProviderAdaptor to conform to a pass through container
+template <typename ElementProvider, typename ElementType>
+struct VertexElementProviderTraits<
+    SingleElementBufferProviderAdaptor<ElementProvider, ElementType>,
+    ElementType> {
+  using provider_type =
+      SingleElementBufferProviderAdaptor<ElementProvider, ElementType>;
+  using const_iterator = typename ElementProvider::const_iterator;
+  using storage_strategy = ElementProviderStorageStrategy<
+      SingleElementBufferProviderAdaptor<ElementProvider, ElementType>>;
+};
 
 #endif  //_FRAMEWORK_RENDERING_SINGLE_ELEMENT_BUFFER_PROVIDER_H_

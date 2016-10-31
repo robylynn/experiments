@@ -8,6 +8,8 @@
 #include <OGRE/OgreRenderOperation.h>
 
 #include "containerAlgorithms.h"
+#include "vertexElement.h"
+#include "vertexElementProviderTraits.h"
 
 class PolyloopListPolicy {
  public:
@@ -77,6 +79,19 @@ class PolyloopGeometryProvider : public ProviderPolicy {
   const_iterator end() const {
     return const_iterator(m_circularContainer.end(), ProviderPolicy::stencil());
   }
+};
+
+// A polyloop geometry provider is a lightweight object. So, we specialize the
+// storage policy to by value. This allows for nicer client syntax through
+// implicit temporary creation for PolylopGeometryProvider.
+template <typename ElementProvider, typename ElementType>
+class ElementProviderStorageStrategy<
+    PolyloopGeometryProvider<ElementProvider, ElementType>>
+    : public CopyProviderStorageStrategy<
+          PolyloopGeometryProvider<ElementProvider, ElementType>> {
+ protected:
+  using CopyProviderStorageStrategy<PolyloopGeometryProvider<
+      ElementProvider, ElementType>>::CopyProviderStorageStrategy;
 };
 
 #endif  //_POLYLOOP_GEOMETRY_PROVIDER_H_

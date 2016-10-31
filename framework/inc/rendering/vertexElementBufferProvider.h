@@ -7,21 +7,9 @@
 
 #include "renderingConstants.h"
 #include "vertexElement.h"
+#include "vertexElementProviderTraits.h"
 #include "vertexElementIndexer.h"
 #include "vertexData.h"
-
-// Default storage strategy for element providers is pointer storage
-template <typename ElementProvider>
-class ElementProviderStorageStrategy {
- protected:
-  ElementProviderStorageStrategy(const ElementProvider& provider)
-      : m_provider(&provider) {}
-  // We don't allow creation from temporaries, as we expect the provider to
-  // remain valid over the life of the VertexElementBufferProvider.
-  ElementProviderStorageStrategy(const ElementProvider&& provider) = delete;
-
-  const ElementProvider* m_provider;
-};
 
 // Defitions: A vertex element is any per vertex attribute (position, color,
 // etc). The vertex element is a n-dimensional entity. A vertex element
@@ -47,8 +35,8 @@ class ElementProviderStorageStrategy {
 // accept a VertexElement as parameter, and yield an iterator that may be
 // dereferenced to obtain the VertexElement's ProvidedElement type.
 template <typename ElementProvider, typename VertexElement,
-          typename StorageStrategy =
-              ElementProviderStorageStrategy<ElementProvider>>
+          typename StorageStrategy = typename VertexElementProviderTraits<
+              ElementProvider, VertexElement>::storage_strategy>
 class VertexElementBufferProvider : public StorageStrategy {
   using ElementIterator =
       typename VertexElementProviderTraits<ElementProvider,

@@ -4,11 +4,6 @@
 #include <OGRE/OgreVertexIndexData.h>
 #include <OGRE/OgreHardwareVertexBuffer.h>
 
-template <typename ElementProvider, typename VertexElement>
-struct VertexElementProviderTraits {
-  using const_iterator = typename ElementProvider::const_iterator;
-};
-
 // Binding constants for commonly used vertex buffer attributes.
 enum VertexElementBindings {
   POSITION_BINDING = 0,
