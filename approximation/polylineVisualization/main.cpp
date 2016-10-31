@@ -14,7 +14,7 @@
 
 #include <polyloop_3.h>
 #include <polyloopGeometryProvider.h>
-#include <positionOnlyBufferProvider.h>
+#include <singleElementBufferProvider.h>
 #include <uniformVoxelGrid.h>
 #include <uniformVoxelGridGeometryProvider.h>
 #include <geometryRenderable.h>

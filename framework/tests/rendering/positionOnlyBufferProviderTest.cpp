@@ -3,7 +3,7 @@
 #include "polyloop_3.h"
 #include "polyloop_2.h"
 #include "polyloopGeometryProvider.h"
-#include "positionOnlyBufferProvider.h"
+#include "singleElementBufferProvider.h"
 
 class PositionOnlyProviderTest : public ::testing::Test {
  protected:
