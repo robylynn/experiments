@@ -65,22 +65,16 @@ class VertexElementBufferProvider : public StorageStrategy {
   VertexElementBufferProvider(
       const ElementProvider& provider,
       const std::function<ElementIterator(const ElementProvider*,
-                                          const VertexElement&)>& beginFn,
+                                          const VertexElement&)>& beginFn =
+          &ElementProvider::begin,
       const std::function<ElementIterator(const ElementProvider*,
-                                          const VertexElement&)> endFn)
-      : VertexElementBufferProvider(
-            provider, std::bind(beginFn, provider, VertexElement()),
-            std::bind(endFn, provider, VertexElement())) {}
-
-  // Use this overload to pre-populate sequential collection provider,
-  // but use begin-end as the iteration functions (useful when the
-  // collection provider is a stl container)
-  VertexElementBufferProvider(const ElementProvider& provider)
-      : VertexElementBufferProvider(
-            provider, std::bind(&ElementProvider::begin, this->m_provider,
-                                VertexElement()),
-            std::bind(&ElementProvider::end, this->m_provider,
-                      VertexElement())) {}
+                                          const VertexElement&)> endFn =
+          &ElementProvider::end)
+      : StorageStrategy(provider),
+        m_beginFn(std::bind(&ElementProvider::begin, this->m_provider,
+                            VertexElement())),
+        m_endFn(std::bind(&ElementProvider::end, this->m_provider,
+                          VertexElement())) {}
 
   template <typename ElementIter = ElementIterator>
   class CoordinateIterator
@@ -126,44 +120,37 @@ class VertexElementBufferProvider : public StorageStrategy {
   }
 
   // Accept just the vertexElement, and forward calls using stored instance
-  CoordinateIterator<ElementIterator> begin(
-      const VertexElement& vertexElement) const {
+  CoordinateIterator<ElementIterator> begin() const {
     assert(this->m_provider != nullptr);
-    return begin(*(this->m_provider), vertexElement);
+    return begin(*(this->m_provider));
   }
 
-  CoordinateIterator<ElementIterator> end(
-      const VertexElement& vertexElement) const {
+  CoordinateIterator<ElementIterator> end() const {
     assert(this->m_provider != nullptr);
-    return end(*(this->m_provider), vertexElement);
+    return end(*(this->m_provider));
   }
 
   using const_iterator = CoordinateIterator<ElementIterator>;
 
  private:
   CoordinateIterator<ElementIterator> begin(
-      const ElementProvider& provider,
-      const VertexElement& vertexElement) const {
-    return begin(m_beginFn(), vertexElement);
+      const ElementProvider& provider) const {
+    return begin(m_beginFn());
   }
 
   CoordinateIterator<ElementIterator> end(
-      const ElementProvider& provider,
-      const VertexElement& vertexElement) const {
-    return end(m_endFn(), vertexElement);
+      const ElementProvider& provider) const {
+    return end(m_endFn());
   }
 
   // Accept iterators to the provider begin and end, allowing for non-standard
   // names to the iterators being used
   CoordinateIterator<ElementIterator> begin(
-      ElementIterator providerBegin,
-      const VertexElement& /*vertexElement*/) const {
+      ElementIterator providerBegin) const {
     return CoordinateIterator<ElementIterator>(this, providerBegin, 0);
   }
 
-  CoordinateIterator<ElementIterator> end(
-      ElementIterator providerEnd,
-      const VertexElement& /*vertexElement*/) const {
+  CoordinateIterator<ElementIterator> end(ElementIterator providerEnd) const {
     return CoordinateIterator<ElementIterator>(this, providerEnd, 0);
   }
 

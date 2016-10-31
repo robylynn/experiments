@@ -21,12 +21,12 @@ struct MeshProviderTraits {};
 
 template <typename Triangulation>
 struct MeshProviderTraits<Triangulation, PositionVertexElement> {
-  using type = CGAL::Color;
+  using type = Kernel::Point_3;
 };
 
 template <typename Triangulation>
 struct MeshProviderTraits<Triangulation, ColorVertexElement> {
-  using type = typename CGAL::Color;
+  using type = CGAL::Color;
 };
 
 template <typename Kernel>
@@ -58,16 +58,16 @@ class TriangleMeshGeometryProviderAdaptor {
 
     template <typename VertexElement = VE>
     const value_type& operator()(int index) const {
-      return operator(index, VertexElement());
+      return operator()(index, VertexElement());
     }
 
-    template <>
-    const value_type& operator()(int index, const PositionVertexElement& /**/) {
+    const value_type& operator()(int index,
+                                 const PositionVertexElement& /**/) const {
       return facetIter->vertex(index)->point();
     }
 
-    template <>
-    const value_type& operator()(int index, const ColorVertexElement& /**/) {
+    const value_type& operator()(int index,
+                                 const ColorVertexElement& /**/) const {
       return facetIter->vertex(index)->info();
     }
 
@@ -102,19 +102,36 @@ class TriangleMeshGeometryProviderAdaptor {
 
 // If the MeshRepresentation is based on HalfEdge data-structure, we can reuse
 // some of the code.
-template <typename T, typename PT, typename FI, typename FVI>
+template <typename T, typename VE, typename VT, typename FI, typename FVI>
 class HalfEdgeBasedGeometryProviderAdaptor {
  public:
   using facet_iterator = FI;
   using facet_vertex_iterator = FVI;
-  using value_type = PT;
+  using value_type = VT;
 
   facet_vertex_iterator fv_iterator(facet_iterator facetIter) const {
     return facetIter->halfedge();
   }
 
-  const PT& dereference(facet_vertex_iterator vertexIter) const {
+  const value_type& dereference(facet_vertex_iterator vertexIter) const {
+    return dereferenceInternal(vertexIter);
+  }
+
+  template <typename VertexElement = VE>
+  const value_type& dereferenceInternal(
+      const facet_vertex_iterator& vertexIter) const {
+    return dereferenceInternal(vertexIter, VertexElement());
+  }
+
+  const value_type& dereferenceInternal(
+      const facet_vertex_iterator& vertexIter,
+      const PositionVertexElement& /**/) const {
     return vertexIter->vertex()->point();
+  }
+
+  const value_type& dereferenceInternal(const facet_vertex_iterator& vertexIter,
+                                        const ColorVertexElement& /**/) const {
+    return vertexIter->vertex()->info();
   }
 
   facet_vertex_iterator next(facet_vertex_iterator vertexIter) const {
@@ -123,12 +140,11 @@ class HalfEdgeBasedGeometryProviderAdaptor {
 };
 
 // Specialize for Polyhedrons
-template <typename Kernel>
-class TriangleMeshGeometryProviderAdaptor<CGAL::Polyhedron_3<Kernel>>
+template <typename Kernel, typename VE>
+class TriangleMeshGeometryProviderAdaptor<CGAL::Polyhedron_3<Kernel>, VE>
     : public HalfEdgeBasedGeometryProviderAdaptor<
-          TriangleMeshGeometryProviderAdaptor<CGAL::Polyhedron_3<Kernel>>,
-          typename MeshProviderTraits<CGAL::Polyhedron_3<Kernel>,
-                                      PointElement>::type,
+          TriangleMeshGeometryProviderAdaptor<CGAL::Polyhedron_3<Kernel>, VE>,
+          VE, typename MeshProviderTraits<CGAL::Polyhedron_3<Kernel>, VE>::type,
           typename CGAL::Polyhedron_3<Kernel>::Facet_const_iterator,
           typename CGAL::Polyhedron_3<Kernel>::Halfedge_const_handle> {
   using MeshType = CGAL::Polyhedron_3<Kernel>;
@@ -154,15 +170,15 @@ class TriangleMeshGeometryProviderAdaptor<CGAL::Polyhedron_3<Kernel>>
 // triangulation algorithm. The facet for such results is a <tetrahedron cell,
 // vertex index> pair. We need to iterate over all the vertices not equal to
 // the vertex index.
-template <typename Triangulation>
+template <typename Triangulation, typename VE>
 class TriangleMeshGeometryProviderAdaptor<
-    CGAL::Surface_mesh_complex_2_in_triangulation_3<Triangulation>> {
+    CGAL::Surface_mesh_complex_2_in_triangulation_3<Triangulation>, VE> {
   using MeshType =
       CGAL::Surface_mesh_complex_2_in_triangulation_3<Triangulation>;
 
  public:
   using facet_iterator = typename MeshType::Facet_iterator;
-  using value_type = typename MeshProviderTraits<Triangulation>::type;
+  using value_type = typename MeshProviderTraits<Triangulation, VE>::type;
   using facet_vertex_iterator = boost::transform_iterator<
       std::function<const value_type&(int)>,
       boost::filter_iterator<std::function<int(int)>,
@@ -174,8 +190,19 @@ class TriangleMeshGeometryProviderAdaptor<
   struct FacetHolderFunctor {
     FacetHolderFunctor(facet_iterator fIter) : facetIter(fIter) {}
 
+    template <typename VertexElement = VE>
     const value_type& operator()(int index) const {
+      return operator()(index, VertexElement());
+    }
+
+    const value_type& operator()(int index,
+                                 const PositionVertexElement& /**/) const {
       return facetIter->first->vertex(index)->point();
+    }
+
+    const value_type& operator()(int index,
+                                 const ColorVertexElement& /**/) const {
+      return facetIter->first->vertex(index)->info();
     }
 
     facet_iterator facetIter;

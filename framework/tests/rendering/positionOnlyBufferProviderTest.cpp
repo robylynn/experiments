@@ -27,12 +27,11 @@ TEST_F(PositionOnlyProviderTest, iterate) {
   using BufferIter = BufferProvider::const_iterator;
   GeometryProvider geometry(loop3D);
 
-  BufferProvider provider(geometry);
+  BufferProvider buffer(geometry);
 
   float* expectedValuePtr = unrolledValues;
   size_t count = 0;
-  for (auto iter = buffer.begin(geometry.begin(), PositionVertexElement());
-       iter != buffer.end(geometry.end(), PositionVertexElement()); ++iter) {
+  for (auto iter = buffer.begin(); iter != buffer.end(); ++iter) {
     ASSERT_LT(count, sizeof(unrolledValues) / sizeof(unrolledValues[0]));
     EXPECT_EQ(*iter, *expectedValuePtr++);
     ++count;
@@ -45,11 +44,11 @@ TEST_F(PositionOnlyProviderTest, iterate2D) {
   using BufferProvider = PositionOnlyBufferProvider<GeometryProvider>;
   using BufferIter = BufferProvider::const_iterator;
   GeometryProvider geometry(loop2D);
-  BufferProvider buffer;
+  BufferProvider buffer(geometry);
+
   float* expectedValuePtr = unrolledValues;
   size_t count = 0;
-  for (auto iter = buffer.begin(geometry.begin(), PositionVertexElement());
-       iter != buffer.end(geometry.end(), PositionVertexElement()); ++iter) {
+  for (auto iter = buffer.begin(); iter != buffer.end(); ++iter) {
     ASSERT_LT(count, sizeof(unrolledValues) / sizeof(unrolledValues[0]));
     EXPECT_EQ(*iter, *expectedValuePtr++);
     ++count;

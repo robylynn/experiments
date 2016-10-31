@@ -34,11 +34,11 @@ class SingleElementBufferProviderAdaptor {
 
   const ElementProvider* operator*() const { return m_provider; }
 
-  const_iterator begin(/*const ElementType& element*/) const {
+  const_iterator begin(const ElementType& element) const {
     return m_provider->begin();
   }
 
-  const_iterator end(/*const ElementType& element*/) const {
+  const_iterator end(const ElementType& element) const {
     return m_provider->end();
   }
 };
@@ -62,7 +62,7 @@ class ElementProviderStorageStrategy<
  protected:
   ElementProviderStorageStrategy(const SingleElementBufferProviderAdaptor<
       ElementProvider, ElementType>& provider)
-      : m_provider(&provider) {}
+      : m_lightWeightProvider(provider), m_provider(&provider) {}
 
   // The only addition for the adaptor is this constructor, which allows for
   // storage of the lightweight adaptor class, and, thus less verbose client
