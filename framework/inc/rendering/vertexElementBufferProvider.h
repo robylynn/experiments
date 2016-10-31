@@ -7,6 +7,7 @@
 
 #include "renderingConstants.h"
 #include "vertexElement.h"
+#include "vertexElementIndexer.h"
 #include "vertexData.h"
 
 // Default storage strategy for element providers is pointer storage
@@ -78,11 +79,12 @@ class VertexElementBufferProvider : public StorageStrategy {
 
   template <typename ElementIter = ElementIterator>
   class CoordinateIterator
-      : public boost::iterator_facade<CoordinateIterator<ElementIter>, float,
-                                      boost::forward_traversal_tag, float> {
+      : public boost::iterator_facade<
+            CoordinateIterator<ElementIter>, typename VertexElement::AtomicType,
+            boost::forward_traversal_tag, typename VertexElement::AtomicType> {
    public:
     CoordinateIterator(const VertexElementBufferProvider* provider,
-                       ElementIter providerIter, int coordinateIndex)
+                       const ElementIter& providerIter, int coordinateIndex)
         : m_provider(provider),
           m_providerIter(providerIter),
           m_coordinateIndex(coordinateIndex) {}
@@ -106,7 +108,10 @@ class VertexElementBufferProvider : public StorageStrategy {
     // Forward to dereference delegate to allow being overloaded based on
     // GeometryPointType
     typename VertexElement::AtomicType dereference() const {
-      return (*m_providerIter)[m_coordinateIndex];
+      return static_cast<typename VertexElement::AtomicType>(
+          VertexElementIndexer<
+              const typename std::iterator_traits<ElementIter>::reference>()(
+              *m_providerIter, m_coordinateIndex));
     }
 
     const VertexElementBufferProvider* m_provider;
@@ -122,35 +127,36 @@ class VertexElementBufferProvider : public StorageStrategy {
   // Accept just the vertexElement, and forward calls using stored instance
   CoordinateIterator<ElementIterator> begin() const {
     assert(this->m_provider != nullptr);
-    return begin(*(this->m_provider));
+    return begin(this->m_provider);
   }
 
   CoordinateIterator<ElementIterator> end() const {
     assert(this->m_provider != nullptr);
-    return end(*(this->m_provider));
+    return end(this->m_provider);
   }
 
   using const_iterator = CoordinateIterator<ElementIterator>;
 
  private:
   CoordinateIterator<ElementIterator> begin(
-      const ElementProvider& provider) const {
+      const ElementProvider* provider) const {
     return begin(m_beginFn());
   }
 
   CoordinateIterator<ElementIterator> end(
-      const ElementProvider& provider) const {
+      const ElementProvider* provider) const {
     return end(m_endFn());
   }
 
   // Accept iterators to the provider begin and end, allowing for non-standard
   // names to the iterators being used
   CoordinateIterator<ElementIterator> begin(
-      ElementIterator providerBegin) const {
+      const ElementIterator& providerBegin) const {
     return CoordinateIterator<ElementIterator>(this, providerBegin, 0);
   }
 
-  CoordinateIterator<ElementIterator> end(ElementIterator providerEnd) const {
+  CoordinateIterator<ElementIterator> end(
+      const ElementIterator& providerEnd) const {
     return CoordinateIterator<ElementIterator>(this, providerEnd, 0);
   }
 

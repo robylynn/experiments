@@ -47,12 +47,19 @@ class stencil_circulator_iterator
   }
 
   bool equal(const stencil_circulator_iterator& other) const {
+    typename SingleIterator::Circulator circulator =
+        m_singleIter.current_circulator();
+    typename SingleIterator::Circulator otherC =
+        other.m_singleIter.current_circulator();
     return (m_stencilIter == other.m_stencilIter) &&
+           (m_singleIter.current_circulator() ==
+            other.m_singleIter.current_circulator()) &&
            (m_singleIter == other.m_singleIter);
   }
 
   const typename SingleIterator::reference dereference() const {
-    auto circulator = m_singleIter.current_circulator();
+    typename SingleIterator::Circulator circulator =
+        m_singleIter.current_circulator();
 
     // If the stencil value is positive
     for (int i = 0; i < *m_stencilIter; ++i) {

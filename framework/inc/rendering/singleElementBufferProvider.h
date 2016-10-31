@@ -1,5 +1,5 @@
-#ifndef _FRAMEWORK_RENDERING_SINGLE_ELEMENT_BUFFER_PROVIDERS_H_
-#define _FRAMEWORK_RENDERING_SINGLE_ELEMENT_BUFFER_PROVIDERS_H_
+#ifndef _FRAMEWORK_RENDERING_SINGLE_ELEMENT_BUFFER_PROVIDER_H_
+#define _FRAMEWORK_RENDERING_SINGLE_ELEMENT_BUFFER_PROVIDER_H_
 
 #include <functional>
 
@@ -22,17 +22,26 @@ class SingleElementBufferProviderAdaptor {
   using const_iterator = decltype(m_provider->begin());
 
   SingleElementBufferProviderAdaptor(
-      const SingleElementBufferProviderAdaptor& other)
-      : m_provider(other.m_provider) {}
+      const SingleElementBufferProviderAdaptor& adaptor) {
+    m_provider = adaptor.m_provider;
+  }
+
+  SingleElementBufferProviderAdaptor& operator=(
+      const SingleElementBufferProviderAdaptor& adaptor) {
+    m_provider = adaptor.m_provider;
+  }
+
   SingleElementBufferProviderAdaptor(
-      const SingleElementBufferProviderAdaptor&& other)
-      : m_provider(other.m_provider) {}
+      const SingleElementBufferProviderAdaptor&& adaptor) {
+    m_provider = adaptor.m_provider;
+  }
 
   SingleElementBufferProviderAdaptor(const ElementProvider& provider)
       : m_provider(&provider) {}
-  SingleElementBufferProviderAdaptor(const ElementProvider&& provider) = delete;
 
-  const ElementProvider* operator*() const { return m_provider; }
+  const ElementProvider* get() const { return m_provider; }
+
+  SingleElementBufferProviderAdaptor(const ElementProvider&& provider) = delete;
 
   const_iterator begin(const ElementType& element) const {
     return m_provider->begin();
@@ -41,15 +50,6 @@ class SingleElementBufferProviderAdaptor {
   const_iterator end(const ElementType& element) const {
     return m_provider->end();
   }
-};
-
-template <typename ElementProvider, typename ElementType>
-struct VertexElementProviderTraits<
-    SingleElementBufferProviderAdaptor<ElementProvider, ElementType>,
-    ElementType> {
-  using const_iterator =
-      typename SingleElementBufferProviderAdaptor<ElementProvider,
-                                                  ElementType>::const_iterator;
 };
 
 // A single element buffer provider adaptor specializes the storage policy to
@@ -62,13 +62,6 @@ class ElementProviderStorageStrategy<
  protected:
   ElementProviderStorageStrategy(const SingleElementBufferProviderAdaptor<
       ElementProvider, ElementType>& provider)
-      : m_lightWeightProvider(provider), m_provider(&provider) {}
-
-  // The only addition for the adaptor is this constructor, which allows for
-  // storage of the lightweight adaptor class, and, thus less verbose client
-  // code.
-  ElementProviderStorageStrategy(const SingleElementBufferProviderAdaptor<
-      ElementProvider, ElementType>&& provider)
       : m_lightWeightProvider(provider), m_provider(&m_lightWeightProvider) {}
 
   const SingleElementBufferProviderAdaptor<ElementProvider, ElementType>
@@ -76,21 +69,6 @@ class ElementProviderStorageStrategy<
   const SingleElementBufferProviderAdaptor<ElementProvider, ElementType>*
       m_provider;
 };
-
-// TODO msati3: Finish implementation
-/*
-// Takes a collection of VertexElementBuffer providers, and provides for
-// visitation over each of them.
-template <typename... ElementBufferProviders>
-class ChainedBufferDataProvider {
- public:
-  using ProvidedElement = std::tuple<ElementBufferProviders...>;
-
-  void begin(
-
- private:
-  std::tuple<Providers...> m_vertexElementBufferProviders;
-};*/
 
 // Convenience typedefs for common single element buffer providers
 template <typename GeometryProvider>
@@ -103,4 +81,4 @@ using ColorOnlyBufferProvider = VertexElementBufferProvider<
     SingleElementBufferProviderAdaptor<ColorProvider, ColorVertexElement>,
     ColorVertexElement>;
 
-#endif  //_FRAMEWORK_RENDERING_SINGLE_ELEMENT_BUFFER_PROVIDERS_H_
+#endif  //_FRAMEWORK_RENDERING_SINGLE_ELEMENT_BUFFER_PROVIDER_H_

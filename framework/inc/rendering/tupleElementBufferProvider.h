@@ -48,4 +48,19 @@ using PositionColorBufferProvider =
     TupleBufferDataProvider<DataProvider, PositionVertexElement,
                             ColorVertexElement>;
 
+// TODO msati3: Finish implementation
+/*
+// Takes a collection of VertexElementBuffer providers, and provides for
+// visitation over each of them.
+template <typename... ElementBufferProviders>
+class ChainedBufferDataProvider {
+ public:
+  using ProvidedElement = std::tuple<ElementBufferProviders...>;
+
+  void begin(
+
+ private:
+  std::tuple<Providers...> m_vertexElementBufferProviders;
+};*/
+
 #endif //_FRAMEWORK_RENDERING_TUPLE_ELEMENT_BUFFER_PROVIDER_H_
