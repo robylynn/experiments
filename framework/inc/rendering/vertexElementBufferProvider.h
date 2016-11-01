@@ -112,13 +112,28 @@ class VertexElementBufferProvider : public StorageStrategy {
     return VertexElement::elementSize * this->m_provider->size();
   }
 
-  // Accept just the vertexElement, and forward calls using stored instance
+  // Accept nothing -- the VertexElement is implicitly known
   CoordinateIterator<ElementIterator> begin() const {
     assert(this->m_provider != nullptr);
     return begin(this->m_provider);
   }
 
   CoordinateIterator<ElementIterator> end() const {
+    assert(this->m_provider != nullptr);
+    return end(this->m_provider);
+  }
+
+  // Accept a VertexElement -- this allows VertexElementBuffer provider to be
+  // used as a VertexDataBufferProvider (one that provides VertexBufferData for
+  // a single VertexElement)
+  CoordinateIterator<ElementIterator> begin(
+      const VertexElement& /*vertexElement*/) const {
+    assert(this->m_provider != nullptr);
+    return begin(this->m_provider);
+  }
+
+  CoordinateIterator<ElementIterator> end(
+      const VertexElement& /*vertexElement*/) const {
     assert(this->m_provider != nullptr);
     return end(this->m_provider);
   }

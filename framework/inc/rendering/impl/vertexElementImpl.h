@@ -78,7 +78,7 @@ class PopulateVertexElementDataVisitor {
       : m_vertexData(vertexData), m_dataProvider(dataProvider) {}
 
   template <typename VertexElement>
-  void operator()(const VertexElement& element) {
+  void operator()(const VertexElement& vertexElement) {
     Ogre::HardwareVertexBufferSharedPtr vbuf =
         m_vertexData->vertexBufferBinding->getBuffer(
             VertexElement::bindingLocation);
@@ -86,8 +86,8 @@ class PopulateVertexElementDataVisitor {
         static_cast<float*>(vbuf->lock(Ogre::HardwareBuffer::HBL_DISCARD));
 
     // Copy over the geometry provided by the geometry provider
-    std::for_each(m_dataProvider.begin(/*element*/),
-                  m_dataProvider.end(/*element*/),
+    std::for_each(m_dataProvider.begin(vertexElement),
+                  m_dataProvider.end(vertexElement),
                   [&buffer](float data) { *buffer++ = data; });
     vbuf->unlock();
   }

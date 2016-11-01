@@ -254,7 +254,7 @@ int main(int argc, char* argv[]) {
     auto planarDistanceFieldVisualizer =
         new PlanarDistanceFieldVisualizer<SignedField>(inducedSignedField,
                                                        signedDistanceFieldNode);
-    planarDistanceFieldVisualizer->addToScene();
+    //planarDistanceFieldVisualizer->addToScene();
 
     /*Ogre::SceneNode* planeNode =
         sceneManager->getRootSceneNode()->createChildSceneNode();
