@@ -25,10 +25,9 @@ class SingleElementBufferProviderAdaptor
                                            ElementType>::const_iterator;
 
  public:
-  SingleElementBufferProviderAdaptor(const ElementProvider& provider)
-      : StorageStrategy(provider) {}
-  SingleElementBufferProviderAdaptor(const ElementProvider&& provider)
-      : StorageStrategy(provider) {}
+  template <class EP>
+  SingleElementBufferProviderAdaptor(EP&& provider)
+      : StorageStrategy(std::forward<EP>(provider)) {}
 
   const_iterator begin(const ElementType& element) const {
     return this->m_provider->begin();

@@ -5,35 +5,8 @@
 #include "singleElementBufferProvider.h"
 #include "vertexElementProviderTraits.h"
 
-// Convenience typedefs for common single element buffer providers obtained
-// from Geometry reps.
-template <typename GeometryRep,
-          typename GeometryProvider = typename VertexElementProviderTraits<
-              GeometryRep, PositionVertexElement>::provider_type>
-using PositionOnlyBufferProvider = VertexElementBufferProvider<
-    SingleElementBufferProviderAdaptor<GeometryProvider, PositionVertexElement>,
-    PositionVertexElement>;
-
-template <typename GeometryRep,
-          typename ColorProvider = typename VertexElementProviderTraits<
-              GeometryRep, ColorVertexElement>::provider_type>
-using ColorOnlyBufferProvider = VertexElementBufferProvider<
-    SingleElementBufferProviderAdaptor<ColorProvider, ColorVertexElement>,
-    ColorVertexElement>;
-
-template <typename GeometryRep, typename GeometryProvider>
-PositionOnlyBufferProvider<GeometryRep> make_position_buffer_provider_internal(
-    const GeometryRep& geometryRep, const GeometryProvider* /**/) {
-  return PositionOnlyBufferProvider<GeometryRep>(
-      typename VertexElementProviderTraits<
-          GeometryRep, PositionVertexElement>::provider_type(geometryRep));
-}
-
-template <typename GeometryRep>
-PositionOnlyBufferProvider<GeometryRep> make_position_buffer_provider_internal(
-    const GeometryRep& geometryRep, const GeometryRep* /**/) {
-  return PositionOnlyBufferProvider<GeometryRep>(geometryRep);
-}
+#include "bufferProviderTypes.h"
+#include "impl/defaultBufferProvidersImpl.h"
 
 template <typename GeometryRep>
 PositionOnlyBufferProvider<GeometryRep> make_position_buffer_provider(
@@ -41,7 +14,7 @@ PositionOnlyBufferProvider<GeometryRep> make_position_buffer_provider(
   using provider_type = typename VertexElementProviderTraits<
       GeometryRep, PositionVertexElement>::provider_type;
   provider_type* dummyPtr = nullptr;
-  return make_position_buffer_provider_internal(geometryRep, dummyPtr);
+  return impl::make_position_buffer_provider_internal(geometryRep, dummyPtr);
 }
 
 template <typename GeometryRep>

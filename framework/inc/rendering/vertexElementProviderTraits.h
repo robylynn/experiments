@@ -23,6 +23,9 @@ class CopyProviderStorageStrategy {
   CopyProviderStorageStrategy(const ElementProvider& provider)
       : m_lightWeightProvider(provider), m_provider(&m_lightWeightProvider) {}
 
+  CopyProviderStorageStrategy(const ElementProvider&& provider)
+      : m_lightWeightProvider(provider), m_provider(&m_lightWeightProvider) {}
+
   const ElementProvider m_lightWeightProvider;
   const ElementProvider* m_provider;
 };
