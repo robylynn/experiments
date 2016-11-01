@@ -43,27 +43,9 @@ class VertexElementBufferProvider : public StorageStrategy {
                                            VertexElement>::const_iterator;
 
  public:
-  // Most generic form of buffer provider. Allows customization of begin and
-  // end.
-  VertexElementBufferProvider(const ElementProvider& provider,
-                              const std::function<ElementIterator()>& beginFn,
-                              const std::function<ElementIterator()>& endFn)
-      : StorageStrategy(provider), m_beginFn(beginFn), m_endFn(endFn) {}
-
-  // Convenience wrapper over member functions for begin and end
-  VertexElementBufferProvider(
-      const ElementProvider& provider,
-      const std::function<ElementIterator(const ElementProvider*,
-                                          const VertexElement&)>& beginFn =
-          &ElementProvider::begin,
-      const std::function<ElementIterator(const ElementProvider*,
-                                          const VertexElement&)> endFn =
-          &ElementProvider::end)
-      : StorageStrategy(provider),
-        m_beginFn(std::bind(&ElementProvider::begin, this->m_provider,
-                            VertexElement())),
-        m_endFn(std::bind(&ElementProvider::end, this->m_provider,
-                          VertexElement())) {}
+  // Accept and store element provider.
+  VertexElementBufferProvider(const ElementProvider& provider)
+      : StorageStrategy(provider) {}
 
   template <typename ElementIter = ElementIterator>
   class CoordinateIterator
@@ -115,40 +97,42 @@ class VertexElementBufferProvider : public StorageStrategy {
   // Accept nothing -- the VertexElement is implicitly known
   CoordinateIterator<ElementIterator> begin() const {
     assert(this->m_provider != nullptr);
-    return begin(this->m_provider);
+    return begin(this->m_provider, m_vertexElement);
   }
 
   CoordinateIterator<ElementIterator> end() const {
     assert(this->m_provider != nullptr);
-    return end(this->m_provider);
+    return end(this->m_provider, m_vertexElement);
   }
 
   // Accept a VertexElement -- this allows VertexElementBuffer provider to be
   // used as a VertexDataBufferProvider (one that provides VertexBufferData for
   // a single VertexElement)
   CoordinateIterator<ElementIterator> begin(
-      const VertexElement& /*vertexElement*/) const {
+      const VertexElement& vertexElement) const {
     assert(this->m_provider != nullptr);
-    return begin(this->m_provider);
+    return begin(this->m_provider, vertexElement);
   }
 
   CoordinateIterator<ElementIterator> end(
-      const VertexElement& /*vertexElement*/) const {
+      const VertexElement& vertexElement) const {
     assert(this->m_provider != nullptr);
-    return end(this->m_provider);
+    return end(this->m_provider, vertexElement);
   }
 
   using const_iterator = CoordinateIterator<ElementIterator>;
 
  private:
   CoordinateIterator<ElementIterator> begin(
-      const ElementProvider* provider) const {
-    return begin(m_beginFn());
+      const ElementProvider* provider,
+      const VertexElement& vertexElement) const {
+    return begin(provider->begin(vertexElement));
   }
 
   CoordinateIterator<ElementIterator> end(
-      const ElementProvider* provider) const {
-    return end(m_endFn());
+      const ElementProvider* provider,
+      const VertexElement& vertexElement) const {
+    return end(provider->end(vertexElement));
   }
 
   // Accept iterators to the provider begin and end, allowing for non-standard
@@ -163,8 +147,7 @@ class VertexElementBufferProvider : public StorageStrategy {
     return CoordinateIterator<ElementIterator>(this, providerEnd, 0);
   }
 
-  std::function<ElementIterator(void)> m_beginFn;
-  std::function<ElementIterator(void)> m_endFn;
+  VertexElement m_vertexElement;
 };
 
 template <typename EP, typename VE>

@@ -65,10 +65,10 @@ class DefaultBoundingBoxProvider {
   DefaultBoundingBoxProvider() { m_boundingBox.setInfinite(); }
 
   DefaultBoundingBoxProvider(const VertexBufferDataProvider& dataProvider) {
-    auto pointIterBegin =
-        utils::tuple_iterator<decltype(dataProvider.begin()), 3,
-                              Kernel::Point_3>::begin(dataProvider.begin(),
-                                                      dataProvider.end());
+    auto pointIterBegin = utils::tuple_iterator<
+        decltype(dataProvider.begin()), 3,
+        Kernel::Point_3>::begin(dataProvider.begin(PositionVertexElement()),
+                                dataProvider.end(PositionVertexElement()));
     Kernel::Iso_cuboid_3 cuboid = CGAL::bounding_box(
         pointIterBegin, utils::make_end_tuple_iterator(pointIterBegin));
 

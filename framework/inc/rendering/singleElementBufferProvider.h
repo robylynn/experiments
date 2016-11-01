@@ -29,6 +29,10 @@ class SingleElementBufferProviderAdaptor
       ElementProvider::PRIMITIVE_TYPE;
   static constexpr int HINT_MAX_BOUND = ElementProvider::HINT_MAX_BOUND;
 
+  SingleElementBufferProviderAdaptor(
+      const SingleElementBufferProviderAdaptor& other)
+      : StorageStrategy(*other.m_provider) {}
+
   template <class EP>
   SingleElementBufferProviderAdaptor(EP&& provider)
       : StorageStrategy(std::forward<EP>(provider)) {}

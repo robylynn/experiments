@@ -48,10 +48,10 @@ class Polyloop_3 {
 
   // The polyloop allows for iteration over points by pass through to container,
   // and conforms to the CGAL MeshPolyline_3 concept
-  auto begin() -> decltype(m_points.begin()) { return m_points.begin(); }
-  auto begin() const -> decltype(m_points.begin()) { return m_points.begin(); }
-  auto end() -> decltype(m_points.end()) { return m_points.end(); }
-  auto end() const -> decltype(m_points.end()) { return m_points.end(); }
+  iterator begin() { return m_points.begin(); }
+  const_iterator begin() const { return m_points.begin(); }
+  iterator end() { return m_points.end(); }
+  const_iterator end() const { return m_points.end(); }
 
   // The polyloop also allows for iteration over its constituting Segments.
   // This is done using the segment iterator. This only provides for constant

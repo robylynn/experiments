@@ -69,6 +69,7 @@ TEST_F(PositionOnlyProviderTest, iteratePolyloop3) {
 
   float* expectedValuePtr = unrolledValues;
   size_t count = 0;
+  std::vector<int> a {1,2,3,4,5};
   for (auto iter = bufferProvider.begin(); iter != bufferProvider.end();
        ++iter) {
     ASSERT_LT(count, sizeof(unrolledValues) / sizeof(unrolledValues[0]));

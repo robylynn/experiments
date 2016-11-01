@@ -42,18 +42,18 @@ class PolyloopMeshPolicy {
 template <typename LoopType, typename ProviderPolicy = PolyloopListPolicy>
 class PolyloopGeometryProvider : public ProviderPolicy {
  private:
-  const LoopType* m_polyloop;
   using LoopCirculator =
       CGAL::Circulator_from_iterator<typename LoopType::const_iterator>;
-  LoopCirculator m_circulator;
   using CirculatorContainer = CGAL::Container_from_circulator<LoopCirculator>;
-  CirculatorContainer m_circularContainer;
   using LoopIterator = decltype(std::declval<CirculatorContainer&>().begin());
+
+  const LoopType* m_polyloop;
+  LoopCirculator m_circulator;
+  CirculatorContainer m_circularContainer;
 
   // The LoopTriangleAdaptor iterator adapts a LoopIterator to return a
   // degenerate triangle by returning 3 values (*iter, *(iter+1), *iter) before
   // a single LoopIterator increment
-
  public:
   static constexpr int HINT_MAX_BOUND = LoopType::HINT_MAX_BOUND;
   using const_iterator =
@@ -62,10 +62,21 @@ class PolyloopGeometryProvider : public ProviderPolicy {
 
   PolyloopGeometryProvider(const LoopType& polyloop)
       : m_polyloop(&polyloop),
-        m_circulator(polyloop.begin(), polyloop.end()),
+        m_circulator(m_polyloop->begin(), m_polyloop->end()),
         m_circularContainer(m_circulator) {}
   PolyloopGeometryProvider(const LoopType&& polyloop) = delete;
   ~PolyloopGeometryProvider() {}
+
+  PolyloopGeometryProvider(const PolyloopGeometryProvider& provider) {
+   m_polyloop = provider.m_polyloop;
+   m_circulator = LoopCirculator(m_polyloop->begin(), m_polyloop->end());
+   m_circularContainer = CirculatorContainer(m_circulator);
+  }
+
+  PolyloopGeometryProvider(PolyloopGeometryProvider&& provider)
+      : m_polyloop(provider.m_polyloop),
+        m_circulator(m_polyloop->begin(), m_polyloop->end()),
+        m_circularContainer(m_circulator) {}
 
   size_t size() const {
     return ProviderPolicy::VERTICES_PER_BASE * m_polyloop->size();
