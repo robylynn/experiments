@@ -1,9 +1,6 @@
 #ifndef _FRAMEWORK_RENDERING_VERTEXELEMENTIMPL_H_
 #define _FRAMEWORK_RENDERING_VERTEXELEMENTIMPL_H_
 
-#include <boost/variant.hpp>
-#include <boost/variant/static_visitor.hpp>
-
 #include <OGRE/OgreHardwareVertexBuffer.h>
 #include <OGRE/OgreHardwareBufferManager.h>
 #include <OGRE/OgreVertexIndexData.h>
@@ -36,7 +33,7 @@ namespace impl {
 // Create each type of vertex element (attribute) for a vertex buffer -- create
 // an element for the vertex attribute (also binding it to a location), and also
 // reserve data for the vertex element.
-class CreateVertexElementVisitor : public boost::static_visitor<void> {
+class CreateVertexElementVisitor {
  public:
   CreateVertexElementVisitor(Ogre::VertexData* vertexData)
       : m_vertexData(vertexData) {}
@@ -74,7 +71,7 @@ class CreateVertexElementVisitor : public boost::static_visitor<void> {
 //
 // TODO msati3: Change this interface to accept iterators
 template <typename DataProvider>
-class PopulateVertexElementDataVisitor : public boost::static_visitor<void> {
+class PopulateVertexElementDataVisitor {
  public:
   PopulateVertexElementDataVisitor(Ogre::VertexData* vertexData,
                                    const DataProvider& dataProvider)
@@ -89,8 +86,9 @@ class PopulateVertexElementDataVisitor : public boost::static_visitor<void> {
         static_cast<float*>(vbuf->lock(Ogre::HardwareBuffer::HBL_DISCARD));
 
     // Copy over the geometry provided by the geometry provider
-    std::for_each(m_dataProvider.begin(element), m_dataProvider.end(element),
-                  [&buffer](float data) {  *buffer++ = data; });
+    std::for_each(m_dataProvider.begin(/*element*/),
+                  m_dataProvider.end(/*element*/),
+                  [&buffer](float data) { *buffer++ = data; });
     vbuf->unlock();
   }
 

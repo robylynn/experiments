@@ -190,6 +190,24 @@ tuple_iterator<SingleIter, N, DerefType> make_end_tuple_iterator(
   return tuple_iterator<SingleIter, N, DerefType>::end(queryIter);
 }
 
+namespace impl {
+// Tuple for_each
+template <typename Tuple, typename F, std::size_t... Indices>
+void for_each_impl(Tuple&& tuple, F&& f, std::index_sequence<Indices...>) {
+  using swallow = int[];
+  (void)swallow{
+      1, (f(std::get<Indices>(std::forward<Tuple>(tuple))), void(), int{})...};
+}
+}  // end namespace impl
+
+template <typename Tuple, typename F>
+void for_each(Tuple&& tuple, F&& f) {
+  constexpr std::size_t N =
+      std::tuple_size<std::remove_reference_t<Tuple>>::value;
+  impl::for_each_impl(std::forward<Tuple>(tuple), std::forward<F>(f),
+                      std::make_index_sequence<N>{});
+}
+
 }  // end namespace utils
 
 #endif  //_CONTAINER_ALGORITHMS_H_

@@ -15,10 +15,8 @@
 #include <cameraController.h>
 #include <windowedRenderingApp.h>
 
-#include <polyloop_3.h>
-#include <polyloop_2.h>
-#include <polyloopGeometryProvider.h>
-#include <singleElementBufferProvider.h>
+#include <defaultGeometryProviders.h>
+#include <defaultBufferProviders.h>
 #include <uniformPlanarGrid.h>
 #include <uniformVoxelGrid.h>
 #include <uniformVoxelGridGeometryProvider.h>
@@ -179,7 +177,8 @@ class PlanarDistanceFieldVisualizer {
     Triangulation::Finite_vertices_iterator iter =
         triangulation.finite_vertices_begin();
     for (; iter != triangulation.finite_vertices_end(); ++iter) {
-      iter->info() = samplingFunction(iter->point());
+      Kernel::FT sample = samplingFunction(iter->point());
+      iter->info() = CGAL::Color(sample, sample, sample);
     }
 
     // Remove all children from scene node, and re-populate with new level-set

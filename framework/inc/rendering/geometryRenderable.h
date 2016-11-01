@@ -22,6 +22,8 @@ template <typename VertexBufferDataProvider,
               DefaultBoundingBoxProvider<VertexBufferDataProvider>>
 class GeometryRenderable : public Ogre::SimpleRenderable {
  public:
+  GeometryRenderable() : GeometryRenderable(MaterialPolicy(m_renderPolicy)) {}
+
   GeometryRenderable(const MaterialPolicy& materialPolicy)
       : m_materialPolicy(materialPolicy) {
     mRenderOp.useIndexes = m_renderPolicy.useIndexes;
@@ -35,14 +37,10 @@ class GeometryRenderable : public Ogre::SimpleRenderable {
               << m_materialPolicy();
   }
 
-  GeometryRenderable() : GeometryRenderable(MaterialPolicy(m_renderPolicy)) {}
-
   void setVertexBufferData(const VertexBufferDataProvider& vertexDataProvider) {
-    using Params = typename VertexBufferDataProvider::Params;
-
     setBoundingBox(BoundingBoxProvider(vertexDataProvider)());
 
-    createVertexData<Params>(&mRenderOp.vertexData);
+    createVertexData<VertexBufferDataProvider>(&mRenderOp.vertexData);
     populateVertexData<VertexBufferDataProvider>(mRenderOp.vertexData,
                                                  vertexDataProvider);
     LOG(INFO) << "Added a geometry renderable to a scene, with number of "
@@ -68,5 +66,24 @@ class GeometryRenderable : public Ogre::SimpleRenderable {
   RenderPolicy m_renderPolicy;
   MaterialPolicy m_materialPolicy;
 };
+
+template <typename GeometryRep, typename VertexElement>
+GeometryRenderable<VertexElementBufferProvider<
+    SingleElementBufferProviderAdaptor<
+        typename VertexElementProviderTraits<GeometryRep,
+                                             VertexElement>::provider_type,
+        VertexElement>,
+    VertexElement>>
+make_renderable(const GeometryRep& geometryRep) {
+  typename VertexElementProviderTraits<
+      GeometryRep, VertexElement>::provider_type geomProvider(geometryRep);
+  SingleElementBufferProviderAdaptor<decltype(geomProvider), VertexElement>
+      bufferProvider(geomProvider);
+  VertexElementBufferProvider<decltype(bufferProvider), VertexElement>
+      bufferDataProvider(bufferProvider);
+  GeometryRenderable<decltype(bufferDataProvider)> renderable;
+  renderable.setVertexBufferData(bufferDataProvider);
+  return renderable;
+}
 
 #endif  //_SEQUENTIAL_GEOMETRY_RENDERABLE_H_

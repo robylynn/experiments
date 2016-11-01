@@ -37,26 +37,24 @@ class GeometryMeshCreator {
               << m_materialPolicy();
   }
 
-  void setVertexBufferData(const VertexBufferDataProvider& vertexDataProvider)
-      createVertexData<typename VertexBufferDataProvider::Params>(
-          &m_mesh->sharedVertexData, vertexElementsProvided);
-  BoundingBoxProvider boundingBoxProvider(vertexDataProvider);
-  m_mesh->_setBounds(boundingBoxProvider());
+  void setVertexBufferData(const VertexBufferDataProvider& vertexDataProvider) {
+    BoundingBoxProvider boundingBoxProvider(vertexDataProvider);
+    m_mesh->_setBounds(boundingBoxProvider());
+    createVertexData<VertexBufferDataProvider>(&m_mesh->sharedVertexData);
 
-  // TODO msati3: Fix this hardcoding
-  m_mesh->_setBoundingSphereRadius(1000);
-  populateVertexData<VertexBufferDataProvider>(m_mesh->sharedVertexData,
-                                               vertexDataProvider,
-                                               vertexElementsProvided);
+    // TODO msati3: Fix this hardcoding
+    m_mesh->_setBoundingSphereRadius(1000);
+    populateVertexData<VertexBufferDataProvider>(
+        m_mesh->sharedVertexData, vertexDataProvider);
 
-  // Notify mesh loading completion
-  m_mesh->load();
-}
+    // Notify mesh loading completion
+    m_mesh->load();
+  }
 
-private : Ogre::MeshPtr m_mesh;
-RenderPolicy m_renderPolicy;
-MaterialPolicy m_materialPolicy;
-}
-;
+ private:
+  Ogre::MeshPtr m_mesh;
+  RenderPolicy m_renderPolicy;
+  MaterialPolicy m_materialPolicy;
+};
 
 #endif  //_GEOMETRY_MESH_CREATOR_H_

@@ -1,7 +1,6 @@
 #ifndef _FRAMEWORK_RENDERING_BUFFER_PROVIDER_TYPES_H_
 #define _FRAMEWORK_RENDERING_BUFFER_PROVIDER_TYPES_H_
 
-#include "vertexElementBufferProvider.h"
 #include "singleElementBufferProvider.h"
 #include "tupleElementBufferProvider.h"
 

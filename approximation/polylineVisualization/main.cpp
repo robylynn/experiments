@@ -13,8 +13,8 @@
 #include <windowedRenderingApp.h>
 
 #include <polyloop_3.h>
-#include <polyloopGeometryProvider.h>
-#include <singleElementBufferProvider.h>
+#include <defaultBufferProviders.h>
+#include <defaultGeometryProviders.h>
 #include <uniformVoxelGrid.h>
 #include <uniformVoxelGridGeometryProvider.h>
 #include <geometryRenderable.h>
@@ -52,11 +52,6 @@ bool initScene(const std::string& windowName, const std::string& sceneName) {
       new CameraController("mainCamera", mainCamera);
 }
 
-template <typename T>
-using RenderBufferProvider = PositionOnlyBufferProvider<T>;
-template <typename T>
-using Renderable = GeometryRenderable<RenderBufferProvider<T>>;
-
 int main(int argc, char* argv[]) {
   google::InitGoogleLogging(argv[0]);
   google::ParseCommandLineFlags(&argc, &argv, true);
@@ -84,15 +79,10 @@ int main(int argc, char* argv[]) {
     Ogre::Root* root = Ogre::Root::getSingletonPtr();
     Ogre::SceneManager* sceneManager = root->getSceneManager("PrimaryScene");
 
-    using LoopGeometryProvider =
-        PolyloopGeometryProvider<Polyloop_3>;
-
-    LoopGeometryProvider loopGeometryProvider(p);
-    auto loopRenderable = new Renderable<LoopGeometryProvider>();
-    loopRenderable->setVertexBufferData(
-        RenderBufferProvider<LoopGeometryProvider>(loopGeometryProvider));
+    auto loopRenderable =
+        make_renderable<decltype(p), PositionVertexElement>(p);
     sceneManager->getRootSceneNode()->createChildSceneNode()->attachObject(
-        loopRenderable);
+        &loopRenderable);
 
     Ogre::SceneNode* axesNode =
         sceneManager->getRootSceneNode()->createChildSceneNode();

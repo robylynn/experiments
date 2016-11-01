@@ -153,12 +153,13 @@ class VertexElementBufferProvider : public StorageStrategy {
 };
 
 template <typename EP, typename VE>
-struct VertexBufferDataProviderParams<VertexElementBufferProvider<VE, EP>> {
- public:
+struct VertexBufferProviderTraits<VertexElementBufferProvider<EP, VE>> {
   static const size_t vertexStart = 0;
   static const size_t maxBound = EP::HINT_MAX_BOUND;
   static const bool useIndexes = 0;
+
   using ProvidedElements = std::tuple<VE>;
+  using geometry_type = EP;
 };
 
 #endif  //_FRAMEWORK_RENDERING_VERTEX_ELEMENT_BUFFER_PROVIDER_H_

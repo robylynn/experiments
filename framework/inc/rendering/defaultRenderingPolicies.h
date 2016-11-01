@@ -18,9 +18,10 @@ template <typename VertexBufferDataProvider>
 class DefaultRenderPolicy {
  public:
   static constexpr Ogre::RenderOperation::OperationType operationType =
-      VertexBufferDataProvider::GeometryProvider::PRIMITIVE_TYPE;
+      VertexBufferProviderTraits<
+          VertexBufferDataProvider>::geometry_type::PRIMITIVE_TYPE;
   static constexpr bool useIndexes =
-      VertexBufferDataProvider::Params::useIndexes;
+      VertexBufferProviderTraits<VertexBufferDataProvider>::useIndexes;
 };
 
 // The default MaterialPolicy is a unary functor that, depending on the
@@ -64,10 +65,10 @@ class DefaultBoundingBoxProvider {
   DefaultBoundingBoxProvider() { m_boundingBox.setInfinite(); }
 
   DefaultBoundingBoxProvider(const VertexBufferDataProvider& dataProvider) {
-    auto pointIterBegin = utils::tuple_iterator<
-        decltype(dataProvider.begin(PositionVertexElement())), 3,
-        Kernel::Point_3>::begin(dataProvider.begin(PositionVertexElement()),
-                                dataProvider.end(PositionVertexElement()));
+    auto pointIterBegin =
+        utils::tuple_iterator<decltype(dataProvider.begin()), 3,
+                              Kernel::Point_3>::begin(dataProvider.begin(),
+                                                      dataProvider.end());
     Kernel::Iso_cuboid_3 cuboid = CGAL::bounding_box(
         pointIterBegin, utils::make_end_tuple_iterator(pointIterBegin));
 

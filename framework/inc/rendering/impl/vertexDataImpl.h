@@ -1,39 +1,39 @@
 #ifndef _FRAMEWORK_RENDERING_VERTEXDATAIMPL_H_
 #define _FRAMEWORK_RENDERING_VERTEXDATAIMPL_H_
 
-#include <experimental/tuple>
-
+#include "containerAlgorithms.h"
 #include "impl/vertexElementImpl.h"
 
-template <typename T>
-struct VertexBufferDataProviderParams {};
+template <typename BufferProvider>
+struct VertexBufferProviderTraits {};
 
 namespace impl {
 // Populate vertex buffer data. Set the vertex count to maxBound when reserving
 // memory on the GPU.
-template <typename DataProvider>
+template <typename BufferProvider>
 void createVertexData(Ogre::VertexData** vertexData) {
-  using ProviderParams = VertexBufferDataProviderParams<DataProvider>;
+  using ProviderTraits = VertexBufferProviderTraits<BufferProvider>;
 
   *vertexData = OGRE_NEW Ogre::VertexData();
-  (*vertexData)->vertexStart = ProviderParams::vertexStart;
-  (*vertexData)->vertexCount = ProviderParams::maxBound;
+  (*vertexData)->vertexStart = ProviderTraits::vertexStart;
+  (*vertexData)->vertexCount = ProviderTraits::maxBound;
 
   CreateVertexElementVisitor createVisitor(*vertexData);
-  std::experimental::apply(createVisitor, ProviderParams::ProvidedElements);
+  utils::for_each(typename ProviderTraits::ProvidedElements(), createVisitor);
 }
 
 // Use a vertex buffer data provider that provides data for each of the
 // elements (attributes) of the vertex buffer to fill up the vertex buffer's
 // memory contents
-template <typename DataProvider>
+template <typename BufferProvider>
 void populateVertexData(Ogre::VertexData* vertexData,
-                        const DataProvider& provider) {
+                        const BufferProvider& provider) {
   vertexData->vertexCount = provider.size();
-  PopulateVertexElementDataVisitor<DataProvider> populateVisitor(vertexData,
-                                                                 provider);
-  std::experimental::apply(populateVisitor,
-             VertexBufferDataProviderParams<DataProvider>::ProvidedElements);
+  PopulateVertexElementDataVisitor<BufferProvider> populateVisitor(vertexData,
+                                                                   provider);
+  utils::for_each(
+      typename VertexBufferProviderTraits<BufferProvider>::ProvidedElements(),
+      populateVisitor);
 }
 
 }  // end namespace impl

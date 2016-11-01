@@ -25,9 +25,15 @@ class SingleElementBufferProviderAdaptor
                                            ElementType>::const_iterator;
 
  public:
+  static constexpr Ogre::RenderOperation::OperationType PRIMITIVE_TYPE =
+      ElementProvider::PRIMITIVE_TYPE;
+  static constexpr int HINT_MAX_BOUND = ElementProvider::HINT_MAX_BOUND;
+
   template <class EP>
   SingleElementBufferProviderAdaptor(EP&& provider)
       : StorageStrategy(std::forward<EP>(provider)) {}
+
+  size_t size() const { return this->m_provider->size(); }
 
   const_iterator begin(const ElementType& element) const {
     return this->m_provider->begin();

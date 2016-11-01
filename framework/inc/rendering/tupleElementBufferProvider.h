@@ -12,7 +12,7 @@ class TupleBufferDataProvider {
  public:
   TupleBufferDataProvider(const ElementsProvider& provider)
       : m_provider(provider) {}
-        //m_bufferProviders(m_provider, m_elements...) {}
+  // m_bufferProviders(m_provider, m_elements...) {}
 
   template <typename VertexElement>
   static auto begin(const ElementsProvider* provider,
@@ -31,12 +31,12 @@ class TupleBufferDataProvider {
  private:
   const ElementsProvider* m_provider;
   std::tuple<ElementTypes...> m_elements;
-  //std::tuple<VertexElementBufferProvider<ElementsProvider, ElementTypes>...>
+  // std::tuple<VertexElementBufferProvider<ElementsProvider, ElementTypes>...>
   //    m_bufferProviders;
 };
 
 template <typename EP, typename... VE>
-struct VertexBufferDataProviderParams<TupleBufferDataProvider<EP, VE...>> {
+struct VertexBufferProviderTraits<TupleBufferDataProvider<EP, VE...>> {
  public:
   static const size_t vertexStart = 0;
   static const size_t maxBound = EP::HINT_MAX_BOUND;
