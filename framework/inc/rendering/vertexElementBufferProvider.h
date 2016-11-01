@@ -8,8 +8,8 @@
 #include "renderingConstants.h"
 #include "vertexElement.h"
 #include "vertexElementProviderTraits.h"
+#include "vertexBufferProviderTraits.h"
 #include "vertexElementIndexer.h"
-#include "vertexData.h"
 
 // Defitions: A vertex element is any per vertex attribute (position, color,
 // etc). The vertex element is a n-dimensional entity. A vertex element
@@ -153,11 +153,12 @@ class VertexElementBufferProvider : public StorageStrategy {
 template <typename EP, typename VE>
 struct VertexBufferProviderTraits<VertexElementBufferProvider<EP, VE>> {
   static const size_t vertexStart = 0;
-  static const size_t maxBound = EP::HINT_MAX_BOUND;
+  static const size_t maxBound =
+      VertexElementProviderTraits<EP, VE>::provided_type::HINT_MAX_BOUND;
   static const bool useIndexes = 0;
 
-  using ProvidedElements = std::tuple<VE>;
-  using geometry_type = EP;
+  using vertex_elements = std::tuple<VE>;
+  using element_providers = std::tuple<EP>;
 };
 
 #endif  //_FRAMEWORK_RENDERING_VERTEX_ELEMENT_BUFFER_PROVIDER_H_

@@ -2,7 +2,7 @@
 #define _FRAMEOWKR_RENDERING_DEFAULT_BUFFER_PROVIDERS_H_
 
 #include "vertexElementBufferProvider.h"
-#include "singleElementBufferProvider.h"
+#include "singleElementProviderAdaptor.h"
 #include "vertexElementProviderTraits.h"
 
 #include "bufferProviderTypes.h"

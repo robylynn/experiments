@@ -15,6 +15,7 @@
 #include <cameraController.h>
 #include <windowedRenderingApp.h>
 
+#include <defaultRenderables.h>
 #include <defaultGeometryProviders.h>
 #include <defaultBufferProviders.h>
 #include <uniformPlanarGrid.h>
@@ -57,9 +58,6 @@ bool initScene(WindowedRenderingApp& app, const std::string& sceneName) {
       new CameraController("mainCamera", mainCamera);
   cameraController->setYawPitchDist(Ogre::Degree(0), Ogre::Degree(15), 10);
 }
-
-template <typename T>
-using PositionRenderable = GeometryRenderable<PositionOnlyBufferProvider<T>>;
 
 template <typename T>
 using RenderBufferProvider = PositionOnlyBufferProvider<T>;
@@ -211,19 +209,13 @@ int main(int argc, char* argv[]) {
     Ogre::Root* root = Ogre::Root::getSingletonPtr();
     Ogre::SceneManager* sceneManager = root->getSceneManager("PrimaryScene");
 
-    using LoopGeometryProvider3D = PolyloopGeometryProvider<Polyloop_3>;
-    using LoopGeometryProvider2D = PolyloopGeometryProvider<Polyloop_2>;
-
-    LoopGeometryProvider3D loopGeometryProvider(p);
-    auto loopMeshable = new Meshable<LoopGeometryProvider3D>("polyloop1");
-    loopMeshable->setVertexBufferData(
-        RenderBufferProvider<LoopGeometryProvider3D>(loopGeometryProvider));
+    auto loopMeshable = make_mesh_renderable(p, "polyloop1");
     Ogre::Entity* loop1Entity =
         sceneManager->createEntity("entityPolyloop1", "polyloop1");
     loop1Entity->setMaterialName("Materials/DefaultLines");
-
     sceneManager->getRootSceneNode()->createChildSceneNode()->attachObject(
         loop1Entity);
+
     GeometryBackedSelectableObject<decltype(p)> selectableLoop(loop1Entity);
     app.getSelectionManager().addSelectableObject(&selectableLoop);
 
@@ -234,10 +226,7 @@ int main(int argc, char* argv[]) {
     auto meshVisualizer = new LevelSetMeshVisualizer<Field>(
         inducedField, sceneManager->getRootSceneNode());
 
-    LoopGeometryProvider2D loopGeometryProvider2D(p2D);
-    auto loopMeshable2D = new Meshable<LoopGeometryProvider2D>("polyloop2");
-    loopMeshable2D->setVertexBufferData(
-        RenderBufferProvider<LoopGeometryProvider2D>(loopGeometryProvider2D));
+    auto loopMeshable2D = make_mesh_renderable(p2D, "polyloop2");
     Ogre::Entity* loop2Entity =
         sceneManager->createEntity("entityPolyloop2", "polyloop2");
     loop2Entity->setMaterialName("Materials/DefaultLines");

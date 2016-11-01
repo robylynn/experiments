@@ -2,10 +2,8 @@
 #define _FRAMEWORK_RENDERING_VERTEXDATAIMPL_H_
 
 #include "containerAlgorithms.h"
+#include "vertexBufferProviderTraits.h"
 #include "impl/vertexElementImpl.h"
-
-template <typename BufferProvider>
-struct VertexBufferProviderTraits {};
 
 namespace impl {
 // Populate vertex buffer data. Set the vertex count to maxBound when reserving
@@ -19,7 +17,7 @@ void createVertexData(Ogre::VertexData** vertexData) {
   (*vertexData)->vertexCount = ProviderTraits::maxBound;
 
   CreateVertexElementVisitor createVisitor(*vertexData);
-  utils::for_each(typename ProviderTraits::ProvidedElements(), createVisitor);
+  utils::for_each(typename ProviderTraits::vertex_elements(), createVisitor);
 }
 
 // Use a vertex buffer data provider that provides data for each of the
@@ -32,7 +30,7 @@ void populateVertexData(Ogre::VertexData* vertexData,
   PopulateVertexElementDataVisitor<BufferProvider> populateVisitor(vertexData,
                                                                    provider);
   utils::for_each(
-      typename VertexBufferProviderTraits<BufferProvider>::ProvidedElements(),
+      typename VertexBufferProviderTraits<BufferProvider>::vertex_elements(),
       populateVisitor);
 }
 

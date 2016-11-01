@@ -13,11 +13,9 @@
 #include <windowedRenderingApp.h>
 
 #include <polyloop_3.h>
-#include <defaultBufferProviders.h>
-#include <defaultGeometryProviders.h>
+#include <defaultRenderables.h>
 #include <uniformVoxelGrid.h>
 #include <uniformVoxelGridGeometryProvider.h>
-#include <geometryRenderable.h>
 #include <prefabs.h>
 
 DEFINE_string(
@@ -27,9 +25,6 @@ DEFINE_string(
     "Name of the file from which the polyloop to be visualized will be loaded");
 
 DEFINE_bool(twod, false, "Is the file of 2D coordinates");
-
-template <typename T>
-using PositionRenderable = GeometryRenderable<PositionOnlyBufferProvider<T>>;
 
 bool initScene(const std::string& windowName, const std::string& sceneName) {
   Ogre::Root* root = Ogre::Root::getSingletonPtr();
@@ -79,8 +74,7 @@ int main(int argc, char* argv[]) {
     Ogre::Root* root = Ogre::Root::getSingletonPtr();
     Ogre::SceneManager* sceneManager = root->getSceneManager("PrimaryScene");
 
-    auto loopRenderable =
-        make_renderable<decltype(p), PositionVertexElement>(p);
+    auto loopRenderable = make_simple_renderable(p);
     sceneManager->getRootSceneNode()->createChildSceneNode()->attachObject(
         &loopRenderable);
 

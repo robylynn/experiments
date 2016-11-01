@@ -1,10 +1,10 @@
-#ifndef _SEQUENTIAL_GEOMETRY_RENDERABLE_H_
-#define _SEQUENTIAL_GEOMETRY_RENDERABLE_H_
+#ifndef _FRAMEWORK_RENDERING_GEOMETRY_RENDERABLE_H_
+#define _FRAMEWORK_RENDERING_GEOMETRY_RENDERABLE_H_
 
 #include <glog/logging.h>
-
 #include "defaultRenderingPolicies.h"
-#include "vertexData.h"
+#include "vertexElement.h"
+#include "vertexBufferProviderTraits.h"
 
 // A sequential geometry renderable allows for the rendering of sequential
 // geometry. This class is primarily usable for simple geometries, that will
@@ -15,17 +15,27 @@
 // In current OGRE design, a SimpleRenderable contains both a Material
 // and a RenderOperation, aside from the VertexData itself. This is abstracted
 // out of the SequentialGeometryRenderable as two policies
-template <typename VertexBufferDataProvider,
-          typename RenderPolicy = DefaultRenderPolicy<VertexBufferDataProvider>,
+template <typename VertexBufferProvider,
+          typename RenderPolicy = DefaultRenderPolicy<VertexBufferProvider>,
           typename MaterialPolicy = DefaultMaterialPolicy<RenderPolicy>,
           typename BoundingBoxProvider =
-              DefaultBoundingBoxProvider<VertexBufferDataProvider>>
+              DefaultBoundingBoxProvider<VertexBufferProvider>>
 class GeometryRenderable : public Ogre::SimpleRenderable {
+ private:
+  using FirstBufferElement = typename std::tuple_element<
+      0, typename VertexBufferProviderTraits<
+             VertexBufferProvider>::vertex_elements>::type;
+
  public:
   GeometryRenderable() : GeometryRenderable(MaterialPolicy(m_renderPolicy)) {}
 
   GeometryRenderable(const MaterialPolicy& materialPolicy)
       : m_materialPolicy(materialPolicy) {
+    static_assert(
+        std::is_same<FirstBufferElement, PositionVertexElement>::value,
+        "VertexBufferProvider must provide for PositionVertexElement in first "
+        "slot");
+
     mRenderOp.useIndexes = m_renderPolicy.useIndexes;
     mRenderOp.operationType = m_renderPolicy.operationType;
 
@@ -37,12 +47,12 @@ class GeometryRenderable : public Ogre::SimpleRenderable {
               << m_materialPolicy();
   }
 
-  void setVertexBufferData(const VertexBufferDataProvider& vertexDataProvider) {
+  void setVertexBufferData(const VertexBufferProvider& vertexDataProvider) {
     setBoundingBox(BoundingBoxProvider(vertexDataProvider)());
 
-    createVertexData<VertexBufferDataProvider>(&mRenderOp.vertexData);
-    populateVertexData<VertexBufferDataProvider>(mRenderOp.vertexData,
-                                                 vertexDataProvider);
+    createVertexData<VertexBufferProvider>(&mRenderOp.vertexData);
+    populateVertexData<VertexBufferProvider>(mRenderOp.vertexData,
+                                             vertexDataProvider);
     LOG(INFO) << "Added a geometry renderable to a scene, with number of "
                  "vertex coordinates " << vertexDataProvider.size()
               << std::endl;
@@ -67,23 +77,4 @@ class GeometryRenderable : public Ogre::SimpleRenderable {
   MaterialPolicy m_materialPolicy;
 };
 
-template <typename GeometryRep, typename VertexElement>
-GeometryRenderable<VertexElementBufferProvider<
-    SingleElementBufferProviderAdaptor<
-        typename VertexElementProviderTraits<GeometryRep,
-                                             VertexElement>::provider_type,
-        VertexElement>,
-    VertexElement>>
-make_renderable(const GeometryRep& geometryRep) {
-  typename VertexElementProviderTraits<
-      GeometryRep, VertexElement>::provider_type geomProvider(geometryRep);
-  SingleElementBufferProviderAdaptor<decltype(geomProvider), VertexElement>
-      bufferProvider(geomProvider);
-  VertexElementBufferProvider<decltype(bufferProvider), VertexElement>
-      bufferDataProvider(bufferProvider);
-  GeometryRenderable<decltype(bufferDataProvider)> renderable;
-  renderable.setVertexBufferData(bufferDataProvider);
-  return renderable;
-}
-
-#endif  //_SEQUENTIAL_GEOMETRY_RENDERABLE_H_
+#endif  //_FRAMEWORK_RENDERING_GEOMETRY_RENDERABLE_H_

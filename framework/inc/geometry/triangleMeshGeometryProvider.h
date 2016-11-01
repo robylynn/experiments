@@ -1,5 +1,5 @@
-#ifndef _FRAMEWORK_GEOMETRY_TRIANGLEMESHGEOMETRY_PROVIDER_H_
-#define _FRAMEWORK_GEOMETRY_TRIANGLEMESHGEOMETRY_PROVIDER_H_
+#ifndef _FRAMEWORK_GEOMETRY_TRIANGLE_MESH_GEOMETRY_PROVIDER_H_
+#define _FRAMEWORK_GEOMETRY_TRIANGLE_MESH_GEOMETRY_PROVIDER_H_
 
 #include <OGRE/OgreRenderOperation.h>
 
@@ -9,6 +9,7 @@
 // TODO msati3: Use circulator for facet vertex iteration, and get rid of this
 // include
 #include "geometryConstants.h"
+#include "vertexElementProviderTraits.h"
 #include "triangleMeshGeometryProviderAdaptor.h"
 
 class MeshTriangleListPolicy {
@@ -90,4 +91,17 @@ class TriangleMeshGeometryProvider : public ProviderPolicy {
   using const_iterator = FacetOrderedVertexIterator;
 };
 
-#endif  //_FRAMEWORK_GEOMETRY_TRIANGLEMESHGEOMETRY_PROVIDER_H_
+// A triangle mesh geometry provider is a lightweight object. So, we specialize
+// the storage policy to by value. This allows for nicer client syntax through
+// implicit temporary creation for MeshGeometryProvider.
+template <typename ElementProvider, typename ElementType>
+class ElementProviderStorageStrategy<
+    TriangleMeshGeometryProvider<ElementProvider, ElementType>>
+    : public CopyProviderStorageStrategy<
+          TriangleMeshGeometryProvider<ElementProvider, ElementType>> {
+ protected:
+  using CopyProviderStorageStrategy<TriangleMeshGeometryProvider<
+      ElementProvider, ElementType>>::CopyProviderStorageStrategy;
+};
+
+#endif  //_FRAMEWORK_GEOMETRY_TRIANGLE_MESH_GEOMETRY_PROVIDER_H_

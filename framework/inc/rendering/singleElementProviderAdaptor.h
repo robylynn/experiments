@@ -1,5 +1,5 @@
-#ifndef _FRAMEWORK_RENDERING_SINGLE_ELEMENT_BUFFER_PROVIDER_H_
-#define _FRAMEWORK_RENDERING_SINGLE_ELEMENT_BUFFER_PROVIDER_H_
+#ifndef _FRAMEWORK_RENDERING_SINGLE_ELEMENT_PROVIDER_ADAPTOR_H_
+#define _FRAMEWORK_RENDERING_SINGLE_ELEMENT_PROVIDER_ADAPTOR_H_
 
 #include <functional>
 
@@ -14,7 +14,7 @@
 // VertexElement provider. This allows for simple STL containers to be used as
 // VertexElement providers.
 template <typename ElementProvider, typename ElementType>
-class SingleElementBufferProviderAdaptor
+class SingleElementProviderAdaptor
     : VertexElementProviderTraits<ElementProvider,
                                   ElementType>::storage_strategy {
   using StorageStrategy =
@@ -25,16 +25,11 @@ class SingleElementBufferProviderAdaptor
                                            ElementType>::const_iterator;
 
  public:
-  static constexpr Ogre::RenderOperation::OperationType PRIMITIVE_TYPE =
-      ElementProvider::PRIMITIVE_TYPE;
-  static constexpr int HINT_MAX_BOUND = ElementProvider::HINT_MAX_BOUND;
-
-  SingleElementBufferProviderAdaptor(
-      const SingleElementBufferProviderAdaptor& other)
+  SingleElementProviderAdaptor(const SingleElementProviderAdaptor& other)
       : StorageStrategy(*other.m_provider) {}
 
   template <class EP>
-  SingleElementBufferProviderAdaptor(EP&& provider)
+  SingleElementProviderAdaptor(EP&& provider)
       : StorageStrategy(std::forward<EP>(provider)) {}
 
   size_t size() const { return this->m_provider->size(); }
@@ -50,29 +45,31 @@ class SingleElementBufferProviderAdaptor
 
 // A single element buffer provider adaptor specializes the storage policy to
 // store by value. This allows for nicer client syntax through implicit
-// SingleElementBufferProviderAdaptor(ElementProvider) temporary creation, and
+// SingleElementProviderAdaptor(ElementProvider) temporary creation, and
 // binding of this temporary to VertexElementBufferProvider.
 template <typename ElementProvider, typename ElementType>
 class ElementProviderStorageStrategy<
-    SingleElementBufferProviderAdaptor<ElementProvider, ElementType>>
+    SingleElementProviderAdaptor<ElementProvider, ElementType>>
     : public CopyProviderStorageStrategy<
-          SingleElementBufferProviderAdaptor<ElementProvider, ElementType>> {
+          SingleElementProviderAdaptor<ElementProvider, ElementType>> {
  protected:
-  using CopyProviderStorageStrategy<SingleElementBufferProviderAdaptor<
+  using CopyProviderStorageStrategy<SingleElementProviderAdaptor<
       ElementProvider, ElementType>>::CopyProviderStorageStrategy;
 };
 
 // Also specialize the VertexElementProvider traits for a
-// SingleElementBufferProviderAdaptor to conform to a pass through container
+// SingleElementProviderAdaptor to conform to a pass through container
 template <typename ElementProvider, typename ElementType>
 struct VertexElementProviderTraits<
-    SingleElementBufferProviderAdaptor<ElementProvider, ElementType>,
-    ElementType> {
+    SingleElementProviderAdaptor<ElementProvider, ElementType>, ElementType> {
   using provider_type =
-      SingleElementBufferProviderAdaptor<ElementProvider, ElementType>;
+      SingleElementProviderAdaptor<ElementProvider, ElementType>;
+  using provided_type =
+      typename VertexElementProviderTraits<ElementProvider,
+                                           ElementType>::provided_type;
   using const_iterator = typename ElementProvider::const_iterator;
   using storage_strategy = ElementProviderStorageStrategy<
-      SingleElementBufferProviderAdaptor<ElementProvider, ElementType>>;
+      SingleElementProviderAdaptor<ElementProvider, ElementType>>;
 };
 
-#endif  //_FRAMEWORK_RENDERING_SINGLE_ELEMENT_BUFFER_PROVIDER_H_
+#endif  //_FRAMEWORK_RENDERING_SINGLE_ELEMENT_PROVIDER_ADAPTOR_H_

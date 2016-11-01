@@ -1,11 +1,12 @@
 #ifndef _GEOMETRY_MESH_CREATOR_H_
 #define _GEOMETRY_MESH_CREATOR_H_
 
+#include <glog/logging.h>
+
 #include <OGRE/OgreMesh.h>
 
 #include "renderingConstants.h"
 #include "defaultRenderingPolicies.h"
-
 #include "vertexData.h"
 #include "vertexElement.h"
 
@@ -16,16 +17,26 @@
 //
 // TODO msati3: When moved to OGRE 2.1, this will have to be refactored.
 // TODO msati3: The logic for dynamically resizing has to be added?
-template <typename VertexBufferDataProvider,
-          typename RenderPolicy = DefaultRenderPolicy<VertexBufferDataProvider>,
+template <typename VertexBufferProvider,
+          typename RenderPolicy = DefaultRenderPolicy<VertexBufferProvider>,
           typename MaterialPolicy = DefaultMaterialPolicy<RenderPolicy>,
           typename BoundingBoxProvider =
-              DefaultBoundingBoxProvider<VertexBufferDataProvider>>
+              DefaultBoundingBoxProvider<VertexBufferProvider>>
 class GeometryMeshCreator {
+ private:
+  using FirstBufferElement = typename std::tuple_element<
+      0, typename VertexBufferProviderTraits<
+             VertexBufferProvider>::vertex_elements>::type;
+
  public:
   GeometryMeshCreator(const std::string& meshName,
                       const std::string& groupName = DEFAULT_RENDER_GROUP_NAME)
       : m_materialPolicy(m_renderPolicy) {
+    static_assert(
+        std::is_same<FirstBufferElement, PositionVertexElement>::value,
+        "VertexBufferProvider must provide for PositionVertexElement in first "
+        "slot");
+
     m_mesh =
         Ogre::MeshManager::getSingleton().createManual(meshName, groupName);
     Ogre::SubMesh* submesh = m_mesh->createSubMesh();
@@ -37,15 +48,14 @@ class GeometryMeshCreator {
               << m_materialPolicy();
   }
 
-  void setVertexBufferData(const VertexBufferDataProvider& vertexDataProvider) {
+  void setVertexBufferData(const VertexBufferProvider& vertexDataProvider) {
     BoundingBoxProvider boundingBoxProvider(vertexDataProvider);
     m_mesh->_setBounds(boundingBoxProvider());
-    createVertexData<VertexBufferDataProvider>(&m_mesh->sharedVertexData);
+    createVertexData<VertexBufferProvider>(&m_mesh->sharedVertexData);
 
     // TODO msati3: Fix this hardcoding
     m_mesh->_setBoundingSphereRadius(1000);
-    populateVertexData<VertexBufferDataProvider>(
-        m_mesh->sharedVertexData, vertexDataProvider);
+    populateVertexData(m_mesh->sharedVertexData, vertexDataProvider);
 
     // Notify mesh loading completion
     m_mesh->load();

@@ -39,6 +39,7 @@ class CopyProviderStorageStrategy {
 template <typename ElementProvider, typename VertexElement>
 struct VertexElementProviderTraits {
   using provider_type = ElementProvider;
+  using provided_type = ElementProvider;
   using const_iterator = typename ElementProvider::const_iterator;
   using storage_strategy = ElementProviderStorageStrategy<ElementProvider>;
 };

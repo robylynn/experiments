@@ -1,3 +1,6 @@
+#ifndef _FRAMEWORK_RENDERING_GEOMETRY_BACKED_SELECTABLE_OBJECT_H_
+#define _FRAMEWORK_RENDERING_GEOMETRY_BACKED_SELECTABLE_OBJECT_H_
+
 #include <CGAL/squared_distance_2.h>
 #include <OGRE/OgreSceneNode.h>
 
@@ -5,11 +8,9 @@
 #include "squaredDistance.h"
 #include "selectableObject.h"
 
-class DefaultSelectableMouseHandler {
-};
+class DefaultSelectableMouseHandler {};
 
-class DefaultSelectableKeyboardHandler {
-};
+class DefaultSelectableKeyboardHandler {};
 
 // A GeometryBackedSelectable object is a selectable object that is backed by a
 // custom geometry representation. It implements its queries by forwarding to
@@ -41,3 +42,5 @@ class GeometryBackedSelectableObject : public ISelectableObject {
   Ogre::MovableObject* m_movable;
   GeometryRep* m_geometryRep;
 };
+
+#endif  // _FRAMEWORK_RENDERING_GEOMETRY_BACKED_SELECTABLE_OBJECT_H_

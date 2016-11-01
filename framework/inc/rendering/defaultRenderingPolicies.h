@@ -1,7 +1,8 @@
-#ifndef _FRAMEWORK_RENDERING_DEFAULTRENDERINGPOLICIES_H_
-#define _FRAMEWORK_RENDERING_DEFAULTRENDERINGPOLICIES_H_
+#ifndef _FRAMEWORK_RENDERING_DEFAULT_RENDERING_POLICIES_H_
+#define _FRAMEWORK_RENDERING_DEFAULT_RENDERING_POLICIES_H_
 
 #include <glog/logging.h>
+#include <tuple>
 
 #include <CGAL/bounding_box.h>
 
@@ -10,18 +11,24 @@
 #include "containerAlgorithms.h"
 #include "geometryInterop.h"
 #include "renderingConstants.h"
-#include "vertexElement.h"
+#include "vertexBufferProviderTraits.h"
 
 // The default RenderPolicy specifies that the operation type is the typedef
 // GeometryProvider::PRIMIIVE_TYPE
-template <typename VertexBufferDataProvider>
+template <typename VertexBufferProvider>
 class DefaultRenderPolicy {
+ private:
+  using PositionElementProvider = typename std::tuple_element<
+      0, typename VertexBufferProviderTraits<
+             VertexBufferProvider>::element_providers>::type;
+
  public:
   static constexpr Ogre::RenderOperation::OperationType operationType =
-      VertexBufferProviderTraits<
-          VertexBufferDataProvider>::geometry_type::PRIMITIVE_TYPE;
+      VertexElementProviderTraits<
+          PositionElementProvider,
+          PositionVertexElement>::provided_type::PRIMITIVE_TYPE;
   static constexpr bool useIndexes =
-      VertexBufferProviderTraits<VertexBufferDataProvider>::useIndexes;
+      VertexBufferProviderTraits<VertexBufferProvider>::useIndexes;
 };
 
 // The default MaterialPolicy is a unary functor that, depending on the
@@ -59,12 +66,12 @@ class DefaultMaterialPolicy {
 
 // Computes a bounding box off the VertexBufferDataProvider, or, returns a
 // default constructed infinite bounding box
-template <typename VertexBufferDataProvider>
+template <typename VertexBufferProvider>
 class DefaultBoundingBoxProvider {
  public:
   DefaultBoundingBoxProvider() { m_boundingBox.setInfinite(); }
 
-  DefaultBoundingBoxProvider(const VertexBufferDataProvider& dataProvider) {
+  DefaultBoundingBoxProvider(const VertexBufferProvider& dataProvider) {
     auto pointIterBegin = utils::tuple_iterator<
         decltype(dataProvider.begin()), 3,
         Kernel::Point_3>::begin(dataProvider.begin(PositionVertexElement()),
@@ -81,4 +88,4 @@ class DefaultBoundingBoxProvider {
   Ogre::AxisAlignedBox m_boundingBox;
 };
 
-#endif  // _FRAMEWORK_RENDERING_DEFAULTRENDERINGPOLICIES_H_
+#endif  // _FRAMEWORK_RENDERING_DEFAULT_RENDERING_POLICIES_H_
