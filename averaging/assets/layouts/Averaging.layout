@@ -1,8 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <GUILayout version="4" >
-    <Window type="TaharezLook/Slider" name="LevelSetSlider" >
-        <Property name="Area" value="{{0,16},{0,628},{0,32},{0,884}}" />
+    <Window type="DefaultWindow" name="DefaultWindow" >
+        <Property name="Area" value="{{0,-3},{0,1},{1,-3},{1,1}}" />
         <Property name="Active" value="true" />
+        <Property name="MaxSize" value="{{1,0},{1,0}}" />
+        <Property name="MousePassThroughEnabled" value="true" />
+        <Window type="TaharezLook/Slider" name="LevelSetSlider" >
+            <Property name="Area" value="{{0,13},{0,460},{0,29},{0,716}}" />
+        </Window>
+        <Window type="TaharezLook/Button" name="AverageVectorsViewBtn" >
+            <Property name="Area" value="{{0,239},{0,680},{0,335},{0,712}}" />
+            <Property name="Text" value="Vectors" />
+            <Property name="Active" value="true" />
+        </Window>
+        <Window type="TaharezLook/Button" name="AverageLinesViewBtn" >
+            <Property name="Area" value="{{0,341},{0,680},{0,437},{0,712}}" />
+            <Property name="Text" value="Lines" />
+        </Window>
+        <Window type="TaharezLook/Button" name="AveragePolyloopsViewBtn" >
+            <Property name="Area" value="{{0,445},{0,680},{0,541},{0,712}}" />
+            <Property name="Text" value="Loops" />
+        </Window>
     </Window>
 </GUILayout>

@@ -6,7 +6,12 @@ project(averaging)
 # TODO msati3: Going forward, split windowing component into library
 
 add_executable(averaging
-  main.cpp)
+  main.cpp
+  viewManager.cpp
+  averagingLinesView.cpp
+  averagingPolyloopsView.cpp
+  averagingVectorsView.cpp
+  commonViewInteractionsHandler.cpp)
 
 add_library(averagingLib
   separableGeometryInducedField.cpp)

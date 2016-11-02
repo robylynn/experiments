@@ -6,8 +6,20 @@
 #include "polyloop_2.h"
 #include "polyloop_3.h"
 #include "polyloopGeometryProvider.h"
+#include "polylineGeometryProvider.h"
 #include "triangleMeshGeometryProvider.h"
 #include "vertexElementProviderTraits.h"
+#include "defaultElementTypes.h"
+
+template <typename T>
+struct VertexElementProviderTraits<std::vector<T>,
+                                   typename VertexElementFromPrimitive<T>::type> {
+  using provider_type = PolylineGeometryProvider<std::vector<T>>;
+  using const_iterator =
+      typename PolylineGeometryProvider<std::vector<T>>::const_iterator;
+  using storage_strategy =
+      ElementProviderStorageStrategy<PolylineGeometryProvider<std::vector<T>>>;
+};
 
 template <typename Kernel, typename VertexElement>
 struct VertexElementProviderTraits<CGAL::Polyhedron_3<Kernel>, VertexElement> {

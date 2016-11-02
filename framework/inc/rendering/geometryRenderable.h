@@ -2,6 +2,9 @@
 #define _FRAMEWORK_RENDERING_GEOMETRY_RENDERABLE_H_
 
 #include <glog/logging.h>
+
+#include <OGRE/OgreSimpleRenderable.h>
+
 #include "defaultRenderingPolicies.h"
 #include "vertexElement.h"
 #include "vertexBufferProviderTraits.h"

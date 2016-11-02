@@ -4,6 +4,8 @@
 #include <glog/logging.h>
 
 #include <OGRE/OgreMesh.h>
+#include <OGRE/OgreMeshManager.h>
+#include <OGRE/OgreSubMesh.h>
 
 #include "renderingConstants.h"
 #include "defaultRenderingPolicies.h"
