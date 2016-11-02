@@ -40,7 +40,7 @@ void ViewManager::init() {
 }
 
 void ViewManager::averageVectorsView() {
-  if (m_linesView == nullptr) {
+  if (m_vectorsView == nullptr) {
     Ogre::SceneNode* vectorsNode =
         m_sceneManager->getRootSceneNode()->createChildSceneNode();
     m_vectorsView.reset(new AveragingVectorsView(vectorsNode));

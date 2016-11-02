@@ -33,6 +33,15 @@ before_install:
   - sudo mv libgtest* /usr/lib/
   - cd "${TRAVIS_BUILD_DIR}"
 
+    # install Eigen
+  - curl -L -o eigen.taz.gz https://github.com/RLovelett/eigen/archive/3.3-rc1.tar.gz
+  - tar zxvf eigen.tar.gz &> install.log
+  - cd eigen-3.3-rc1
+  - cmake .
+  - make
+  - sudo make install &>> install.log
+  - cd "${TRAVIS_BUILD_DIR}"
+
     # install the latest version of cgal
   - sudo apt-get install -qq libboost-all-dev
   - sudo apt-get install -qq libmpfr-dev
@@ -46,7 +55,7 @@ before_install:
   - sudo make install &>> install.log
   - cd "${TRAVIS_BUILD_DIR}"
 
-  - sudo apt-get install libcgal-dev
+    # Install Ogre and OIS
   - sudo apt-get install libogre-1.9-dev
   - sudo apt-get install libois-dev
 

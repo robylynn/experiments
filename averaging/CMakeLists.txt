@@ -3,6 +3,8 @@ include(CopyOgreResources)
 
 project(averaging)
 
+find_package(Eigen REQUIRED)
+
 # TODO msati3: Going forward, split windowing component into library
 
 add_executable(averaging
@@ -16,6 +18,7 @@ add_executable(averaging
 add_library(averagingLib
   separableGeometryInducedField.cpp)
 
+include_directories(${EIGEN_INCLUDE_DIRS})
 include_directories(${ROOT_DIR}/framework/inc/app)
 include_directories(${ROOT_DIR}/framework/inc/geometry)
 include_directories(${ROOT_DIR}/framework/inc/rendering)
