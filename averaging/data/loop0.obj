@@ -1,6 +1,6 @@
 # Blender v2.69 (sub 0) OBJ File: 'curve3DBase.blend'
 # www.blender.org
-mtllib curve3D_2.mtl
+mtllib curve3D_1.mtl
 o Curve_path
 v -1.634453 0.168714 1.809371
 v -1.558013 0.168884 1.827210

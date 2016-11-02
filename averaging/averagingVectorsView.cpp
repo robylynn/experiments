@@ -15,9 +15,11 @@
 
 #include "averagingVectorsView.h"
 
-constexpr int NUM_POINTS = 4;
+constexpr int NUM_POINTS = 2;
 
 namespace {
+using namespace Eigen;
+
 // The average minimizes the distances (L2 norm) between itself and the given
 // poitns.
 Kernel::Point_3 averageL2Min(std::vector<Kernel::Point_3> points) {
@@ -27,6 +29,20 @@ Kernel::Point_3 averageL2Min(std::vector<Kernel::Point_3> points) {
   }
   output = output / points.size();
   return CGAL::ORIGIN + output;
+}
+
+Kernel::Point_3 averageProjMax(std::vector<Kernel::Point_3> points) {
+  MatrixXf pointMatrix(points.size(), 3);
+  for (int i = 0; i < points.size(); ++i) {
+    pointMatrix.row(i) << points[i].x(), points[i].y(), points[i].z();
+    // cout << "Its singular values are:" << endl
+    //   << svd.singula
+  }
+  JacobiSVD<MatrixXf> svd(pointMatrix, ComputeThinU | ComputeThinV);
+  auto firstSingularVector = svd.matrixV().col(0);
+  Kernel::Point_3 output(firstSingularVector[0], firstSingularVector[1],
+                         firstSingularVector[2]);
+  return output;
 }
 }  // end anon namespace
 
@@ -51,8 +67,7 @@ AveragingVectorsView::AveragingVectorsView(Ogre::SceneNode* rootNode)
     std::string meshName = BASE_NAME + std::to_string(count);
     std::vector<Kernel::Point_3> vector{Kernel::Point_3(0, 0, 0), point};
     auto vMesh = make_mesh_renderable(vector, meshName);
-    Ogre::Entity* vEntity =
-        m_rootNode->getCreator()->createEntity(meshName);
+    Ogre::Entity* vEntity = m_rootNode->getCreator()->createEntity(meshName);
     vEntity->setMaterialName("Materials/DefaultLines");
     vectorsRootNode->attachObject(vEntity);
     ++count;
@@ -64,8 +79,18 @@ AveragingVectorsView::AveragingVectorsView(Ogre::SceneNode* rootNode)
   (void)make_mesh_renderable(l2Average, "l2MinAverage");
   Ogre::Entity* l2Entity =
       m_rootNode->getCreator()->createEntity("l2MinAverage");
-  l2Entity->setMaterialName("Materials/DefaultLines");
-  auto material = l2Entity->getSubEntity(0)->getMaterial();
-  material->getTechnique(0)->getPass(0)->setAmbient(1, 1, 0);
+  l2Entity->setMaterialName("Materials/SimpleAverage");
+  /*auto material = l2Entity->getSubEntity(0)->getMaterial();
+  material->getTechnique(0)->getPass(0)->setAmbient(1, 1, 0);*/
   vectorsRootNode->attachObject(l2Entity);
+
+  std::vector<Kernel::Point_3> projMaxAverage{Kernel::Point_3(0, 0, 0),
+                                              averageProjMax(points)};
+  (void)make_mesh_renderable(projMaxAverage, "projMaxAverage");
+  Ogre::Entity* projEntity =
+      m_rootNode->getCreator()->createEntity("projMaxAverage");
+  projEntity->setMaterialName("Materials/ProjAverage");
+  /*auto material = l2Entity->getSubEntity(0)->getMaterial();
+  material->getTechnique(0)->getPass(0)->setAmbient(1, 1, 0);*/
+  vectorsRootNode->attachObject(projEntity);
 }

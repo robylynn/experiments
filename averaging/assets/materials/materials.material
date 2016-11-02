@@ -18,6 +18,9 @@ material Materials/DefaultPoints
 vertex_program DefaultLinesVert glsl
 {
   source defaultEdgesVert.glsl
+  default_params {
+    param_named_auto worldViewProjMatrix worldviewproj_matrix
+  }
 }
 geometry_program DefaultLinesGeom glsl
 {
@@ -29,6 +32,9 @@ geometry_program DefaultLinesGeom glsl
 fragment_program DefaultLinesFrag glsl
 {
   source defaultEdgesFrag.glsl
+  default_params {
+    param_named baseColor float4 0 0 0 1
+  }
 }
 material Materials/DefaultLines
 {
@@ -37,13 +43,8 @@ material Materials/DefaultLines
     pass
     {
       lighting off
-      vertex_program_ref DefaultLinesVert
-      {
-        param_named_auto worldViewProjMatrix worldviewproj_matrix
-      }
-      fragment_program_ref DefaultLinesFrag
-      {
-      }
+      vertex_program_ref DefaultLinesVert {}
+      fragment_program_ref DefaultLinesFrag {}
     }
   }
 }
@@ -98,3 +99,34 @@ material Materials/IllustrativeObjectsTransparent
     }
   }
 }
+
+material Materials/SimpleAverage
+{
+  technique
+  {
+    pass
+    {
+      lighting off
+      vertex_program_ref DefaultLinesVert {}
+      fragment_program_ref DefaultLinesFrag {
+        param_named baseColor float4 1 1 0 1
+      }
+    }
+  }
+}
+
+material Materials/ProjAverage
+{
+  technique
+  {
+    pass
+    {
+      lighting off
+      vertex_program_ref DefaultLinesVert {}
+      fragment_program_ref DefaultLinesFrag {
+        param_named baseColor float4 0 1 1 1
+      }
+    }
+  }
+}
+

@@ -20,8 +20,8 @@ bool buildPolylineFromObj<Kernel::Point_3>(
 
   // TODO msati3: Currently, just ensures consistency of numbering, more
   // elaborate schemes later?
-  constexpr size_t START_INDEX = 1;
-  size_t lastIndex = START_INDEX;
+  int startIndex = -1;
+  size_t lastIndex = 0;
   size_t nextIndex;
 
   while (file >> word) {
@@ -31,6 +31,10 @@ bool buildPolylineFromObj<Kernel::Point_3>(
       polyline.addPoint(point);
     } else if (word == "l") {
       file >> nextIndex;
+      if (startIndex == -1) {
+        startIndex = nextIndex;
+        lastIndex = startIndex;
+      }
       if (nextIndex != lastIndex) {
         LOG(ERROR) << "Curve in obj file skips an index (last, next) indices: "
                    << lastIndex << "," << nextIndex;
@@ -38,7 +42,7 @@ bool buildPolylineFromObj<Kernel::Point_3>(
       }
       file >> nextIndex;
       if (nextIndex != ++lastIndex) {
-        if (nextIndex == START_INDEX) {
+        if (nextIndex == startIndex) {
         } else {
           LOG(ERROR)
               << "Curve in obj file is not ordered (last, next) indices: "
