@@ -1,5 +1,5 @@
+rm -r build
 set -e
--rm -r build
 mkdir build
 cd build
 cmake ..

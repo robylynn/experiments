@@ -22,15 +22,18 @@ void ViewManager::init() {
               &CommonViewInteractionsHandler::levelSetSliderChanged,
               m_commonInteractionsHandler.get()));
 
-  averagingLayout->getChild("AverageVectorsViewBtn")
+  CEGUI::Window* navigationPane =
+      averagingLayout->getChild("NavigationLinkContainer");
+
+  navigationPane->getChild("AverageVectorsViewBtn")
       ->subscribeEvent(
           CEGUI::PushButton::EventClicked,
           CEGUI::Event::Subscriber(&ViewManager::averageVectorsView, this));
-  averagingLayout->getChild("AverageLinesViewBtn")
+  navigationPane->getChild("AverageLinesViewBtn")
       ->subscribeEvent(
           CEGUI::PushButton::EventClicked,
           CEGUI::Event::Subscriber(&ViewManager::averageLinesView, this));
-  averagingLayout->getChild("AveragePolyloopsViewBtn")
+  navigationPane->getChild("AveragePolyloopsViewBtn")
       ->subscribeEvent(
           CEGUI::PushButton::EventClicked,
           CEGUI::Event::Subscriber(&ViewManager::averagePolyloopsView, this));
