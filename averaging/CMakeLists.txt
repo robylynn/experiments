@@ -18,6 +18,11 @@ add_executable(averaging
 add_library(averagingLib
   separableGeometryInducedField.cpp)
 
+add_custom_target(copyData ALL
+  COMMAND ${CMAKE_COMMAND} -E  copy_directory
+  ${CMAKE_CURRENT_SOURCE_DIR}/data
+  ${CMAKE_CURRENT_BINARY_DIR}/data)
+
 include_directories(${EIGEN_INCLUDE_DIRS})
 include_directories(${ROOT_DIR}/framework/inc/app)
 include_directories(${ROOT_DIR}/framework/inc/geometry)
@@ -38,11 +43,5 @@ target_link_libraries(averaging ${Boost_LIBRARIES}
 
 add_ogre_rendering_libraries(averaging)
 copy_standard_ogre_resources(averaging)
-
-# Copy data folder
-add_custom_command(TARGET averaging POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E  copy_directory
-  ${CMAKE_CURRENT_SOURCE_DIR}/data
-  ${CMAKE_CURRENT_BINARY_DIR}/data)
 
 add_subdirectory(tests)

@@ -15,13 +15,6 @@ void SelectionManager::selectionQuery(float mouseX, float mouseY) {
   rayQuery->setRay(selectionRay);
   rayQuery->setSortByDistance(false);
 
-  /*Ogre::Root* root = Ogre::Root::getSingletonPtr();
-  Ogre::SceneManager* sceneManager = root->getSceneManager("PrimaryScene");
-  Ogre::AxisAlignedBox box;
-  Ogre::Vector3 max(100000, 100000, 100000);
-  box.setExtents(-max, max);
-  sceneManager->setOption("Size", &box);*/
-
   // Debug ray query
   /*
   Ogre::Root* root = Ogre::Root::getSingletonPtr();
@@ -58,9 +51,6 @@ void SelectionManager::selectionQuery(float mouseX, float mouseY) {
     }
   }
   if (!distanceQueue.empty()) {
-    std::cout << "Selected" << std::endl;
     std::get<1>(distanceQueue.top())->setSelected(selectionRay);
-  } else {
-    std::cout << "Nothing selected by ray query" << std::endl;
   }
 }
