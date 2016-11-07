@@ -24,8 +24,6 @@ DEFINE_string(
     "refined/curves0",
     "Name of the file from which the polyloop to be visualized will be loaded");
 
-DEFINE_bool(twod, false, "Is the file of 2D coordinates");
-
 bool initScene(const std::string& windowName, const std::string& sceneName) {
   Ogre::Root* root = Ogre::Root::getSingletonPtr();
   Ogre::SceneManager* sceneManager =
@@ -35,16 +33,9 @@ bool initScene(const std::string& windowName, const std::string& sceneName) {
   Ogre::Camera* mainCamera = sceneManager->createCamera("PrimaryCamera");
   Ogre::Viewport* viewport =
       root->getRenderTarget(windowName)->addViewport(mainCamera);
-  viewport->setBackgroundColour(Ogre::ColourValue(1, 1, 1));
+  viewport->setBackgroundColour(Ogre::ColourValue(0.5, 0.5, 0.5));
 
-  mainCamera->setAspectRatio((float)viewport->getActualWidth() /
-                             viewport->getActualHeight());
-  mainCamera->setPosition(Ogre::Vector3(0, 0, 200));
-  mainCamera->lookAt(Ogre::Vector3(0, 0, 0));
   mainCamera->setNearClipDistance(0.5);
-
-  CameraController* cameraController =
-      new CameraController("mainCamera", mainCamera);
 }
 
 int main(int argc, char* argv[]) {
@@ -54,29 +45,33 @@ int main(int argc, char* argv[]) {
   WindowedRenderingApp app("Smoothing");
 
   Polyloop_3 p;
-  std::ifstream ffile;
-  std::cout << "Reading polyloop from " << FLAGS_polyloop_file << std::endl;
-  ffile.open(FLAGS_polyloop_file);
-
-  float x = 0, y = 0, z = 0;
-  while (!ffile.eof()) {
-    ffile >> x;
-    ffile >> y;
-    if (!FLAGS_twod) {
-      ffile >> z;
-    }
-    p.addPoint(CGAL::Point_3<Kernel>(x, y, z));
+  if (!buildPolyloopFromVertexList(FLAGS_polyloop_file, p)) {
+    return -1;
   }
 
-  if (app.init(800, 800)) {
+  if (app.init(1200, 900)) {
     initScene(app.getWindowName(), "PrimaryScene");
 
     Ogre::Root* root = Ogre::Root::getSingletonPtr();
     Ogre::SceneManager* sceneManager = root->getSceneManager("PrimaryScene");
 
-    auto loopRenderable = make_simple_renderable(p);
-    sceneManager->getRootSceneNode()->createChildSceneNode()->attachObject(
-        &loopRenderable);
+    make_mesh_renderable(p, "loop");
+    Ogre::Entity* loopEntity = sceneManager->createEntity("loop");
+    Ogre::SceneNode* loopNode =
+        sceneManager->getRootSceneNode()->createChildSceneNode();
+    loopNode->attachObject(loopEntity);
+    loopNode->showBoundingBox(true);
+
+    // Switch camera to center of polyloop
+    Ogre::Camera* mainCamera = sceneManager->getCamera("PrimaryCamera");
+    app.getSelectionManager().setCamera(*mainCamera);
+    sceneManager->_updateSceneGraph(mainCamera);
+
+    Ogre::Vector3 extents = loopEntity->getBoundingBox().getMaximum() -
+                            loopEntity->getBoundingBox().getMinimum();
+    CameraController* cameraController =
+        new CameraController("PrimaryCameraController", mainCamera);
+    cameraController->setTarget(loopNode);
 
     Ogre::SceneNode* axesNode =
         sceneManager->getRootSceneNode()->createChildSceneNode();

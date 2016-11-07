@@ -14,5 +14,10 @@ target_link_libraries(polylineVisualization ${Boost_LIBRARIES}
   rendering
   geometry)
 
+add_custom_target(copyPolylineVisualizationData ALL
+  COMMAND ${CMAKE_COMMAND} -E  copy_directory
+  ${CMAKE_CURRENT_SOURCE_DIR}/data
+  ${CMAKE_CURRENT_BINARY_DIR}/data)
+
 add_ogre_rendering_libraries(polylineVisualization)
 copy_standard_ogre_resources(polylineVisualization)

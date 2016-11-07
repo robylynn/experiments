@@ -18,7 +18,7 @@ add_executable(averaging
 add_library(averagingLib
   separableGeometryInducedField.cpp)
 
-add_custom_target(copyData ALL
+add_custom_target(copyAveraginData ALL
   COMMAND ${CMAKE_COMMAND} -E  copy_directory
   ${CMAKE_CURRENT_SOURCE_DIR}/data
   ${CMAKE_CURRENT_BINARY_DIR}/data)

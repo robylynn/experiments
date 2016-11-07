@@ -118,7 +118,9 @@ class Polyloop_3 {
   }
 };
 
-// Build a polyloop from Obj file format
+// Build a polyloop from different file formats.
 bool buildPolyloopFromObj(const std::string& filePath, Polyloop_3& polyloop);
+bool buildPolyloopFromVertexList(const std::string& filePath,
+                                 Polyloop_3& polyloop);
 
 #endif  //_POLYLOOP_3_H_

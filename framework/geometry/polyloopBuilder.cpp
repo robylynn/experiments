@@ -2,14 +2,18 @@
 
 #include <glog/logging.h>
 
+#include <boost/tokenizer.hpp>
+
 #include <CGAL/Point_3.h>
 #include <CGAL/Polygon_2.h>
 #include <CGAL/bounding_box.h>
 #include "polyloop_3.h"
 
+// Handle , and space delimited files for now.
+constexpr const char* const COORDINATE_DELIMITERS = ", ";
+
 // Creates a polyloop from an obj file
-bool buildPolyloopFromObj(
-    const std::string& filePath, Polyloop_3& polyloop) {
+bool buildPolyloopFromObj(const std::string& filePath, Polyloop_3& polyloop) {
   std::ifstream file(filePath);
 
   if (!file.good()) {
@@ -70,3 +74,38 @@ bool buildPolyloopFromObj(
   return fClosedLoop;
 }
 
+// A vertex list file format consists of a sequence of vertices, each line
+// consisting of delimited coordinates of a vertex. The polyloop is assumed to
+// be the loop created by connecting consecutive vertices in the file. The last
+// and first points are implicitly assumed to be connected (the vertex list
+// file should not close the loop itself).
+bool buildPolyloopFromVertexList(const std::string& filePath,
+                                 Polyloop_3& polyloop) {
+  std::ifstream file(filePath);
+
+  if (!file.good()) {
+    LOG(ERROR) << "File handle not accesible for building polyloop from file "
+               << filePath;
+    return false;
+  }
+
+  std::string line;
+  boost::char_separator<char> separator(COORDINATE_DELIMITERS);
+  // First, identify the format of the file by reading a single line.
+  while (std::getline(file, line)) {
+    std::array<Kernel::FT, 3> pointCoords{0, 0, 0};
+    boost::tokenizer<boost::char_separator<char>> tokenizer(line, separator);
+    int index = 0;
+    for (const auto& coord : tokenizer) {
+      if (index > pointCoords.size()) {
+        LOG(ERROR) << "Could not build polyloop from file -- file not in "
+                      "vertexlist format";
+        return false;
+      }
+      pointCoords[index++] = std::stod(coord);
+    }
+    polyloop.addPoint(
+        Kernel::Point_3(pointCoords[0], pointCoords[1], pointCoords[2]));
+  }
+  return true;
+}

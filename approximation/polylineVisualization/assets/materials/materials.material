@@ -18,17 +18,16 @@ material Materials/DefaultPoints
 vertex_program DefaultLinesVert glsl
 {
   source defaultEdgesVert.glsl
-}
-geometry_program DefaultLinesGeom glsl
-{
-  source defaultEdgesGeom.glsl
-    input_operation_type line_list
-    output_operation_type line_strip
-    max_output_vertices 4
+  default_params {
+    param_named_auto worldViewProjMatrix worldviewproj_matrix
+  }
 }
 fragment_program DefaultLinesFrag glsl
 {
   source defaultEdgesFrag.glsl
+  default_params {
+    param_named baseColor float4 0 0 0 1
+  }
 }
 material Materials/DefaultLines
 {
@@ -37,16 +36,8 @@ material Materials/DefaultLines
     pass
     {
       lighting off
-      vertex_program_ref DefaultLinesVert
-      {
-        param_named_auto worldViewProjMatrix worldviewproj_matrix
-      }
-      geometry_program_ref DefaultLinesGeom
-      {
-      }
-      fragment_program_ref DefaultLinesFrag
-      {
-      }
+      vertex_program_ref DefaultLinesVert {}
+      fragment_program_ref DefaultLinesFrag {}
     }
   }
 }
@@ -83,3 +74,22 @@ material Materials/DefaultTransparentTriangles
     }
   }
 }
+
+material Materials/IllustrativeObjectsTransparent
+{
+  technique
+  {
+    pass
+    {
+      scene_blend alpha_blend
+        depth_write_off
+        lighting off
+        texture_unit
+        {
+          colour_op_ex source1 src_manual src_current 1 0.9 0.9
+          alpha_op_ex source1 src_manual src_current 0.5
+        }
+    }
+  }
+}
+
