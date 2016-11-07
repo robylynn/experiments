@@ -5,6 +5,9 @@
 #include <glog/logging.h>
 #include <gflags/gflags.h>
 
+#include <boost/algorithm/string.hpp>
+#include <boost/lexical_cast.hpp>
+
 #include <OGRE/Ogre.h>
 #include <OGRE/OgreRectangle2D.h>
 #include <OGRE/OgreConfigFile.h>
@@ -19,10 +22,14 @@
 #include <prefabs.h>
 
 DEFINE_string(
-    polyloop_file,
+    file_basename,
     "/home/mukul/development/experiments/approximation/data/simplification/"
-    "refined/curves0",
-    "Name of the file from which the polyloop to be visualized will be loaded");
+    "refined/curves",
+    "Name of the file from which the polyloops to be visualized will be "
+    "loaded");
+DEFINE_string(file_indexes, "0-3",
+              "Interval format indexes for polyloops to be visualized");
+DEFINE_string(file_ext, ".txt", "Extension of the polyloop files");
 
 bool initScene(const std::string& windowName, const std::string& sceneName) {
   Ogre::Root* root = Ogre::Root::getSingletonPtr();
@@ -38,47 +45,78 @@ bool initScene(const std::string& windowName, const std::string& sceneName) {
   mainCamera->setNearClipDistance(0.5);
 }
 
+void frameCallback() {
+  static int counter = 0;
+
+  if (counter < 10) {
+    counter++;
+  }
+  // One time init
+  if (counter == 2) {
+    // Switch camera to center of polyloop
+    Ogre::Root* root = Ogre::Root::getSingletonPtr();
+    Ogre::SceneManager* sceneManager = root->getSceneManager("PrimaryScene");
+    Ogre::Camera* mainCamera = sceneManager->getCamera("PrimaryCamera");
+
+    Ogre::SceneNode* loopNode = static_cast<Ogre::SceneNode*>(
+        sceneManager->getRootSceneNode()->getChild("loopNode0"));
+    Ogre::SceneNode* loopCenterNode = loopNode->createChildSceneNode();
+    loopCenterNode->setPosition(loopNode->_getWorldAABB().getCenter());
+
+    CameraController* cameraController =
+        new CameraController("PrimaryCameraController", mainCamera);
+    cameraController->setTarget(loopCenterNode);
+  }
+}
+
 int main(int argc, char* argv[]) {
   google::InitGoogleLogging(argv[0]);
   google::ParseCommandLineFlags(&argc, &argv, true);
 
   WindowedRenderingApp app("Smoothing");
 
-  Polyloop_3 p;
-  if (!buildPolyloopFromVertexList(FLAGS_polyloop_file, p)) {
-    return -1;
-  }
-
   if (app.init(1200, 900)) {
     initScene(app.getWindowName(), "PrimaryScene");
 
     Ogre::Root* root = Ogre::Root::getSingletonPtr();
     Ogre::SceneManager* sceneManager = root->getSceneManager("PrimaryScene");
-
-    make_mesh_renderable(p, "loop");
-    Ogre::Entity* loopEntity = sceneManager->createEntity("loop");
-    Ogre::SceneNode* loopNode =
-        sceneManager->getRootSceneNode()->createChildSceneNode();
-    loopNode->attachObject(loopEntity);
-    loopNode->showBoundingBox(true);
-
-    // Switch camera to center of polyloop
     Ogre::Camera* mainCamera = sceneManager->getCamera("PrimaryCamera");
     app.getSelectionManager().setCamera(*mainCamera);
-    sceneManager->_updateSceneGraph(mainCamera);
 
-    Ogre::Vector3 extents = loopEntity->getBoundingBox().getMaximum() -
-                            loopEntity->getBoundingBox().getMinimum();
-    CameraController* cameraController =
-        new CameraController("PrimaryCameraController", mainCamera);
-    cameraController->setTarget(loopNode);
+    std::vector<std::string> intervals;
+    std::string indexString = std::string(FLAGS_file_indexes);
+    boost::split(intervals, indexString, boost::is_any_of("-"));
+    LOG_IF(ERROR, intervals.size() > 2 || intervals.size() < 1)
+        << "The interval string should specify an interval or a single element";
+    if (intervals.size() == 1) {
+      intervals.push_back(intervals[0]);
+    }
+    size_t indexes[2]{boost::lexical_cast<size_t>(intervals[0]),
+                      boost::lexical_cast<size_t>(intervals[1])};
+
+    for (int index = indexes[0]; index <= indexes[1]; ++index) {
+      std::string strIndex = std::to_string(index);
+      Polyloop_3 p;
+      if (!buildPolyloopFromVertexList(
+              FLAGS_file_basename + strIndex + FLAGS_file_ext, p)) {
+        return -1;
+      }
+
+      make_mesh_renderable(p, "loop" + strIndex);
+      Ogre::Entity* loopEntity = sceneManager->createEntity("loop" + strIndex);
+      Ogre::SceneNode* loopNode =
+          sceneManager->getRootSceneNode()->createChildSceneNode("loopNode" +
+                                                                 strIndex);
+      loopNode->attachObject(loopEntity);
+    }
 
     Ogre::SceneNode* axesNode =
         sceneManager->getRootSceneNode()->createChildSceneNode();
     axesNode->attachObject(getPrefab(Prefab::AXES));
     axesNode->setScale(10, 10, 10);
 
-    app.startEventLoop();
+    std::function<void(void)> callBackFn = &frameCallback;
+    app.startEventLoop(&callBackFn);
   }
   return 0;
 }

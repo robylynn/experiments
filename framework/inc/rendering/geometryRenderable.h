@@ -51,7 +51,12 @@ class GeometryRenderable : public Ogre::SimpleRenderable {
   }
 
   void setVertexBufferData(const VertexBufferProvider& vertexDataProvider) {
-    setBoundingBox(BoundingBoxProvider(vertexDataProvider)());
+    BoundingBoxProvider boundingBoxProvider(vertexDataProvider);
+    Ogre::AxisAlignedBox boundingBox = boundingBoxProvider();
+    float bounds = std::max(boundingBox.getSize().x, boundingBox.getSize().y);
+    bounds = std::max(bounds, boundingBox.getSize().z);
+    m_boundingRadius = bounds / 2;
+    setBoundingBox(boundingBox);
 
     createVertexData<VertexBufferProvider>(&mRenderOp.vertexData);
     populateVertexData<VertexBufferProvider>(mRenderOp.vertexData,
@@ -78,6 +83,7 @@ class GeometryRenderable : public Ogre::SimpleRenderable {
  private:
   RenderPolicy m_renderPolicy;
   MaterialPolicy m_materialPolicy;
+  Ogre::Real m_boundingRadius;
 };
 
 #endif  //_FRAMEWORK_RENDERING_GEOMETRY_RENDERABLE_H_

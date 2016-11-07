@@ -36,7 +36,10 @@ NotificationsManager& getAppWideNotificationsManager() {
 }
 
 WindowedRenderingApp::WindowedRenderingApp(const std::string& name)
-    : m_root(new Ogre::Root()), m_name(name), m_inputSystemManager(nullptr) {
+    : m_root(new Ogre::Root()),
+      m_name(name),
+      m_inputSystemManager(nullptr),
+      m_renderCallback(nullptr) {
   g_appInstance = this;
 }
 
@@ -158,12 +161,21 @@ bool WindowedRenderingApp::init(unsigned int width, unsigned int height) {
   return true;
 }
 
-void WindowedRenderingApp::startEventLoop() {
+// Start the event loop, with a user specified callback called at each frame
+// render.
+void WindowedRenderingApp::startEventLoop(
+    const std::function<void(void)>* renderCallback) {
   // TODO msati3: Perhaps switch from OGRE's rendering loop later.
+  if (renderCallback != nullptr) {
+    m_renderCallback = renderCallback;
+  }
   m_root->startRendering();
 }
 
 bool WindowedRenderingApp::poll() {
+  if (m_renderCallback != nullptr) {
+    (*m_renderCallback)();
+  }
   m_mouse->capture();
   m_keyboard->capture();
 

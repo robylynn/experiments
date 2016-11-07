@@ -52,11 +52,14 @@ class GeometryMeshCreator {
 
   void setVertexBufferData(const VertexBufferProvider& vertexDataProvider) {
     BoundingBoxProvider boundingBoxProvider(vertexDataProvider);
-    m_mesh->_setBounds(boundingBoxProvider());
+    Ogre::AxisAlignedBox boundingBox = boundingBoxProvider();
+    m_mesh->_setBounds(boundingBox);
+    float bounds = std::max(boundingBox.getSize().x, boundingBox.getSize().y);
+    bounds = std::max(bounds, boundingBox.getSize().z);
+    m_mesh->_setBoundingSphereRadius(bounds/2);
     createVertexData<VertexBufferProvider>(&m_mesh->sharedVertexData);
 
     // TODO msati3: Fix this hardcoding
-    m_mesh->_setBoundingSphereRadius(1000);
     populateVertexData(m_mesh->sharedVertexData, vertexDataProvider);
 
     // Notify mesh loading completion

@@ -23,13 +23,16 @@ class InputSystemPoller {
 // TODO msati3: Currently, input handling is performed within the render loop.
 // Moving this outside will require tighter integration with some cross plat
 // windowing library (FLTK?)
+//
+// TODO msati3: This class is becoming patchwork. Needs a rewrite soon.
 class WindowedRenderingApp : public InputSystemPoller {
  public:
   WindowedRenderingApp(const std::string& name);
   ~WindowedRenderingApp();
   bool init(unsigned int width, unsigned int height);
-  void startEventLoop();
+  void startEventLoop(const std::function<void()>* renderCallback = nullptr);
 
+  // Called every frame to check condition of input system for exit.
   bool poll() override;
 
   // Provide access to app wide services
@@ -56,6 +59,7 @@ class WindowedRenderingApp : public InputSystemPoller {
   // interface for CEGUI for its widget rendering
   CEGUI::OgreRenderer* m_guiRenderer;
   std::unique_ptr<SubscriberRAIIWrapper> m_guiMouseEventSubscriber;
+  const std::function<void(void)>* m_renderCallback;
 
   std::unique_ptr<Ogre::Root> m_root;
   std::string m_name;
