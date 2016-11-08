@@ -43,9 +43,10 @@ void ViewManager::averageVectorsView() {
   if (m_vectorsView == nullptr) {
     Ogre::SceneNode* vectorsNode =
         m_sceneManager->getRootSceneNode()->createChildSceneNode();
-    m_vectorsView.reset(new AveragingVectorsView(vectorsNode));
     m_rootViewNodes.insert(std::make_pair(ViewType::VECTORS, vectorsNode));
+    m_vectorsView.reset(new AveragingVectorsView(vectorsNode));
   }
+  m_vectorsView->populateData();
   switchView(ViewType::VECTORS);
 }
 
