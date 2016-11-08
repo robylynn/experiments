@@ -1,4 +1,5 @@
 -I/usr/local/include/cegui-0
+-I../../ext/geometry/psimpl
 -I../../framework/inc/app
 -I../../framework/inc/geometry
 -I../../framework/inc/rendering

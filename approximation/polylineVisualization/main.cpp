@@ -8,6 +8,8 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
 
+#include <psimpl.h>
+
 #include <OGRE/Ogre.h>
 #include <OGRE/OgreRectangle2D.h>
 #include <OGRE/OgreConfigFile.h>
@@ -16,9 +18,9 @@
 #include <windowedRenderingApp.h>
 
 #include <polyloop_3.h>
+#include <polyloopGeometryProvider.h>
 #include <defaultRenderables.h>
-#include <uniformVoxelGrid.h>
-#include <uniformVoxelGridGeometryProvider.h>
+#include <defaultBufferProviders.h>
 #include <prefabs.h>
 
 DEFINE_string(
@@ -48,18 +50,19 @@ bool initScene(const std::string& windowName, const std::string& sceneName) {
 void frameCallback() {
   static int counter = 0;
 
-  if (counter < 10) {
+  if (counter < 3) {
     counter++;
   }
-  // One time init
+
   if (counter == 2) {
+    // One time delayed init
     // Switch camera to center of polyloop
     Ogre::Root* root = Ogre::Root::getSingletonPtr();
     Ogre::SceneManager* sceneManager = root->getSceneManager("PrimaryScene");
     Ogre::Camera* mainCamera = sceneManager->getCamera("PrimaryCamera");
 
     Ogre::SceneNode* loopNode = static_cast<Ogre::SceneNode*>(
-        sceneManager->getRootSceneNode()->getChild("loopNode0"));
+        sceneManager->getRootSceneNode()->getChild("loopNodeSimplified0"));
     Ogre::SceneNode* loopCenterNode = loopNode->createChildSceneNode();
     loopCenterNode->setPosition(loopNode->_getWorldAABB().getCenter());
 
@@ -102,12 +105,50 @@ int main(int argc, char* argv[]) {
         return -1;
       }
 
+      Polyloop_3 simplified;
+
+      // Unroll data to flat form for use with psimpl's douglas peucker
+      // algorithm
+      using GeometryProvider =
+          PolyloopGeometryProvider<Polyloop_3, PolyloopPointPolicy>;
+      using GeometryAdaptor =
+          SingleElementProviderAdaptor<GeometryProvider, PositionVertexElement>;
+      VertexElementBufferProvider<GeometryAdaptor, PositionVertexElement>
+          flatIterProvider{GeometryProvider(p)};
+      std::vector<float> simplifiedFlat;
+
+      // Simplify polyline with tolerance.
+      psimpl::simplify_douglas_peucker<3>(flatIterProvider.begin(),
+                                          flatIterProvider.end(), 0.1,
+                                          std::back_inserter(simplifiedFlat));
+
+      // Create simplified polyloop from unrolled points.
+      for (
+          auto iter = utils::tuple_iterator<
+              decltype(simplifiedFlat.begin()), 3,
+              Kernel::Point_3>::begin(simplifiedFlat.begin(),
+                                      simplifiedFlat.end());
+          iter !=
+              utils::tuple_iterator<decltype(simplifiedFlat.end()), 3,
+                                    Kernel::Point_3>::end(simplifiedFlat.end());
+          ++iter) {
+        simplified.addPoint(*iter);
+      }
+
       make_mesh_renderable(p, "loop" + strIndex);
       Ogre::Entity* loopEntity = sceneManager->createEntity("loop" + strIndex);
       Ogre::SceneNode* loopNode =
           sceneManager->getRootSceneNode()->createChildSceneNode("loopNode" +
                                                                  strIndex);
       loopNode->attachObject(loopEntity);
+
+      make_mesh_renderable(simplified, "loopSimplified" + strIndex);
+      Ogre::Entity* simplifiedLoopEntity =
+          sceneManager->createEntity("loopSimplified" + strIndex);
+      Ogre::SceneNode* simplifiedLoopNode =
+          sceneManager->getRootSceneNode()->createChildSceneNode(
+              "loopNodeSimplified" + strIndex);
+      simplifiedLoopNode->attachObject(simplifiedLoopEntity);
     }
 
     Ogre::SceneNode* axesNode =
