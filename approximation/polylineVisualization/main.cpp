@@ -137,7 +137,7 @@ int main(int argc, char* argv[]) {
 
       // Simplify polyline with tolerance.
       psimpl::simplify_douglas_peucker<3>(flatIterProvider.begin(),
-                                          flatIterProvider.end(), 0.0015,
+                                          flatIterProvider.end(), 0.025,
                                           std::back_inserter(simplifiedFlat));
 
       // Create simplified polyline from unrolled points.
