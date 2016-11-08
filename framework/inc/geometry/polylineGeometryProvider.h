@@ -9,6 +9,17 @@
 #include "vertexElement.h"
 #include "vertexElementProviderTraits.h"
 
+class PolylinePointPolicy {
+ public:
+  static constexpr Ogre::RenderOperation::OperationType PRIMITIVE_TYPE =
+      Ogre::RenderOperation::OT_POINT_LIST;
+  static constexpr size_t VERTICES_PER_BASE = 1;
+  static const std::array<int, VERTICES_PER_BASE>& stencil() {
+    static constexpr std::array<int, VERTICES_PER_BASE> stencil = {{0}};
+    return stencil;
+  }
+};
+
 class PolylineListPolicy {
  public:
   static constexpr Ogre::RenderOperation::OperationType PRIMITIVE_TYPE =

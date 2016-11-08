@@ -41,7 +41,6 @@ material Materials/DefaultLines
     }
   }
 }
-
 material Materials/DefaultTriangles
 {
   technique
@@ -56,7 +55,6 @@ material Materials/DefaultTriangles
     }
   }
 }
-
 material Materials/DefaultTransparentTriangles
 {
   technique
@@ -74,7 +72,6 @@ material Materials/DefaultTransparentTriangles
     }
   }
 }
-
 material Materials/IllustrativeObjectsTransparent
 {
   technique
@@ -92,4 +89,17 @@ material Materials/IllustrativeObjectsTransparent
     }
   }
 }
-
+material Materials/SimplifiedLines
+{
+  technique
+  {
+    pass
+    {
+      lighting off
+      vertex_program_ref DefaultLinesVert {}
+      fragment_program_ref DefaultLinesFrag {
+        param_named baseColor float4 1 0 0 1
+      }
+    }
+  }
+}

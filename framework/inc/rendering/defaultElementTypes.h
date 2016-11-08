@@ -9,20 +9,26 @@
 // Among other things, this allows simple STL containers to provide vertex
 // element with automatically deduced provision types.
 template <typename T>
-struct VertexElementFromPrimitive {};
+struct VertexElementFromType {};
+
+// A vector provides different vertex elements, dependant on its contained type
+template <typename T>
+struct VertexElementFromType<typename std::vector<T>> {
+  using type = typename VertexElementFromType<T>::type;
+};
 
 template <typename Kernel>
-struct VertexElementFromPrimitive<typename CGAL::Point_3<Kernel>> {
+struct VertexElementFromType<typename CGAL::Point_3<Kernel>> {
   using type = PositionVertexElement;
 };
 
 template <typename Kernel>
-struct VertexElementFromPrimitive<typename CGAL::Point_2<Kernel>> {
+struct VertexElementFromType<typename CGAL::Point_2<Kernel>> {
   using type = PositionVertexElement;
 };
 
 template <>
-struct VertexElementFromPrimitive<CGAL::Color> {
+struct VertexElementFromType<CGAL::Color> {
   using type = ColorVertexElement;
 };
 

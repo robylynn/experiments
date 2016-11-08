@@ -2,7 +2,12 @@
 
 #include <glog/logging.h>
 
+#include <boost/tokenizer.hpp>
+
 #include "polyline.h"
+
+// Handle , and space delimited files for now.
+constexpr const char* const COORDINATE_DELIMITERS = ", ";
 
 // Creates a polyline from an obj file
 template <>
@@ -17,6 +22,7 @@ bool buildPolylineFromObj<Kernel::Point_3>(
   }
 
   std::string word;
+
 
   // TODO msati3: Currently, just ensures consistency of numbering, more
   // elaborate schemes later?
@@ -55,3 +61,37 @@ bool buildPolylineFromObj<Kernel::Point_3>(
   return true;
 }
 
+// A vertex list file format consists of a sequence of vertices, each line
+// consisting of delimited coordinates of a vertex. The polyline is assumed to
+// be the line created by connecting consecutive vertices in the file.
+template <>
+bool buildPolylineFromVertexList(const std::string& filePath,
+                                 Polyline<Kernel::Point_3>& polyline) {
+  std::ifstream file(filePath);
+
+  if (!file.good()) {
+    LOG(ERROR) << "File handle not accesible for building polyline from file "
+               << filePath;
+    return false;
+  }
+
+  std::string line;
+  boost::char_separator<char> separator(COORDINATE_DELIMITERS);
+  // First, identify the format of the file by reading a single line.
+  while (std::getline(file, line)) {
+    std::array<Kernel::FT, 3> pointCoords{0, 0, 0};
+    boost::tokenizer<boost::char_separator<char>> tokenizer(line, separator);
+    int index = 0;
+    for (const auto& coord : tokenizer) {
+      if (index > pointCoords.size()) {
+        LOG(ERROR) << "Could not build polyline from file -- file not in "
+                      "vertexlist format";
+        return false;
+      }
+      pointCoords[index++] = std::stod(coord);
+    }
+    polyline.addPoint(
+        Kernel::Point_3(pointCoords[0], pointCoords[1], pointCoords[2]));
+  }
+  return true;
+}

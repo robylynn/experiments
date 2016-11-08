@@ -3,6 +3,7 @@
 
 #include <CGAL/Polyhedron_3.h>
 
+#include "polyline.h"
 #include "polyloop_2.h"
 #include "polyloop_3.h"
 #include "polyloopGeometryProvider.h"
@@ -13,12 +14,22 @@
 
 template <typename T>
 struct VertexElementProviderTraits<std::vector<T>,
-                                   typename VertexElementFromPrimitive<T>::type> {
+                                   typename VertexElementFromType<T>::type> {
   using provider_type = PolylineGeometryProvider<std::vector<T>>;
   using const_iterator =
       typename PolylineGeometryProvider<std::vector<T>>::const_iterator;
   using storage_strategy =
       ElementProviderStorageStrategy<PolylineGeometryProvider<std::vector<T>>>;
+};
+
+template <typename PointType>
+struct VertexElementProviderTraits<
+    Polyline<PointType>, typename VertexElementFromType<PointType>::type> {
+  using provider_type = PolylineGeometryProvider<Polyline<PointType>>;
+  using const_iterator =
+      typename PolylineGeometryProvider<Polyline<PointType>>::const_iterator;
+  using storage_strategy = ElementProviderStorageStrategy<
+      PolylineGeometryProvider<Polyline<PointType>>>;
 };
 
 template <typename Kernel, typename VertexElement>

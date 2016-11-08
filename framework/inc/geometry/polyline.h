@@ -127,5 +127,8 @@ class Polyline {
 template <typename PointType>
 bool buildPolylineFromObj(const std::string& filePath,
                           Polyline<PointType>& polyline);
+template <typename PointType>
+bool buildPolylineFromVertexList(const std::string& filePath,
+                                 Polyline<PointType>& polyline);
 
 #endif  //_POLYLINE_H_
