@@ -34,7 +34,7 @@ before_install:
   - cd "${TRAVIS_BUILD_DIR}"
 
     # install Eigen
-  - curl -L -o eigen.taz.gz https://github.com/RLovelett/eigen/archive/3.3-rc1.tar.gz
+  - curl -L -o eigen.tar.gz https://github.com/RLovelett/eigen/archive/3.3-rc1.tar.gz
   - tar zxvf eigen.tar.gz &> install.log
   - cd eigen-3.3-rc1
   - cmake .
