@@ -19,8 +19,7 @@ enum class ViewType {
 
 class ViewManager {
  public:
-  ViewManager(Ogre::SceneManager* sceneManager)
-      : m_sceneManager(sceneManager) {}
+  ViewManager(Ogre::SceneManager* sceneManager);
 
   void init();
   void averageVectorsView();

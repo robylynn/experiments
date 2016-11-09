@@ -1,3 +1,19 @@
+#ifndef _FIELD_VISUALIZERS_H_
+#define _FIELD_VISUALIZERS_H_
+
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_io.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+
+#include <OGRE/OgreSceneNode.h>
+#include <OGRE/OgreSceneManager.h>
+#include <OGRE/OgreEntity.h>
+
+#include <geometryTypes.h>
+#include <defaultRenderables.h>
+
+#include "levelSetMeshBuilder.h"
+
 // View class that allows for rendering level sets of field.
 template <class Field>
 class LevelSetMeshVisualizer {
@@ -5,8 +21,7 @@ class LevelSetMeshVisualizer {
   static constexpr Kernel::FT MIN_LEVEL = 1;
 
  public:
-  LevelSetMeshVisualizer(const Field& inducedField, Ogre::SceneNode* parent)
-      : m_inducedField(&inducedField) {
+  LevelSetMeshVisualizer(Ogre::SceneNode* parent) : m_inducedField(nullptr) {
     m_levelSetSceneNode = parent->createChildSceneNode();
     setNormalizedLevel(0.1);
   }
@@ -16,7 +31,22 @@ class LevelSetMeshVisualizer {
     addLevelSetMeshToScene();
   }
 
+  void setField(const Field* inducedField) {
+    m_inducedField = inducedField;
+    clearLevelSetMeshes();
+    addLevelSetMeshToScene();
+  }
+
+  void clearLevelSetMeshes() {
+    for (auto levelSetMesh : m_levelSetMeshes) {
+      m_levelSetSceneNode->getCreator()->destroyEntity(levelSetMesh);
+    }
+    m_levelSetMeshes.clear();
+  }
+
   void addLevelSetMeshToScene() {
+    if (!m_inducedField) return;
+
     std::function<Kernel::FT(const Kernel::Point_3&)> samplingFunction =
         [ this, inducedFieldCRef = std::cref(*m_inducedField) ](
             const Kernel::Point_3& point) {
@@ -27,24 +57,25 @@ class LevelSetMeshVisualizer {
     CGAL::Polyhedron_3<Kernel> meshRep;
     meshBuilder.buildMesh(samplingFunction, Kernel::Sphere_3(CGAL::ORIGIN, 100),
                           1, meshRep);
-    auto meshRenderable = make_mesh_renderable(meshRep, "levelSetMesh");
+    std::string meshName = boost::uuids::to_string(boost::uuids::uuid());
+    auto meshRenderable = make_mesh_renderable(meshRep, meshName);
     Ogre::Entity* levelSetMeshEntity =
-        m_levelSetSceneNode->getCreator()->createEntity("entityLevelSetMesh",
-                                                        "levelSetMesh");
+        m_levelSetSceneNode->getCreator()->createEntity(meshName);
     levelSetMeshEntity->setMaterialName(
         "Materials/DefaultTransparentTriangles");
 
-    // Remove all children from scene node, and re-populate with new level-set
-    m_levelSetSceneNode->removeAndDestroyAllChildren();
+    m_levelSetMeshes.push_back(levelSetMeshEntity);
     m_levelSetSceneNode->attachObject(levelSetMeshEntity);
   }
 
  private:
   Kernel::FT m_value;
   Ogre::SceneNode* m_levelSetSceneNode;
+  std::vector<Ogre::Entity*> m_levelSetMeshes;
   const Field* m_inducedField;
 };
 
+/*
 template <class Field>
 class PlanarDistanceFieldVisualizer {
  public:
@@ -97,7 +128,7 @@ class PlanarDistanceFieldVisualizer {
     // Remove all children from scene node, and re-populate with new level-set
     m_distanceFieldSceneNode->removeAndDestroyAllChildren();
     m_distanceFieldSceneNode->attachObject(gridEntity);
-    m_distanceFieldSceneNode->showBoundingBox(true);*/
+    m_distanceFieldSceneNode->showBoundingBox(true);
   }
 
  private:
@@ -105,4 +136,6 @@ class PlanarDistanceFieldVisualizer {
   Ogre::SceneNode* m_polyloopsSceneNode;
   Ogre::SceneNode* m_distanceFieldSceneNode;
   const Field* m_inducedField;
-};
+};*/
+
+#endif  //_FIELD_VISUALIZERS_H_

@@ -15,9 +15,6 @@ add_executable(averaging
   averagingVectorsView.cpp
   commonViewInteractionsHandler.cpp)
 
-add_library(averagingLib
-  separableGeometryInducedField.cpp)
-
 add_custom_target(copyAveraginData ALL
   COMMAND ${CMAKE_COMMAND} -E  copy_directory
   ${CMAKE_CURRENT_SOURCE_DIR}/data
@@ -38,8 +35,7 @@ target_link_libraries(averaging ${Boost_LIBRARIES}
   ${CGAL_LIBS}
   app
   geometry
-  rendering
-  averagingLib)
+  rendering)
 
 add_ogre_rendering_libraries(averaging)
 copy_standard_ogre_resources(averaging)

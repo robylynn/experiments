@@ -6,7 +6,14 @@
 
 #include "viewManager.h"
 
+ViewManager::ViewManager(Ogre::SceneManager* sceneManager)
+    : m_sceneManager(sceneManager) {}
+
 void ViewManager::init() {
+  // Populate common interaction handler
+  m_commonInteractionsHandler.reset(new CommonViewInteractionsHandler(
+      m_sceneManager->getRootSceneNode()->createChildSceneNode()));
+
   // Add widgets and setup callbacks
   CEGUI::WindowManager& windowManager = CEGUI::WindowManager::getSingleton();
   CEGUI::Window* averagingLayout =
@@ -47,6 +54,9 @@ void ViewManager::averageVectorsView() {
     m_vectorsView.reset(new AveragingVectorsView(vectorsNode));
   }
   m_vectorsView->populateData();
+  m_commonInteractionsHandler->fieldChanged(
+      m_vectorsView->getGeometryInducedField());
+
   switchView(ViewType::VECTORS);
 }
 
@@ -67,6 +77,9 @@ void ViewManager::averagePolyloopsView() {
     m_polyloopsView.reset(new AveragingPolyloopsView(loopsNode));
     m_rootViewNodes.insert(std::make_pair(ViewType::LOOPS, loopsNode));
   }
+  m_polyloopsView->populateData();
+  m_commonInteractionsHandler->fieldChanged(
+      m_polyloopsView->getGeometryInducedField());
   switchView(ViewType::LOOPS);
 }
 

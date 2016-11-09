@@ -84,7 +84,6 @@ class SeparableGeometryInducedField {
   }*/
 
  private:
-  /*void resetDistanceFieldSampleValues() { m_fieldSampleValues.clear(); }*/
   void addGeometryReference(GeometryReferenceTypesVariant geometryRef) {
     m_representations.push_back(geometryRef);
   }

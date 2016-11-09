@@ -1,5 +1,5 @@
-#ifndef _POLYLINE_H_
-#define _POLYLINE_H_
+#ifndef _FRAMEWORK_GEOMETRY_POLYLINE_H_
+#define _FRAMEWORK_GEOMETRY_POLYLINE_H_
 
 #include <boost/iterator/iterator_adaptor.hpp>
 
@@ -131,4 +131,4 @@ template <typename PointType>
 bool buildPolylineFromVertexList(const std::string& filePath,
                                  Polyline<PointType>& polyline);
 
-#endif  //_POLYLINE_H_
+#endif  //_FRAMWORK_GEOMETRY_POLYLINE_H_

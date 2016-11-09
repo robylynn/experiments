@@ -8,14 +8,14 @@
 // Add distance computation from points and rays for geometry types
 namespace CGAL {
 
-CGAL::Oriented_side oriented_side(const Polyloop_2& polyloop,
-                                  const Kernel::Point_2& point) {
+inline CGAL::Oriented_side oriented_side(const Polyloop_2& polyloop,
+                                         const Kernel::Point_2& point) {
   return CGAL::oriented_side_2(polyloop.begin(), polyloop.end(), point,
                                Kernel());
 }
 
-CGAL::Oriented_side oriented_side(const Kernel::Line_2& line,
-                                  const Kernel::Point_2& point) {
+inline CGAL::Oriented_side oriented_side(const Kernel::Line_2& line,
+                                         const Kernel::Point_2& point) {
   return line.oriented_side(point);
 }
 

@@ -17,6 +17,4 @@ target_link_libraries(averagingTest ${GTEST_LIBRARIES}
   ${CMAKE_THREAD_LIBS_INIT}
   ${Boost_LIBRARIES}
   ${CGAL_LIBS}
-  geometry
-  averagingLib)
-
+  geometry)

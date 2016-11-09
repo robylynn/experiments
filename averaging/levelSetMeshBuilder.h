@@ -1,5 +1,5 @@
-#ifndef _LEVELSETMESHBUILDER_H_
-#define _LEVELSETMESHBUILDER_H_
+#ifndef _LEVEL_SET_MESH_BUILDER_H_
+#define _LEVEL_SET_MESH_BUILDER_H_
 
 #include <type_traits>
 #include <fstream>
@@ -168,4 +168,4 @@ class LevelSetMeshBuilder : public BuildPolicy {
   }
 };
 
-#endif  //_LEVELSETMESHBUILDER_H_
+#endif  //_LEVEL_SET_MESH_BUILDER_H_

@@ -1,3 +1,7 @@
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_io.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+
 #include <OGRE/OgreSceneManager.h>
 #include <OGRE/OgreEntity.h>
 #include <OGRE/OgreSubEntity.h>
@@ -35,8 +39,6 @@ Kernel::Point_3 averageProjMax(std::vector<Kernel::Point_3> points) {
   MatrixXf pointMatrix(points.size(), 3);
   for (int i = 0; i < points.size(); ++i) {
     pointMatrix.row(i) << points[i].x(), points[i].y(), points[i].z();
-    // cout << "Its singular values are:" << endl
-    //   << svd.singula
   }
   JacobiSVD<MatrixXf> svd(pointMatrix, ComputeThinU | ComputeThinV);
   auto firstSingularVector = svd.matrixV().col(0);
@@ -61,37 +63,41 @@ AveragingVectorsView::AveragingVectorsView(Ogre::SceneNode* rootNode)
 void AveragingVectorsView::populateData() {
   // Kill off initial scene node content
   OgreUtils::destroySceneNode(m_vectorsRootNode);
-  const std::string BASE_NAME = "vector";
+  m_squaredDistField.reset(new SquaredDistField());
 
   m_vectorsRootNode = m_rootNode->createChildSceneNode();
   std::vector<Kernel::Point_3> points;
   std::copy_n(m_spherePointsGenerator, NUM_POINTS, std::back_inserter(points));
 
-  int count = 0;
+  boost::uuids::random_generator uidGenerator;
+
   for (auto point : points) {
-    std::string meshName = BASE_NAME + std::to_string(count);
-    std::vector<Kernel::Point_3> vector{Kernel::Point_3(0, 0, 0), point};
-    auto vMesh = make_mesh_renderable(vector, meshName);
+    std::vector<Kernel::Point_3> vPoints{Kernel::Point_3(0, 0, 0), point};
+    m_squaredDistField->addGeometry(Kernel::Segment_3(vPoints[0], vPoints[1]));
+
+    std::string meshName = boost::uuids::to_string(uidGenerator());
+    (void)make_mesh_renderable(vPoints, meshName);
     Ogre::Entity* vEntity = m_rootNode->getCreator()->createEntity(meshName);
     vEntity->setMaterialName("Materials/DirectedVectors");
     m_vectorsRootNode->attachObject(vEntity);
-    ++count;
   }
 
   // Here come the averages
   std::vector<Kernel::Point_3> l2Average{Kernel::Point_3(0, 0, 0),
                                          averageL2Min(points)};
-  (void)make_mesh_renderable(l2Average, "l2MinAverage");
+  std::string l2MinAvgMeshName = boost::uuids::to_string(uidGenerator());
+  (void)make_mesh_renderable(l2Average, l2MinAvgMeshName);
   Ogre::Entity* l2Entity =
-      m_rootNode->getCreator()->createEntity("l2MinAverage");
+      m_rootNode->getCreator()->createEntity(l2MinAvgMeshName);
   l2Entity->setMaterialName("Materials/SimpleAverage");
   m_vectorsRootNode->attachObject(l2Entity);
 
   std::vector<Kernel::Point_3> projMaxAverage{Kernel::Point_3(0, 0, 0),
                                               averageProjMax(points)};
-  (void)make_mesh_renderable(projMaxAverage, "projMaxAverage");
+  std::string projMaxAvgMeshName = boost::uuids::to_string(uidGenerator());
+  (void)make_mesh_renderable(projMaxAverage, projMaxAvgMeshName);
   Ogre::Entity* projEntity =
-      m_rootNode->getCreator()->createEntity("projMaxAverage");
+      m_rootNode->getCreator()->createEntity(projMaxAvgMeshName);
   projEntity->setMaterialName("Materials/ProjAverage");
   m_vectorsRootNode->attachObject(projEntity);
 }
