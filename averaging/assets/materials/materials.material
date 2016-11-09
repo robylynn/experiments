@@ -55,13 +55,17 @@ material Materials/DefaultPoints
 
 material Materials/DefaultLines
 {
-  technique
+  technique edges
   {
-    pass
+    pass 0
     {
       lighting off
-      vertex_program_ref DefaultLinesVert {}
-      fragment_program_ref DefaultLinesFrag {}
+      vertex_program_ref DefaultLinesVert
+      {
+      }
+      fragment_program_ref DefaultLinesFrag
+      {
+      }
     }
   }
 }
@@ -148,3 +152,16 @@ material Materials/ProjAverage : Materials/DirectedVectors
   set_texture_alias VectorTexture blueVector.png
 }
 
+material Materials/AveragePolyloops : Materials/DefaultLines
+{
+  technique edges
+  {
+    pass 0
+    {
+      fragment_program_ref DefaultLinesFrag
+      {
+        param_named baseColor float4 1 0 0 1
+      }
+    }
+  }
+}

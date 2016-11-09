@@ -1,6 +1,8 @@
 #ifndef _GRADIENT_COMPUTER_H_
 #define _GRADIENT_COMPUTER_H_
 
+#include <Eigen/Dense>
+
 // Just sample at 3 nearby orthogonal positions and compute value.
 class NaiveGradientEstimator {
  private:

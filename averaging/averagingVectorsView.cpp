@@ -63,7 +63,7 @@ AveragingVectorsView::AveragingVectorsView(Ogre::SceneNode* rootNode)
 void AveragingVectorsView::populateData() {
   // Kill off initial scene node content
   OgreUtils::destroySceneNode(m_vectorsRootNode);
-  m_squaredDistField.reset(new SquaredDistField());
+  //m_squaredDistField.reset(new SquaredDistField());
 
   m_vectorsRootNode = m_rootNode->createChildSceneNode();
   std::vector<Kernel::Point_3> points;
@@ -73,7 +73,7 @@ void AveragingVectorsView::populateData() {
 
   for (auto point : points) {
     std::vector<Kernel::Point_3> vPoints{Kernel::Point_3(0, 0, 0), point};
-    m_squaredDistField->addGeometry(Kernel::Segment_3(vPoints[0], vPoints[1]));
+    //m_squaredDistField->addGeometry(Kernel::Segment_3(vPoints[0], vPoints[1]));
 
     std::string meshName = boost::uuids::to_string(uidGenerator());
     (void)make_mesh_renderable(vPoints, meshName);

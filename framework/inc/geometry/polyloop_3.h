@@ -28,8 +28,6 @@ class Polyloop_3 {
   // for rendering in non-immediate mode.
   static constexpr size_t HINT_MAX_BOUND = 10000;
 
-  Polyloop_3() {}
-
   // The size of a Polyloop is the number of points it contains
   size_t size() const { return m_points.size(); }
 
