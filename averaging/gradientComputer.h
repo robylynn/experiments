@@ -1,18 +1,18 @@
 #ifndef _GRADIENT_COMPUTER_H_
 #define _GRADIENT_COMPUTER_H_
 
-#include <Eigen/Dense>
-
 // Just sample at 3 nearby orthogonal positions and compute value.
 class NaiveGradientEstimator {
  private:
+  Kernel::FT m_gridSize;
   std::vector<Kernel::Vector_3> m_vectorOffsets;
 
  public:
-  NaiveGradientEstimator(Kernel::FT increment)
-      : m_vectorOffsets({Kernel::Vector_3(increment, 0, 0),
-                         Kernel::Vector_3(0, increment, 0),
-                         Kernel::Vector_3(0, 0, increment)}) {}
+  NaiveGradientEstimator(Kernel::FT gridSize)
+      : m_gridSize(gridSize),
+        m_vectorOffsets({Kernel::Vector_3(gridSize, 0, 0),
+                         Kernel::Vector_3(0, gridSize, 0),
+                         Kernel::Vector_3(0, 0, gridSize)}) {}
 
  public:
   auto begin() const -> decltype(m_vectorOffsets.begin()) {
@@ -26,7 +26,8 @@ class NaiveGradientEstimator {
   template <typename ScalarValuesIter>
   Kernel::Vector_3 operator()(ScalarValuesIter begin,
                               ScalarValuesIter end) const {
-    return Kernel::Vector_3(*begin, *(begin + 1), *(begin + 2));
+    return Kernel::Vector_3(*begin / m_gridSize, *(begin + 1) / m_gridSize,
+                            *(begin + 2) / m_gridSize);
   }
 };
 
@@ -56,8 +57,8 @@ class GradientComputer {
     std::vector<Kernel::FT> differences;
     differences.reserve(m_estimator->size());
     for (const auto& estimatorVector : *m_estimator) {
-      differences.push_back((*m_scalarField)(point + estimatorVector) -
-                            valueAtPoint);
+      differences.push_back(
+          ((*m_scalarField)(point + estimatorVector) - valueAtPoint));
     }
     return (*m_estimator)(differences.begin(), differences.end());
   };

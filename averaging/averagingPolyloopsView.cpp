@@ -5,19 +5,31 @@
 #include <defaultRenderables.h>
 
 #include "averagingPolyloopsView.h"
-#include "gradientComputer.h"
+#include "hessianComputer.h"
 
 constexpr int NUM_LOOPS = 2;
-constexpr int MAX_ITERS = 3;
+constexpr int MAX_ITERS = 1;
 
 namespace {
 // Compute snapping by gradient computation
-Kernel::Point_3 snapNumerical(const Kernel::Point_3& point,
-                                const SquaredDistField& field, int iterCount) {
-  if (iterCount == MAX_ITERS) return point;
-  NaiveGradientEstimator estimator(0.05);
-  return snapNumerical(point, field, iterCount + 1);
-}
+class NumericalSnapper {
+ public:
+  NumericalSnapper(const SquaredDistField& distField)
+      : m_estimator(0.05), m_computer(distField, m_estimator) {}
+
+  Kernel::Point_3 snap(const Kernel::Point_3& point, int iterCount) const {
+    if (iterCount == MAX_ITERS) return point;
+
+    Eigen::Matrix3f hessian = m_computer(point);
+    Eigen::EigenSolver<Eigen::Matrix3f> solver(hessian);
+    solver.eigenvectors().col(0);
+    return snap(point, iterCount + 1);
+  }
+
+ private:
+  NaiveHessianEstimator m_estimator;
+  HessianComputer<SquaredDistField> m_computer;
+};
 
 Polyloop_3 snapAverage(const std::vector<Polyloop_3>& loops) {
   SquaredDistField squaredDistField;
@@ -25,10 +37,11 @@ Polyloop_3 snapAverage(const std::vector<Polyloop_3>& loops) {
     squaredDistField.addGeometry(loop);
   }
 
+  NumericalSnapper snapper(squaredDistField);
   Polyloop_3 averageInit = loops[0];
   Polyloop_3 average;
   for (auto& point : averageInit) {
-    average.addPoint(snapNumerical(point, squaredDistField, 0));
+    average.addPoint(snapper.snap(point, 0));
   }
 
   return average;
