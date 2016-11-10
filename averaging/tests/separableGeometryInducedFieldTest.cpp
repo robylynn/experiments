@@ -51,5 +51,5 @@ TEST_F(DistanceFieldTest, gradientEstimationTest) {
   GradientComputer<Field> gradientComputer(field, estimator);
   EXPECT_EQ(gradientComputer(Kernel::Point_3(0, 0.5, 0)).y(), 0);
   EXPECT_FLOAT_EQ(gradientComputer(Kernel::Point_3(0, 0.5, 0)).x(),
-                  0.4 * 0.4 - 0.5 * 0.5);
+                  (0.4 * 0.4 - 0.5 * 0.5)/(0.1));
 }
