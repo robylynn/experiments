@@ -11,7 +11,7 @@
 #include "hessianComputer.h"
 
 constexpr int NUM_LOOPS = 2;
-constexpr int MAX_ITERS = 3;
+constexpr int MAX_ITERS = 10;
 
 namespace {
 // Compute snapping by gradient computation
@@ -27,7 +27,7 @@ class NumericalSnapper {
   Kernel::Point_3 snap(const Kernel::Point_3& point, int iterCount) const {
     Eigen::Matrix3f hessian = m_computer(point);
     Eigen::SelfAdjointEigenSolver<Eigen::Matrix3f> solver(hessian);
-    auto largestEigen = solver.eigenvectors().col(2);
+    auto largestEigen = solver.eigenvectors().col(2) * solver.eigenvalues()[2];
     Kernel::Vector_3 vector(largestEigen[0], largestEigen[1], largestEigen[2]);
     return point - vector * s_stepSize;
   }
@@ -48,7 +48,10 @@ class NumericalSnapper {
 // Do the above process iteratively.
 class SnapAverage {
  public:
-  SnapAverage(Ogre::SceneNode* parentNode) : m_parentNode(parentNode) {}
+  SnapAverage(Ogre::SceneNode* parentNode,
+              float normalizedConvergenceThreshold = s_perVConvergenceThreshold)
+      : m_parentNode(parentNode),
+        m_normalizedConvergenceThreshold(normalizedConvergenceThreshold) {}
 
   Polyloop_3 operator()(const std::vector<Polyloop_3>& loops) {
     SquaredDistField squaredDistField;
@@ -58,16 +61,30 @@ class SnapAverage {
 
     NumericalSnapper snapper(squaredDistField);
     Polyloop_3 averageCurrent = loops[0];
-    for (int i = 0; i < MAX_ITERS; ++i) {
+    bool converged = false;
+    for (int i = 0; i < MAX_ITERS && !converged; ++i) {
       Polyloop_3 average;
       for (auto& point : averageCurrent) {
         average.addPoint(snapper.snap(point, 0));
       }
-      std::cout << "Now visualizing ..." << std::endl;
       visualizeSnapTrajectory(averageCurrent, average);
+      converged = checkConvergence(averageCurrent, average);
       averageCurrent = average;
     }
     return averageCurrent;
+  }
+
+  bool checkConvergence(const Polyloop_3& current, const Polyloop_3& snapped) {
+    // Capture the difference between current and snapped positions, using it
+    // to determine convergence.
+    Kernel::FT diffPrevious = 0;
+    for (auto iterCur = current.begin(), iterSnap = snapped.begin();
+         iterCur != current.end(); ++iterSnap, ++iterCur) {
+      diffPrevious =
+          std::max(diffPrevious, CGAL::squared_distance(*iterCur, *iterSnap));
+    }
+    diffPrevious = sqrt(diffPrevious);
+    return (diffPrevious < m_normalizedConvergenceThreshold);
   }
 
   void visualizeSnapTrajectory(const Polyloop_3& current,
@@ -100,6 +117,9 @@ class SnapAverage {
 
  private:
   Ogre::SceneNode* m_parentNode;
+  float m_normalizedConvergenceThreshold;
+
+  static constexpr float s_perVConvergenceThreshold = 0.0002;
 };
 }  // end anon namespace
 
