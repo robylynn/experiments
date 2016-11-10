@@ -5,8 +5,9 @@
 #include <OGRE/OgreSceneManager.h>
 #include <OGRE/OgreEntity.h>
 
+#include <appContext.h>
 #include <geometryTypes.h>
-#include <dynamicMeshHelper.h>
+#include <dynamicMeshManager.h>
 
 #include "levelSetMeshBuilder.h"
 
@@ -53,14 +54,14 @@ class LevelSetMeshVisualizer {
     CGAL::Polyhedron_3<Kernel> meshRep;
     meshBuilder.buildMesh(samplingFunction, Kernel::Sphere_3(CGAL::ORIGIN, 100),
                           1, meshRep);
-    std::string meshName = make_mesh_renderable(meshRep, meshName);
+
     Ogre::Entity* levelSetMeshEntity =
-        m_levelSetSceneNode->getCreator()->createEntity(meshName);
+        Framework::AppContext::getDynamicMeshManager().addMesh(
+            meshRep, m_levelSetSceneNode);
     levelSetMeshEntity->setMaterialName(
         "Materials/DefaultTransparentTriangles");
 
     m_levelSetMeshes.push_back(levelSetMeshEntity);
-    m_levelSetSceneNode->attachObject(levelSetMeshEntity);
   }
 
  private:

@@ -7,10 +7,11 @@
 #include <CEGUI/CEGUI.h>
 #include <CEGUI/RendererModules/Ogre/Renderer.h>
 #include <OGRE/OgreFrameListener.h>
+#include <OGRE/OgreSingleton.h>
 #include <OIS/OIS.h>
 
 #include "notifier.h"
-#include "selectionManager.h"
+#include "renderingServicesManager.h"
 
 class InputSystemPoller {
  public:
@@ -25,7 +26,8 @@ class InputSystemPoller {
 // windowing library (FLTK?)
 //
 // TODO msati3: This class is becoming patchwork. Needs a rewrite soon.
-class WindowedRenderingApp : public InputSystemPoller {
+class WindowedRenderingApp : public InputSystemPoller,
+                             public Ogre::Singleton<WindowedRenderingApp> {
  public:
   WindowedRenderingApp(const std::string& name);
   ~WindowedRenderingApp();
@@ -40,12 +42,22 @@ class WindowedRenderingApp : public InputSystemPoller {
   NotificationsManager& getNotificationsManager() {
     return m_notificationsManager;
   }
-  SelectionManager& getSelectionManager() { return m_selectionManager; }
-  const SelectionManager& getSelectionManager() const { return m_selectionManager; }
+  const NotificationsManager& getNotificationsManager() const {
+    return m_notificationsManager;
+  }
+  RenderingServicesManager& getRenderingServicesManager() {
+    return m_renderingServicesManager;
+  }
+  const RenderingServicesManager& getRenderingServicesManager() const {
+    return m_renderingServicesManager;
+  }
+
+  static WindowedRenderingApp& getSingleton(void);
+  static WindowedRenderingApp* getSingletonPtr(void);
 
  private:
   NotificationsManager m_notificationsManager;
-  SelectionManager m_selectionManager;
+  RenderingServicesManager m_renderingServicesManager;
 
   bool onMouseEvent(const std::string& name, const boost::any& parameters);
 

@@ -9,6 +9,8 @@
 #include "notifier.h"
 #include "windowedRenderingApp.h"
 
+#include "selectionManager.h"
+
 namespace {
 
 class RenderLoopInputListener : public Ogre::FrameListener {
@@ -28,20 +30,24 @@ class RenderLoopInputListener : public Ogre::FrameListener {
 
 }  // end anon-namespace
 
-// Global app instance
-WindowedRenderingApp* g_appInstance = nullptr;
+// Singleton instance
+template <>
+WindowedRenderingApp* Ogre::Singleton<WindowedRenderingApp>::msSingleton = 0;
 
-NotificationsManager& getAppWideNotificationsManager() {
-  return g_appInstance->getNotificationsManager();
+WindowedRenderingApp* WindowedRenderingApp::getSingletonPtr() {
+  return msSingleton;
+}
+
+WindowedRenderingApp& WindowedRenderingApp::getSingleton() {
+  assert(msSingleton != nullptr);
+  return *msSingleton;
 }
 
 WindowedRenderingApp::WindowedRenderingApp(const std::string& name)
     : m_root(new Ogre::Root()),
       m_name(name),
       m_inputSystemManager(nullptr),
-      m_renderCallback(nullptr) {
-  g_appInstance = this;
-}
+      m_renderCallback(nullptr) {}
 
 WindowedRenderingApp::~WindowedRenderingApp() {
   m_inputSystemManager->destroyInputObject(m_mouse);
@@ -205,7 +211,7 @@ bool WindowedRenderingApp::onMouseEvent(const std::string& name,
 
     // Pass through to selectables if mouse press is not captured
     if (!(releaseHandled & fMousePressCaptured)) {
-      m_selectionManager.selectionQuery(
+      m_renderingServicesManager.getSelectionManager().selectionQuery(
           std::get<0>(params).state.X.abs /
               (float)std::get<0>(params).state.width,
           std::get<0>(params).state.Y.abs /

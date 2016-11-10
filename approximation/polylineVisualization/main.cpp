@@ -14,8 +14,9 @@
 #include <OGRE/OgreRectangle2D.h>
 #include <OGRE/OgreConfigFile.h>
 
+#include <appContext.h>
 #include <cameraController.h>
-#include <windowedRenderingApp.h>
+#include <selectionManager.h>
 
 #include <polyloop_3.h>
 #include <polyline.h>
@@ -100,7 +101,7 @@ int main(int argc, char* argv[]) {
     Ogre::Root* root = Ogre::Root::getSingletonPtr();
     Ogre::SceneManager* sceneManager = root->getSceneManager("PrimaryScene");
     Ogre::Camera* mainCamera = sceneManager->getCamera("PrimaryCamera");
-    app.getSelectionManager().setCamera(*mainCamera);
+    Framework::AppContext::getSelectionManager().setCamera(*mainCamera);
 
     std::vector<std::string> intervals;
     std::string indexString = std::string(FLAGS_file_indexes);

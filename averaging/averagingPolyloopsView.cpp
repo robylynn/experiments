@@ -4,14 +4,17 @@
 #include <OGRE/OgreEntity.h>
 #include <OGRE/OgreSubEntity.h>
 
+#include <appContext.h>
+#include <dynamicMeshManager.h>
 #include <polyloop_3.h>
-#include <dynamicMeshHelper.h>
 
 #include "averagingPolyloopsView.h"
 #include "hessianComputer.h"
 
 constexpr int NUM_LOOPS = 2;
 constexpr int MAX_ITERS = 10;
+
+namespace Context = Framework::AppContext;
 
 namespace {
 // Compute snapping by gradient computation
@@ -98,21 +101,17 @@ class SnapAverage {
       snapVectors.push_back(*iterCur);
       snapVectors.push_back(*iterSnap);
     }
-    std::string snappedMeshName = make_mesh_renderable(snapped);
     Ogre::Entity* pEntitySnapAvg =
-        m_parentNode->getCreator()->createEntity(snappedMeshName);
+        Context::getDynamicMeshManager().addMesh(snapped, m_parentNode);
     pEntitySnapAvg->setMaterialName("Materials/DefaultLines");
     pEntitySnapAvg->getSubEntity(0)
         ->setCustomParameter(1, Ogre::Vector4(0, 0, 1, 1));
-    m_parentNode->attachObject(pEntitySnapAvg);
 
-    std::string name = make_mesh_renderable(snapVectors, "snapVectors");
     Ogre::Entity* pEntitySnapVectors =
-        m_parentNode->getCreator()->createEntity(name);
+        Context::getDynamicMeshManager().addMesh(snapVectors, m_parentNode);
     pEntitySnapVectors->setMaterialName("Materials/DefaultLines");
     pEntitySnapVectors->getSubEntity(0)
         ->setCustomParameter(1, Ogre::Vector4(0, 0, 1, 1));
-    m_parentNode->attachObject(pEntitySnapVectors);
   }
 
  private:
@@ -136,16 +135,14 @@ void AveragingPolyloopsView::populateData() {
     buildPolyloopFromObj("data/" + loopName + ".obj", loops[loops.size() - 1]);
     // m_squaredDistField->addGeometry(loops[loops.size()-1]);
 
-    (void)make_mesh_renderable(loops[loops.size() - 1], loopName);
-    Ogre::Entity* pEntity = m_rootNode->getCreator()->createEntity(loopName);
+    Ogre::Entity* pEntity = Context::getDynamicMeshManager().addMesh(
+        loops[loops.size() - 1], m_polyloopsRootNode);
     pEntity->setMaterialName("Materials/DefaultLines");
-    m_polyloopsRootNode->attachObject(pEntity);
   }
 
   SnapAverage snapAverage(m_polyloopsRootNode);
   Polyloop_3 average = snapAverage(loops);
-  (void)make_mesh_renderable(average, "loopAverage");
-  Ogre::Entity* pEntity = m_rootNode->getCreator()->createEntity("loopAverage");
+  Ogre::Entity* pEntity =
+      Context::getDynamicMeshManager().addMesh(average, m_polyloopsRootNode);
   pEntity->setMaterialName("Materials/AveragePolyloops");
-  m_polyloopsRootNode->attachObject(pEntity);
 }

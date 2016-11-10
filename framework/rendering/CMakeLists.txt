@@ -1,6 +1,7 @@
 add_library(rendering
   geometryInterop.cpp
   manualObjects.cpp
+  renderingServicesManager.cpp
   ogreUtils.cpp
   prefabs.cpp
   selectionManager.cpp)

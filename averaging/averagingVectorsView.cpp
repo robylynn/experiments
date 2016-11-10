@@ -9,8 +9,9 @@
 
 #include <Eigen/Dense>
 
+#include <appContext.h>
+#include <dynamicMeshManager.h>
 #include <geometryTypes.h>
-#include <dynamicMeshHelper.h>
 #include <ogreUtils.h>
 
 #include "averagingVectorsView.h"
@@ -60,6 +61,8 @@ void AveragingVectorsView::populateData() {
   // Kill off initial scene node content
   OgreUtils::destroySceneNode(m_vectorsRootNode);
   // m_squaredDistField.reset(new SquaredDistField());
+  DynamicMeshManager& dynamicMeshManager =
+      Framework::AppContext::getDynamicMeshManager();
 
   m_vectorsRootNode = m_rootNode->createChildSceneNode();
   std::vector<Kernel::Point_3> points;
@@ -70,28 +73,21 @@ void AveragingVectorsView::populateData() {
     // m_squaredDistField->addGeometry(Kernel::Segment_3(vPoints[0],
     // vPoints[1]));
 
-    std::string meshName = make_mesh_renderable(vPoints, meshName);
-    Ogre::Entity* vEntity = m_rootNode->getCreator()->createEntity(meshName);
+    Ogre::Entity* vEntity =
+        dynamicMeshManager.addMesh(vPoints, m_vectorsRootNode);
     vEntity->setMaterialName("Materials/DirectedVectors");
-    m_vectorsRootNode->attachObject(vEntity);
   }
 
   // Here come the averages
   std::vector<Kernel::Point_3> l2Average{Kernel::Point_3(0, 0, 0),
                                          averageL2Min(points)};
-  std::string l2MinAvgMeshName =
-      make_mesh_renderable(l2Average, l2MinAvgMeshName);
   Ogre::Entity* l2Entity =
-      m_rootNode->getCreator()->createEntity(l2MinAvgMeshName);
+      dynamicMeshManager.addMesh(l2Average, m_vectorsRootNode);
   l2Entity->setMaterialName("Materials/SimpleAverage");
-  m_vectorsRootNode->attachObject(l2Entity);
 
   std::vector<Kernel::Point_3> projMaxAverage{Kernel::Point_3(0, 0, 0),
                                               averageProjMax(points)};
-  std::string projMaxAvgMeshName =
-      make_mesh_renderable(projMaxAverage, projMaxAvgMeshName);
   Ogre::Entity* projEntity =
-      m_rootNode->getCreator()->createEntity(projMaxAvgMeshName);
+      dynamicMeshManager.addMesh(projMaxAverage, m_vectorsRootNode);
   projEntity->setMaterialName("Materials/ProjAverage");
-  m_vectorsRootNode->attachObject(projEntity);
 }

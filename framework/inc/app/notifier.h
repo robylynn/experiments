@@ -9,9 +9,6 @@
 #include <boost/noncopyable.hpp>
 #include <boost/any.hpp>
 
-class NotificationsManager;
-NotificationsManager& getAppWideNotificationsManager();
-
 enum NotificationPriority {
   NOTIFICATIONPRIORITY_HIGHEST = 1,
   NOTIFICATIONPRIORITY_DEFAULT = 100,

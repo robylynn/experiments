@@ -1,6 +1,10 @@
 #ifndef _FRAMEWORK_RENDERING_DEFAULT_RENDERABLES_H_
 #define _FRAMEWORK_RENDERING_DEFAULT_RENDERABLES_H_
 
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_io.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+
 #include "defaultGeometryProviders.h"
 
 #include "vertexElementBufferProvider.h"
@@ -48,6 +52,14 @@ std::string make_mesh_renderable(const GeometryRep& geometryRep,
   GeometryMeshCreator<decltype(bufferProvider)> renderable(meshName);
   renderable.setVertexBufferData(bufferProvider);
   return meshName;
+}
+
+// Make a mesh with a uuid name.
+template <typename GeometryRep>
+std::string make_mesh_renderable(const GeometryRep& geometryRep) {
+  static boost::uuids::random_generator uidGenerator;
+  return make_mesh_renderable(geometryRep,
+                              boost::uuids::to_string(uidGenerator()));
 }
 
 #endif  //_FRAMEWORK_RENDERING_DEFAULT_RENDERABLES_H_

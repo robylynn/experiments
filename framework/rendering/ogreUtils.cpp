@@ -28,3 +28,10 @@ void OgreUtils::destroySceneNode(SceneNode* node) {
   node->removeAndDestroyAllChildren();
   node->getCreator()->destroySceneNode(node);
 }
+
+Ogre::Entity* OgreUtils::addMeshInstance(const std::string& meshName,
+                                         Ogre::SceneNode* sceneNode) {
+  Ogre::Entity* entity = sceneNode->getCreator()->createEntity(meshName);
+  sceneNode->attachObject(entity);
+  return entity;
+}

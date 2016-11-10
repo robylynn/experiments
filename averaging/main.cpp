@@ -13,7 +13,8 @@
 #include <OGRE/OgreConfigFile.h>
 
 #include <cameraController.h>
-#include <windowedRenderingApp.h>
+#include <appContext.h>
+#include <selectionManager.h>
 
 #include <defaultRenderables.h>
 #include <defaultGeometryProviders.h>
@@ -46,7 +47,7 @@ bool initScene(WindowedRenderingApp& app, const std::string& sceneName) {
   sceneManager->setAmbientLight(Ogre::ColourValue(0.5, 0.5, 0.5));
 
   Ogre::Camera* mainCamera = sceneManager->createCamera("PrimaryCamera");
-  app.getSelectionManager().setCamera(*mainCamera);
+  Framework::AppContext::getSelectionManager().setCamera(*mainCamera);
   Ogre::Viewport* viewport =
       root->getRenderTarget(windowName)->addViewport(mainCamera);
   viewport->setBackgroundColour(Ogre::ColourValue(0.5, 0.5, 0.5));

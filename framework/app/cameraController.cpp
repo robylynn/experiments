@@ -1,5 +1,8 @@
+#include "appContext.h"
 #include "cameraController.h"
 #include "inputManager.h"
+
+namespace Context = Framework::AppContext;
 
 CameraController::CameraController(const std::string& name, Ogre::Camera* cam)
     : mCamera(0),
@@ -16,12 +19,12 @@ CameraController::CameraController(const std::string& name, Ogre::Camera* cam)
       mGoingDown(false),
       mFastMove(false),
       mMouseEventSubscriber(
-          getAppWideNotificationsManager().getNotifier(
+          Context::getNotificationsManager().getNotifier(
               MouseManager::NOTIFIER_NAME),
           name, std::bind(&CameraController::onMouseEvent, this,
                           std::placeholders::_1, std::placeholders::_2)),
       mKeyboardEventSubscriber(
-          getAppWideNotificationsManager().getNotifier(
+          Context::getNotificationsManager().getNotifier(
               KeyboardManager::NOTIFIER_NAME),
           name, std::bind(&CameraController::onKeyboardEvent, this,
                           std::placeholders::_1, std::placeholders::_2)) {
