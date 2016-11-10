@@ -34,14 +34,8 @@ make_simple_renderable(const GeometryRep& geometryRep) {
 
 // By default assume that Geometry mesh provides only position vertex elements.
 template <typename GeometryRep>
-GeometryMeshCreator<VertexElementBufferProvider<
-    SingleElementProviderAdaptor<
-        typename VertexElementProviderTraits<
-            GeometryRep, PositionVertexElement>::provider_type,
-        PositionVertexElement>,
-    PositionVertexElement>>
-make_mesh_renderable(const GeometryRep& geometryRep,
-                     const std::string& meshName) {
+std::string make_mesh_renderable(const GeometryRep& geometryRep,
+                                 const std::string& meshName) {
   using GeomProvider = typename VertexElementProviderTraits<
       GeometryRep, PositionVertexElement>::provider_type;
   using PositionProvider =
@@ -53,7 +47,7 @@ make_mesh_renderable(const GeometryRep& geometryRep,
   VertexBufferProvider bufferProvider(positionProvider);
   GeometryMeshCreator<decltype(bufferProvider)> renderable(meshName);
   renderable.setVertexBufferData(bufferProvider);
-  return renderable;
+  return meshName;
 }
 
 #endif  //_FRAMEWORK_RENDERING_DEFAULT_RENDERABLES_H_

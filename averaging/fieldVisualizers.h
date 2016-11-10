@@ -1,16 +1,12 @@
 #ifndef _FIELD_VISUALIZERS_H_
 #define _FIELD_VISUALIZERS_H_
 
-#include <boost/uuid/uuid.hpp>
-#include <boost/uuid/uuid_io.hpp>
-#include <boost/uuid/uuid_generators.hpp>
-
 #include <OGRE/OgreSceneNode.h>
 #include <OGRE/OgreSceneManager.h>
 #include <OGRE/OgreEntity.h>
 
 #include <geometryTypes.h>
-#include <defaultRenderables.h>
+#include <dynamicMeshHelper.h>
 
 #include "levelSetMeshBuilder.h"
 
@@ -57,8 +53,7 @@ class LevelSetMeshVisualizer {
     CGAL::Polyhedron_3<Kernel> meshRep;
     meshBuilder.buildMesh(samplingFunction, Kernel::Sphere_3(CGAL::ORIGIN, 100),
                           1, meshRep);
-    std::string meshName = boost::uuids::to_string(boost::uuids::uuid());
-    auto meshRenderable = make_mesh_renderable(meshRep, meshName);
+    std::string meshName = make_mesh_renderable(meshRep, meshName);
     Ogre::Entity* levelSetMeshEntity =
         m_levelSetSceneNode->getCreator()->createEntity(meshName);
     levelSetMeshEntity->setMaterialName(

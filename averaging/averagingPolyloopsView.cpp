@@ -1,51 +1,106 @@
+#include <Eigen/Eigenvalues>
+
 #include <OGRE/OgreSceneManager.h>
 #include <OGRE/OgreEntity.h>
+#include <OGRE/OgreSubEntity.h>
 
 #include <polyloop_3.h>
-#include <defaultRenderables.h>
+#include <dynamicMeshHelper.h>
 
 #include "averagingPolyloopsView.h"
 #include "hessianComputer.h"
 
 constexpr int NUM_LOOPS = 2;
-constexpr int MAX_ITERS = 1;
+constexpr int MAX_ITERS = 3;
 
 namespace {
 // Compute snapping by gradient computation
 class NumericalSnapper {
  public:
-  NumericalSnapper(const SquaredDistField& distField)
-      : m_estimator(0.05), m_computer(distField, m_estimator) {}
+  NumericalSnapper(const SquaredDistField& distField,
+                   float stepSize = s_stepSize,
+                   float numericalGridSize = s_gridSize)
+      : m_stepSize(stepSize),
+        m_estimator(numericalGridSize),
+        m_computer(distField, m_estimator) {}
 
   Kernel::Point_3 snap(const Kernel::Point_3& point, int iterCount) const {
-    if (iterCount == MAX_ITERS) return point;
-
     Eigen::Matrix3f hessian = m_computer(point);
-    Eigen::EigenSolver<Eigen::Matrix3f> solver(hessian);
-    solver.eigenvectors().col(0);
-    return snap(point, iterCount + 1);
+    Eigen::SelfAdjointEigenSolver<Eigen::Matrix3f> solver(hessian);
+    auto largestEigen = solver.eigenvectors().col(2);
+    Kernel::Vector_3 vector(largestEigen[0], largestEigen[1], largestEigen[2]);
+    return point - vector * s_stepSize;
   }
 
  private:
+  float m_stepSize;
   NaiveHessianEstimator m_estimator;
   HessianComputer<SquaredDistField> m_computer;
+
+  static constexpr float s_stepSize = 0.05;
+  static constexpr float s_gridSize = 0.05;
 };
 
-Polyloop_3 snapAverage(const std::vector<Polyloop_3>& loops) {
-  SquaredDistField squaredDistField;
-  for (const auto& loop : loops) {
-    squaredDistField.addGeometry(loop);
+// A snap algorithm for averaging can be stated as:
+// Start with an initial set of sample points.
+// For each sample point, make some local adjustments towards average
+// direction.
+// Do the above process iteratively.
+class SnapAverage {
+ public:
+  SnapAverage(Ogre::SceneNode* parentNode) : m_parentNode(parentNode) {}
+
+  Polyloop_3 operator()(const std::vector<Polyloop_3>& loops) {
+    SquaredDistField squaredDistField;
+    for (const auto& loop : loops) {
+      squaredDistField.addGeometry(loop);
+    }
+
+    NumericalSnapper snapper(squaredDistField);
+    Polyloop_3 averageCurrent = loops[0];
+    for (int i = 0; i < MAX_ITERS; ++i) {
+      Polyloop_3 average;
+      for (auto& point : averageCurrent) {
+        average.addPoint(snapper.snap(point, 0));
+      }
+      std::cout << "Now visualizing ..." << std::endl;
+      visualizeSnapTrajectory(averageCurrent, average);
+      averageCurrent = average;
+    }
+    return averageCurrent;
   }
 
-  NumericalSnapper snapper(squaredDistField);
-  Polyloop_3 averageInit = loops[0];
-  Polyloop_3 average;
-  for (auto& point : averageInit) {
-    average.addPoint(snapper.snap(point, 0));
+  void visualizeSnapTrajectory(const Polyloop_3& current,
+                               const Polyloop_3& snapped) {
+    LOG_IF(ERROR, current.size() != snapped.size())
+        << "The snapped trajectory does not have the same number of points as "
+           "the initial trajectory";
+    std::vector<Kernel::Point_3> snapVectors;
+    for (auto iterCur = current.begin(), iterSnap = snapped.begin();
+         iterCur != current.end(); ++iterSnap, ++iterCur) {
+      snapVectors.push_back(*iterCur);
+      snapVectors.push_back(*iterSnap);
+    }
+    std::string snappedMeshName = make_mesh_renderable(snapped);
+    Ogre::Entity* pEntitySnapAvg =
+        m_parentNode->getCreator()->createEntity(snappedMeshName);
+    pEntitySnapAvg->setMaterialName("Materials/DefaultLines");
+    pEntitySnapAvg->getSubEntity(0)
+        ->setCustomParameter(1, Ogre::Vector4(0, 0, 1, 1));
+    m_parentNode->attachObject(pEntitySnapAvg);
+
+    std::string name = make_mesh_renderable(snapVectors, "snapVectors");
+    Ogre::Entity* pEntitySnapVectors =
+        m_parentNode->getCreator()->createEntity(name);
+    pEntitySnapVectors->setMaterialName("Materials/DefaultLines");
+    pEntitySnapVectors->getSubEntity(0)
+        ->setCustomParameter(1, Ogre::Vector4(0, 0, 1, 1));
+    m_parentNode->attachObject(pEntitySnapVectors);
   }
 
-  return average;
-}
+ private:
+  Ogre::SceneNode* m_parentNode;
+};
 }  // end anon namespace
 
 AveragingPolyloopsView::AveragingPolyloopsView(Ogre::SceneNode* rootNode)
@@ -67,6 +122,7 @@ void AveragingPolyloopsView::populateData() {
     m_polyloopsRootNode->attachObject(pEntity);
   }
 
+  SnapAverage snapAverage(m_polyloopsRootNode);
   Polyloop_3 average = snapAverage(loops);
   (void)make_mesh_renderable(average, "loopAverage");
   Ogre::Entity* pEntity = m_rootNode->getCreator()->createEntity("loopAverage");

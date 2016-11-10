@@ -18,7 +18,7 @@ fragment_program DefaultLinesFrag glsl
 {
   source defaultEdgesFrag.glsl
   default_params {
-    param_named baseColor float4 0 0 0 1
+    param_named baseColor float4 0 0 0 1 custom 1
   }
 }
 

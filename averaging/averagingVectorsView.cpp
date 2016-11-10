@@ -1,7 +1,3 @@
-#include <boost/uuid/uuid.hpp>
-#include <boost/uuid/uuid_io.hpp>
-#include <boost/uuid/uuid_generators.hpp>
-
 #include <OGRE/OgreSceneManager.h>
 #include <OGRE/OgreEntity.h>
 #include <OGRE/OgreSubEntity.h>
@@ -14,7 +10,7 @@
 #include <Eigen/Dense>
 
 #include <geometryTypes.h>
-#include <defaultRenderables.h>
+#include <dynamicMeshHelper.h>
 #include <ogreUtils.h>
 
 #include "averagingVectorsView.h"
@@ -63,20 +59,18 @@ AveragingVectorsView::AveragingVectorsView(Ogre::SceneNode* rootNode)
 void AveragingVectorsView::populateData() {
   // Kill off initial scene node content
   OgreUtils::destroySceneNode(m_vectorsRootNode);
-  //m_squaredDistField.reset(new SquaredDistField());
+  // m_squaredDistField.reset(new SquaredDistField());
 
   m_vectorsRootNode = m_rootNode->createChildSceneNode();
   std::vector<Kernel::Point_3> points;
   std::copy_n(m_spherePointsGenerator, NUM_POINTS, std::back_inserter(points));
 
-  boost::uuids::random_generator uidGenerator;
-
   for (auto point : points) {
     std::vector<Kernel::Point_3> vPoints{Kernel::Point_3(0, 0, 0), point};
-    //m_squaredDistField->addGeometry(Kernel::Segment_3(vPoints[0], vPoints[1]));
+    // m_squaredDistField->addGeometry(Kernel::Segment_3(vPoints[0],
+    // vPoints[1]));
 
-    std::string meshName = boost::uuids::to_string(uidGenerator());
-    (void)make_mesh_renderable(vPoints, meshName);
+    std::string meshName = make_mesh_renderable(vPoints, meshName);
     Ogre::Entity* vEntity = m_rootNode->getCreator()->createEntity(meshName);
     vEntity->setMaterialName("Materials/DirectedVectors");
     m_vectorsRootNode->attachObject(vEntity);
@@ -85,8 +79,8 @@ void AveragingVectorsView::populateData() {
   // Here come the averages
   std::vector<Kernel::Point_3> l2Average{Kernel::Point_3(0, 0, 0),
                                          averageL2Min(points)};
-  std::string l2MinAvgMeshName = boost::uuids::to_string(uidGenerator());
-  (void)make_mesh_renderable(l2Average, l2MinAvgMeshName);
+  std::string l2MinAvgMeshName =
+      make_mesh_renderable(l2Average, l2MinAvgMeshName);
   Ogre::Entity* l2Entity =
       m_rootNode->getCreator()->createEntity(l2MinAvgMeshName);
   l2Entity->setMaterialName("Materials/SimpleAverage");
@@ -94,8 +88,8 @@ void AveragingVectorsView::populateData() {
 
   std::vector<Kernel::Point_3> projMaxAverage{Kernel::Point_3(0, 0, 0),
                                               averageProjMax(points)};
-  std::string projMaxAvgMeshName = boost::uuids::to_string(uidGenerator());
-  (void)make_mesh_renderable(projMaxAverage, projMaxAvgMeshName);
+  std::string projMaxAvgMeshName =
+      make_mesh_renderable(projMaxAverage, projMaxAvgMeshName);
   Ogre::Entity* projEntity =
       m_rootNode->getCreator()->createEntity(projMaxAvgMeshName);
   projEntity->setMaterialName("Materials/ProjAverage");
