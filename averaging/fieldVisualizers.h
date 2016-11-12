@@ -8,7 +8,9 @@
 #include <appContext.h>
 #include <geometryTypes.h>
 #include <dynamicMeshManager.h>
+#include <circleSampler.h>
 
+#include "gradientComputer.h"
 #include "levelSetMeshBuilder.h"
 
 // View class that allows for rendering level sets of field.
@@ -69,6 +71,43 @@ class LevelSetMeshVisualizer {
   Ogre::SceneNode* m_levelSetSceneNode;
   std::vector<Ogre::Entity*> m_levelSetMeshes;
   const Field* m_inducedField;
+};
+
+// Visualizes the field in the neighborhood of a sequence of vertices, by
+// coloring a planar circle, with plane determined by the gradient of the field.
+// This allows for the determination of principal directions of the iso-surface
+// created locally by the field at each vertex.
+template <class Field>
+class VertexNeighborhoodFieldVisualizer {
+ public:
+  VertexNeighborhoodFieldVisualizer(Ogre::SceneNode* parent)
+      : m_rootSceneNode(parent->createChildSceneNode()) {}
+
+  template <typename GeomRepIter>
+  void visualizeFieldAroundSamples(const Field& field, GeomRepIter begin,
+                                   GeomRepIter end) {
+    NaiveGradientEstimator estimator(0.05);
+    GradientComputer<Field> gradientComputer(field, estimator);
+
+    std::vector<std::pair<Kernel::Point_3, Ogre::ColourValue>>
+        circleDataProvider;
+    for (auto iter = begin; iter != end; ++iter) {
+      Kernel::Vector_3 gradient = gradientComputer(*iter);
+
+      Kernel::FT fieldValue = field(*iter);
+      circleDataProvider.push_back(*iter, gradient);
+
+      CircleSampler circleSampler(*iter, 0.05,
+                                  Kernel::Plane_3(*iter, gradient));
+      for (const auto& point : circleSampler) {
+        Kernel::FT fieldValue = field(point);
+        circleDataProvider.push_back(point, fieldValue);
+      }
+    }
+  }
+
+ private:
+  Ogre::SceneNode* m_rootSceneNode;
 };
 
 /*

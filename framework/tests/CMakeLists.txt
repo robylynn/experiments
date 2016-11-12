@@ -4,6 +4,7 @@ set(GEOMETRY_TEST_SOURCE_FILES
   "geometry/polyloopTest.cpp"
   "geometry/polyloop2DTest.cpp"
   "geometry/triangleMeshTest.cpp"
+  "geometry/circleSamplerTest.cpp"
   "geometry/uniformPlanarGridTest.cpp"
   "geometry/uniformVoxelGridTest.cpp")
 
@@ -18,6 +19,7 @@ set(RENDERING_TEST_SOURCE_FILES
 set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
 find_package(Threads REQUIRED)
 find_package(GTest REQUIRED)
+find_package(Eigen REQUIRED)
 
 add_executable(frameworkTest
   main.cpp
@@ -27,6 +29,7 @@ add_executable(frameworkTest
   )
 
 #TODO msati3: Split into multiple executables with contained dependencies?
+include_directories(${EIGEN_INCLUDE_DIRS})
 include_directories(${PROJECT_SOURCE_DIR}/inc/geometry)
 include_directories(${PROJECT_SOURCE_DIR}/inc/rendering)
 include_directories(${GTEST_INCLUDE_DIRS})

@@ -34,7 +34,6 @@ void SelectionManager::selectionQuery(float mouseX, float mouseY) {
   sceneManager->getRootSceneNode()->attachObject(rayObject);*/
 
   Ogre::RaySceneQueryResult& result = rayQuery->execute();
-  std::cout << "Size of query result " << result.size() << std::endl;
 
   // Finer queries for SelectableObjects whose bounding box is intersected
   // by the ray-scene query. The query mechanism ensures that post a
