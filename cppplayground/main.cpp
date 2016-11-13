@@ -2,10 +2,12 @@
 
 #include "temporaries.h"
 #include "variadicTemplates.h"
+#include "valueTypes.h"
 
 int main() {
   // evaluateTemporaries();
-  evaluateVariadicTemplates();
+  //evaluateVariadicTemplates();
+  evaluateValueTypes();
 
   return 0;
 }
