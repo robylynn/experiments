@@ -112,6 +112,8 @@ class SnapAverage {
     pEntitySnapVectors->setMaterialName("Materials/DefaultLines");
     pEntitySnapVectors->getSubEntity(0)
         ->setCustomParameter(1, Ogre::Vector4(0, 0, 1, 1));
+
+    Ogre::Entity* pEntitySnapNeighborhoodField = Context::getDynamicMeshManager().addMesh
   }
 
  private:

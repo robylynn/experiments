@@ -89,13 +89,16 @@ class VertexNeighborhoodFieldVisualizer {
     NaiveGradientEstimator estimator(0.05);
     GradientComputer<Field> gradientComputer(field, estimator);
 
+    // Populate a vector of point, color values that will be used to provide
+    // geometry for rendering by a disc geometry provider.
     std::vector<std::pair<Kernel::Point_3, Ogre::ColourValue>>
         circleDataProvider;
+
     for (auto iter = begin; iter != end; ++iter) {
       Kernel::Vector_3 gradient = gradientComputer(*iter);
 
-      Kernel::FT fieldValue = field(*iter);
-      circleDataProvider.push_back(*iter, gradient);
+      Kernel::FT centerValue = field(*iter);
+      circleDataProvider.push_back(*iter, centerValue);
 
       CircleSampler circleSampler(*iter, 0.05,
                                   Kernel::Plane_3(*iter, gradient));

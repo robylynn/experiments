@@ -6,20 +6,20 @@
 class PolyloopTest : public ::testing::Test {
  protected:
   virtual void SetUp() {
-    p.addPoint(Kernel::Point_3(0, 0, 0));
-    p.addPoint(Kernel::Point_3(1, 0, 0));
-    p.addPoint(Kernel::Point_3(0, 1, 0));
+    p.add(Kernel::Point_3(0, 0, 0));
+    p.add(Kernel::Point_3(1, 0, 0));
+    p.add(Kernel::Point_3(0, 1, 0));
   }
   virtual void TearDown() {}
 
-  Polyloop_3 p;
+  GeometryPolyloop_3 p;
 };
 
 class PolyloopGeometryProviderTest : public ::testing::Test {
  protected:
   virtual void SetUp() {
-    p.addPoint(Kernel::Point_3(0, 0, 0));
-    p.addPoint(Kernel::Point_3(1, 1, -1));
+    p.add(Kernel::Point_3(0, 0, 0));
+    p.add(Kernel::Point_3(1, 1, -1));
 
     unrolledStripPolicy = {*p.begin(), *(p.begin() + 1), *p.begin()};
     unrolledListPolicy = {*p.begin(), *(p.begin() + 1), *(p.begin() + 1),
@@ -29,7 +29,7 @@ class PolyloopGeometryProviderTest : public ::testing::Test {
   }
   virtual void TearDown() {}
 
-  Polyloop_3 p;
+  GeometryPolyloop_3 p;
   std::vector<Kernel::Point_3> unrolledStripPolicy;
   std::vector<Kernel::Point_3> unrolledListPolicy;
   std::vector<Kernel::Point_3> unrolledMeshPolicy;
@@ -40,7 +40,7 @@ class PolyloopLoaderTest : public ::testing::Test {
   virtual void SetUp() {}
   virtual void TearDown() {}
 
-  Polyloop_3 p;
+  GeometryPolyloop_3 p;
 };
 
 TEST_F(PolyloopTest, size) { EXPECT_EQ(3, p.size()); }
@@ -62,12 +62,12 @@ TEST_F(PolyloopTest, squaredDistance) {
 }
 
 TEST_F(PolyloopGeometryProviderTest, size) {
-  PolyloopGeometryProvider<Polyloop_3, PolyloopListPolicy> provider(p);
+  PolyloopGeometryProvider<GeometryPolyloop_3, PolyloopListPolicy> provider(p);
   EXPECT_EQ(PolyloopListPolicy::VERTICES_PER_BASE * p.size(), provider.size());
 }
 
 TEST_F(PolyloopGeometryProviderTest, iterateListPolicy) {
-  PolyloopGeometryProvider<Polyloop_3, PolyloopListPolicy> provider(p);
+  PolyloopGeometryProvider<GeometryPolyloop_3, PolyloopListPolicy> provider(p);
   auto iter = provider.begin();
   auto iterUnrolled = unrolledListPolicy.begin();
   for (; iterUnrolled != unrolledListPolicy.end(); ++iter, ++iterUnrolled) {
@@ -77,7 +77,7 @@ TEST_F(PolyloopGeometryProviderTest, iterateListPolicy) {
 }
 
 TEST_F(PolyloopGeometryProviderTest, iterateMeshPolicy) {
-  PolyloopGeometryProvider<Polyloop_3, PolyloopMeshPolicy> provider(p);
+  PolyloopGeometryProvider<GeometryPolyloop_3, PolyloopMeshPolicy> provider(p);
   auto iter = provider.begin();
   auto iterUnrolled = unrolledMeshPolicy.begin();
   for (; iterUnrolled != unrolledMeshPolicy.end(); ++iter, ++iterUnrolled) {

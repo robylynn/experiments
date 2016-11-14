@@ -12,7 +12,7 @@ set (CGAL_LIBS
   mpfr)
 
 # Import some packages usable by all
-find_package(Boost 1.5.4 COMPONENTS system REQUIRED)
+find_package(Boost 1.6.2 COMPONENTS system REQUIRED)
 find_package(Glog REQUIRED)
 find_package(GFlags REQUIRED)
 

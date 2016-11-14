@@ -63,7 +63,7 @@ void evaluateValueTypes() {
   // rules (&& & -> & and && && -> &&), the deduced type of lvalue is &. Also
   // see http://blog.smartbear.com/development/c11-tutorial-explaining-the-ever-
   // elusive-lvalues-and-rvalues/.
-  auto&& lvalue = rvalue;
+  auto&& lvalue = value;
   lvalue = SimpleState();
   std::cout << lvalue << std::endl;
 

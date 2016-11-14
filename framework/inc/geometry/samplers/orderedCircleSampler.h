@@ -20,19 +20,20 @@
 // normalized squared root computations, and should be used with care.
 class OrderedPointsOnCircleSampler {
  public:
-  OrderedPointsOnCircleSampler(const CGAL::Circle& circle, size_t numSamples)
+  OrderedPointsOnCircleSampler(const Kernel::Circle_3& circle,
+                               size_t numSamples)
       : m_circle(circle),
         m_numSamples(numSamples),
-        m_radius(sqrt(m_circle->squared_radius())),
-        m_rotation(CGALUtils::RotationMatrixForPlane(
-            circle.supporting_plane().orthogonal_vector())) {}
+        m_radius(sqrt(m_circle.squared_radius())),
+        m_rotation(
+            CGALUtils::RotationMatrixForPlane(circle.supporting_plane())) {}
 
   class PointGenerator
       : public boost::iterator_facade<PointGenerator, const Kernel::Point_3,
                                       std::input_iterator_tag,
                                       const Kernel::Point_3> {
    public:
-    PointGenerator(const CircleSampler* provider, int sampleNum)
+    PointGenerator(const OrderedPointsOnCircleSampler* provider, int sampleNum)
         : m_provider(provider), m_sampleNum(sampleNum) {}
 
    private:
@@ -49,13 +50,13 @@ class OrderedPointsOnCircleSampler {
       Kernel::Vector_3 planarVector(cos(theta), sin(theta), 0);
       Kernel::Vector_3 vector =
           m_provider->m_radius * m_provider->m_rotation(planarVector);
-      Kernel::Point_3 samplePoint = m_provider->m_center + vector;
+      Kernel::Point_3 samplePoint = m_provider->m_circle.center() + vector;
       return samplePoint;
     }
 
    private:
     mutable int m_sampleNum;
-    const CircleSampler* m_provider;
+    const OrderedPointsOnCircleSampler* m_provider;
   };
 
   using const_iterator = PointGenerator;
@@ -68,6 +69,7 @@ class OrderedPointsOnCircleSampler {
 
  private:
   Kernel::Circle_3 m_circle;
+  size_t m_numSamples;
   // Cache the radius, as the Kernel::Circle_3 doesn't provide this.
   Kernel::FT m_radius;
   Kernel::Aff_transformation_3 m_rotation;

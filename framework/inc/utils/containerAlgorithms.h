@@ -19,6 +19,11 @@ typename std::iterator_traits<InputIt>::difference_type count_all(
                        [](const typename InputIt::reference) { return true; });
 }
 
+template <typename Type, typename Tuple>
+Type& tupleset_typed_index(Tuple& tuple) {
+  return std::get<Type>(tuple);
+}
+
 // Create an iterator that creates an n-tuple by taking n entries together from
 // an iterator that provides one entry at a time. The DerefType must have a
 // constructor that accepts N elements of type SingleIter::value_type

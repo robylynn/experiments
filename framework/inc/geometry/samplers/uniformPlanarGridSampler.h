@@ -44,7 +44,7 @@ class UniformPlanarGridSampler {
           m_uIncrIndex(0),
           m_vIncrIndex(0) {}
 
-    PointGenerator(const UniformPlanarGrid& grid, size_t uIncrIndex,
+    PointGenerator(const UniformPlanarGridSampler& grid, size_t uIncrIndex,
                    size_t vIncrIndex)
         : m_grid(grid), m_uIncrIndex(uIncrIndex), m_vIncrIndex(vIncrIndex) {}
 
@@ -74,7 +74,7 @@ class UniformPlanarGridSampler {
 
     const Kernel::Point_3 dereference() const { return m_currentLocation; }
 
-    const UniformPlanarGrid& m_grid;
+    const UniformPlanarGridSampler& m_grid;
     mutable Kernel::Point_3 m_currentLocation;
     size_t m_uIncrIndex;
     size_t m_vIncrIndex;

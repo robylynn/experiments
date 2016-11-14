@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "uniformPlanarGrid.h"
+#include "samplers/uniformPlanarGridSampler.h"
 
 constexpr int GRID_SIZE = 2;
 constexpr float GRID_EXTENT = 2.0;
@@ -10,17 +10,17 @@ constexpr float GRID_EXTENT = 2.0;
 class UniformPlanarGridTest : public ::testing::Test {
  protected:
   virtual void SetUp() {
-    grid1.reset(new UniformPlanarGrid(
+    grid1.reset(new UniformPlanarGridGenerator(
         Kernel::Plane_3(planePoints[0], planePoints[1], planePoints[2]),
         GRID_SIZE, GRID_SIZE, GRID_EXTENT, GRID_EXTENT));
 
-    grid2.reset(new UniformPlanarGrid(planePoints[0], planePoints[1],
-                                      planePoints[2], GRID_SIZE, GRID_SIZE,
-                                      GRID_EXTENT, GRID_EXTENT));
+    grid2.reset(new UniformPlanarGridGenerator(
+        planePoints[0], planePoints[1], planePoints[2], GRID_SIZE, GRID_SIZE,
+        GRID_EXTENT, GRID_EXTENT));
   }
 
-  std::unique_ptr<UniformPlanarGrid> grid1;
-  std::unique_ptr<UniformPlanarGrid> grid2;
+  std::unique_ptr<UniformPlanarGridGenerator> grid1;
+  std::unique_ptr<UniformPlanarGridGenerator> grid2;
 
   std::vector<Kernel::Point_3> expected = {
       Kernel::Point_3(-0.5, -0.5, 0), Kernel::Point_3(0.5, -0.5, 0),
@@ -57,9 +57,9 @@ TEST_F(UniformPlanarGridTest, iterationInitPoints) {
 
 TEST_F(UniformPlanarGridTest, iterationNonSquarePoints) {
   auto expectedIter = expected.begin();
-  UniformPlanarGrid nonSquareGrid(planePoints[0], planePoints[1],
-                                  planePoints[2], GRID_SIZE, 1, GRID_EXTENT,
-                                  GRID_EXTENT);
+  UniformPlanarGridGenerator nonSquareGrid(planePoints[0], planePoints[1],
+                                           planePoints[2], GRID_SIZE, 1,
+                                           GRID_EXTENT, GRID_EXTENT);
   size_t count = 0;
   for (const auto& point : nonSquareGrid) {
     ASSERT_LT(count++, nonSquareGrid.size());
@@ -70,8 +70,9 @@ TEST_F(UniformPlanarGridTest, iterationNonSquarePoints) {
 
 TEST_F(UniformPlanarGridTest, iterationUnitGrid) {
   auto expectedIter = expected.begin();
-  UniformPlanarGrid unitGrid(planePoints[0], planePoints[1], planePoints[2], 1,
-                             1, GRID_EXTENT, GRID_EXTENT);
+  UniformPlanarGridGenerator unitGrid(planePoints[0], planePoints[1],
+                                      planePoints[2], 1, 1, GRID_EXTENT,
+                                      GRID_EXTENT);
   size_t count = 0;
   EXPECT_EQ(unitGrid.size(), 1);
   for (const auto& point : unitGrid) {

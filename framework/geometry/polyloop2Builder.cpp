@@ -4,12 +4,13 @@
 #include "polyloop_3.h"
 
 bool buildPolyloopFromObj(const std::string& filePath, Polyloop_2& polyloop2) {
-  Polyloop_3 polyloop3;
+  GeometryPolyloop_3 polyloop3;
   bool retValue = buildPolyloopFromObj(filePath, polyloop3);
   if (!retValue) return retValue;
 
   Kernel::Iso_cuboid_3 cuboid =
-      CGAL::bounding_box(polyloop3.begin(), polyloop3.end());
+      CGAL::bounding_box(polyloop3.vertices_attrib_begin<Kernel::Point_3>(),
+                         polyloop3.vertices_attrib_end<Kernel::Point_3>());
   Kernel::Vector_3 vect = cuboid.max() - cuboid.min();
   float axisToDrop = abs(vect.x()) < abs(vect.y()) ? 0 : 1;
   axisToDrop =
@@ -17,9 +18,12 @@ bool buildPolyloopFromObj(const std::string& filePath, Polyloop_2& polyloop2) {
   std::set<int> coordinateAxes = {0, 1, 2};
   coordinateAxes.erase(axisToDrop);
 
-  for (const Kernel::Point_3& point : polyloop3) {
-    polyloop2.addPoint(Kernel::Point_2(point[*coordinateAxes.begin()],
-                                       point[*(++coordinateAxes.begin())]));
-  }
+  std::for_each(
+      polyloop3.vertices_attrib_begin<Kernel::Point_3>(),
+      polyloop3.vertices_attrib_end<Kernel::Point_3>(),
+      [&polyloop2, &coordinateAxes](const auto& point) {
+        polyloop2.addPoint(Kernel::Point_2(point[*coordinateAxes.begin()],
+                                           point[*(++coordinateAxes.begin())]));
+      });
   return true;
 }
