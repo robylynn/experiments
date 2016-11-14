@@ -65,9 +65,7 @@ class VertexAttributeTraits {};
 // The GeometryReps must provide vertex_iterator and const_vertex_iterator
 // typedef, and vertices_begin and vertices_end functions for iterating over
 // these.
-template <typename GeometryRep,
-          typename VertexAttributes =
-              typename VertexAttributeTraits<GeometryRep>::vertex_value_type>
+template <typename GeometryRep, typename VertexAttributes>
 class GenericVertexAttributeProvider {
  private:
   using VI = typename VertexAttributeTraits<GeometryRep>::vertex_iterator;
@@ -110,15 +108,16 @@ class GenericVertexAttributeProvider {
   }
 };
 
-template <typename GeometryRep, typename VertexAttributes,
-          bool primary_simplex = false>
+template <typename GeometryRep, bool primary_simplex = false,
+          typename VertexAttributes =
+              typename VertexAttributeTraits<GeometryRep>::vertex_value_type>
 class VertexAttributeProvider
     : public GenericVertexAttributeProvider<GeometryRep, VertexAttributes> {};
 
 // If the primary simplex of a GeometryRep is a Vertex, provide begin and end
 // iterators over tuple entries.
 template <typename GeometryRep, typename VertexAttributes>
-class VertexAttributeProvider<GeometryRep, VertexAttributes, true>
+class VertexAttributeProvider<GeometryRep, true, VertexAttributes>
     : public GenericVertexAttributeProvider<GeometryRep, VertexAttributes> {
  private:
   using VI = typename VertexAttributeTraits<GeometryRep>::vertex_iterator;
@@ -127,34 +126,42 @@ class VertexAttributeProvider<GeometryRep, VertexAttributes, true>
   using VB = typename VertexAttributeTraits<GeometryRep>::vertex_value_type;
 
  public:
-  VI info_begin() { return this->vertices_begin(); }
-  CVI info_begin() const { return this->vertices_begin(); }
-  VI info_end() { return this->vertices_end(); }
-  CVI info_end() const { return this->vertices_end(); }
+  auto info_begin() -> decltype(this->vertices_begin()) {
+    return this->vertices_begin();
+  }
+  auto info_begin() const -> decltype(this->vertices_begin()) {
+    return this->vertices_begin();
+  }
+  auto info_end() -> decltype(this->vertices_end()) {
+    return this->vertices_end();
+  }
+  auto info_end() const -> decltype(this->vertices_end()) {
+    return this->vertices_end();
+  }
 };
 
 // If the primary simplex of a GeometryRep is a Vertex, also provide begin and
 // end over unwrapped tuple type if the tuple contains a single element. This
 // allows simple container like iteration of such providers.
 template <typename GeometryRep, typename TupleElement>
-class VertexAttributeProvider<GeometryRep, std::tuple<TupleElement>, true>
+class VertexAttributeProvider<GeometryRep, true, std::tuple<TupleElement>>
     : public GenericVertexAttributeProvider<GeometryRep,
                                             std::tuple<TupleElement>> {
- public:
-  auto begin()
-      -> std::result_of<this->vertices_attrib_begin<TupleElement>>::type {
-    return this->vertices_attrib_begin<TupleElement>();
-  }
-  auto begin() const
-      -> std::result_of<this->vertices_attrib_begin<TupleElement>>::type {
-    return this->vertices_attrib_begin<TupleElement>();
-  }
-  auto end() -> std::result_of<this->vertices_attrib_end<TupleElement>>::type {
-    return this->vertices_attrib_end<TupleElement>();
-  }
+  using Base =
+      GenericVertexAttributeProvider<GeometryRep, std::tuple<TupleElement>>;
+  using return_type =
+      decltype(std::declval<Base>().vertices_attrib_begin<TupleElement>());
+  using const_return_type = decltype(
+      std::declval<const Base>().vertices_attrib_begin<TupleElement>());
 
-  auto end() const
-      -> std::result_of<this->vertices_attrib_end<TupleElement>>::type {
+ public:
+  return_type begin() { return this->vertices_attrib_begin<TupleElement>(); }
+  const_return_type begin() const {
+    return this->vertices_attrib_begin<TupleElement>();
+  }
+  return_type end() { return this->vertices_attrib_end<TupleElement>(); }
+
+  const_return_type end() const {
     return this->vertices_attrib_end<TupleElement>();
   }
 };
@@ -183,7 +190,8 @@ template <typename VertexBase = std::tuple<Kernel::Point_3>,
           typename EdgeBase = std::tuple<Kernel::Segment_3>>
 class GPolyloop_3
     : public EdgeAttributeProvider<GPolyloop_3<VertexBase, EdgeBase>, EdgeBase>,
-      public VertexAttributeProvider<GPolyloop_3<VertexBase, EdgeBase>> {
+      public VertexAttributeProvider<GPolyloop_3<VertexBase, EdgeBase>, true,
+                                     VertexBase> {
   using VertexAttributeContainer = typename VertexAttributeTraits<
       Polyloop_3<VertexBase, EdgeBase>>::container_type;
   VertexAttributeContainer m_vertexAttribs;
