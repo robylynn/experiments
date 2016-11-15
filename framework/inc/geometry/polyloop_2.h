@@ -89,7 +89,6 @@ class Polyloop_2 {
     return CGAL::squared_distance(other, closestSegment);
   }
 
- private:
   // Obtain segment corresponding to the current iterator (there is a
   // one-to-one mapping between the two)
   Kernel::Segment_2 getSegment(const const_iterator& iterator) const {

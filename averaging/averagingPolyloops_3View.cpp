@@ -8,7 +8,7 @@
 #include <dynamicMeshManager.h>
 #include <polyloop_3.h>
 
-#include "averagingPolyloopsView.h"
+#include "averagingPolyloops_3View.h"
 #include "hessianComputer.h"
 
 constexpr int NUM_LOOPS = 2;
@@ -124,11 +124,11 @@ class SnapAverage {
 };
 }  // end anon namespace
 
-AveragingPolyloopsView::AveragingPolyloopsView(Ogre::SceneNode* rootNode)
+AveragingPolyloops_3View::AveragingPolyloops_3View(Ogre::SceneNode* rootNode)
     : m_rootNode(rootNode),
       m_polyloopsRootNode(m_rootNode->createChildSceneNode()) {}
 
-void AveragingPolyloopsView::populateData() {
+void AveragingPolyloops_3View::populateData() {
   // m_squaredDistField.reset(new SquaredDistField());
   std::vector<Polyloop_3> loops;
   for (int i = 0; i < NUM_LOOPS; ++i) {

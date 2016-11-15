@@ -10,7 +10,7 @@
             <Property name="Area" value="{{0.02,0},{0.7,0},{0.03,0},{0.95,0}}" />
         </Window>
         <Window type="HorizontalLayoutContainer" name="NavigationLinkContainer" >
-            <Property name="Area" value="{{0,0},{0,0},{0,384},{0,36}}" />
+            <Property name="Area" value="{{0,0},{0,0},{0,512},{0,36}}" />
             <Property name="Active" value="true" />
             <Window type="TaharezLook/Button" name="AverageVectorsViewBtn" >
                 <Property name="Area" value="{{0,0},{0,0},{0.1,0},{0.05,0}}" />
@@ -20,10 +20,14 @@
                 <Property name="Area" value="{{0,128},{0,0},{0.1,128},{0.05,0}}" />
                 <Property name="Text" value="Lines" />
             </Window>
-            <Window type="TaharezLook/Button" name="AveragePolyloopsViewBtn" >
+            <Window type="TaharezLook/Button" name="AveragePolyloops2ViewBtn" >
                 <Property name="Area" value="{{0,256},{0,0},{0.1,256},{0.05,0}}" />
-                <Property name="Text" value="Loops" />
+                <Property name="Text" value="Loops2" />
                 <Property name="Active" value="true" />
+            </Window>
+            <Window type="TaharezLook/Button" name="AveragePolyloops3ViewBtn" >
+                <Property name="Area" value="{{0,384},{0,0},{0.1,384},{0.05,0}}" />
+                <Property name="Text" value="Loops3" />
             </Window>
         </Window>
     </Window>
