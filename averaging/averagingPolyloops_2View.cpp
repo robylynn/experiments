@@ -4,6 +4,7 @@
 #include <CGAL/Arr_linear_traits_2.h>
 #include <CGAL/Arrangement_2.h>
 #include <CGAL/Segment_2.h>
+#include <CGAL/Sweep_line_2_algorithms.h>
 
 #include <appContext.h>
 #include <dynamicMeshManager.h>
@@ -51,5 +52,8 @@ void AveragingPolyloops_2View::populateData() {
     lines.push_back(bisector);
   }
 
-  //CGAL::insert(arrangement, lines.begin(), lines.end());
+  std::list<decltype(lines)::value_type> subLines;
+  CGAL::compute_subcurves(lines.begin(), lines.end(),
+                          std::back_inserter(subLines));
+  // CGAL::insert(arrangement, lines.begin(), lines.end());
 }
