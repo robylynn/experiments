@@ -40,10 +40,14 @@ void ViewManager::init() {
       ->subscribeEvent(
           CEGUI::PushButton::EventClicked,
           CEGUI::Event::Subscriber(&ViewManager::averageLinesView, this));
-  navigationPane->getChild("AveragePolyloopsViewBtn")
+  navigationPane->getChild("AveragePolyloops2ViewBtn")
       ->subscribeEvent(
           CEGUI::PushButton::EventClicked,
-          CEGUI::Event::Subscriber(&ViewManager::averagePolyloopsView, this));
+          CEGUI::Event::Subscriber(&ViewManager::averagePolyloops_2View, this));
+  navigationPane->getChild("AveragePolyloops3ViewBtn")
+      ->subscribeEvent(
+          CEGUI::PushButton::EventClicked,
+          CEGUI::Event::Subscriber(&ViewManager::averagePolyloops_3View, this));
 }
 
 void ViewManager::averageVectorsView() {
@@ -70,17 +74,30 @@ void ViewManager::averageLinesView() {
   switchView(ViewType::LINES);
 }
 
-void ViewManager::averagePolyloopsView() {
-  if (m_polyloopsView == nullptr) {
+void ViewManager::averagePolyloops_2View() {
+  if (m_polyloops_2View == nullptr) {
     Ogre::SceneNode* loopsNode =
         m_sceneManager->getRootSceneNode()->createChildSceneNode();
-    m_polyloopsView.reset(new AveragingPolyloopsView(loopsNode));
-    m_rootViewNodes.insert(std::make_pair(ViewType::LOOPS, loopsNode));
+    m_polyloops_2View.reset(new AveragingPolyloops_2View(loopsNode));
+    m_rootViewNodes.insert(std::make_pair(ViewType::LOOPS2, loopsNode));
   }
-  m_polyloopsView->populateData();
+  m_polyloops_2View->populateData();
   m_commonInteractionsHandler->fieldChanged(
-      m_polyloopsView->getGeometryInducedField());
-  switchView(ViewType::LOOPS);
+      m_polyloops_2View->getGeometryInducedField());
+  switchView(ViewType::LOOPS2);
+}
+
+void ViewManager::averagePolyloops_3View() {
+  if (m_polyloops_3View == nullptr) {
+    Ogre::SceneNode* loopsNode =
+        m_sceneManager->getRootSceneNode()->createChildSceneNode();
+    m_polyloops_3View.reset(new AveragingPolyloops_3View(loopsNode));
+    m_rootViewNodes.insert(std::make_pair(ViewType::LOOPS3, loopsNode));
+  }
+  m_polyloops_3View->populateData();
+  m_commonInteractionsHandler->fieldChanged(
+      m_polyloops_3View->getGeometryInducedField());
+  switchView(ViewType::LOOPS3);
 }
 
 void ViewManager::switchView(ViewType viewType) {

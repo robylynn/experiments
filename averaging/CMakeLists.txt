@@ -11,7 +11,8 @@ add_executable(averaging
   main.cpp
   viewManager.cpp
   averagingLinesView.cpp
-  averagingPolyloopsView.cpp
+  averagingPolyloops_3View.cpp
+  averagingPolyloops_2View.cpp
   averagingVectorsView.cpp
   commonViewInteractionsHandler.cpp)
 

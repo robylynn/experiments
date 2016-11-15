@@ -1,14 +1,14 @@
-#ifndef _AVERAGING_POLYLOOPS_VIEW_H_
-#define _AVERAGING_POLYLOOPS_VIEW_H_
+#ifndef _AVERAGING_POLYLOOPS_2_VIEW_H_
+#define _AVERAGING_POLYLOOPS_2_VIEW_H_
 
 #include <OGRE/OgreSceneNode.h>
 
 #include "commonViewInterface.h"
 
 // Allows looking at averages of lines
-class AveragingPolyloopsView : public IAveragingView {
+class AveragingPolyloops_2View : public IAveragingView {
  public:
-  AveragingPolyloopsView(Ogre::SceneNode* rootNode);
+  AveragingPolyloops_2View(Ogre::SceneNode* rootNode);
   const SquaredDistField* getGeometryInducedField() {
     return m_squaredDistField.get();
   }
@@ -20,4 +20,4 @@ class AveragingPolyloopsView : public IAveragingView {
   std::unique_ptr<SquaredDistField> m_squaredDistField;
 };
 
-#endif  //_AVERAGING_POLYLOOPS_VIEW_H_
+#endif  //_AVERAGING_POLYLOOPS_2_VIEW_H_
