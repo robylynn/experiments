@@ -49,31 +49,31 @@ class VertexAttributesIteratorsProvider<GeometryRep, true,
                                         std::tuple<TupleElement>>
     : public impl::GenericVertexAttributesIteratorsProvider<
           GeometryRep, std::tuple<TupleElement>> {
-  using VI = typename VertexAttributeTraits<GeometryRep>::iterator;
-  using CVI = typename VertexAttributeTraits<GeometryRep>::const_iterator;
+  using Base =
+      impl::GenericVertexAttributesIteratorsProvider<GeometryRep,
+                                                     std::tuple<TupleElement>>;
 
-  GeometryRep& rep() { return *static_cast<GeometryRep*>(this); }
-  const GeometryRep& rep() const {
-    return *static_cast<const GeometryRep*>(this);
-  }
+  using VI = decltype(
+      std::declval<Base>().template vertices_attrib_begin<TupleElement>());
+  using CVI = decltype(std::declval<const Base>()
+                           .template vertices_attrib_begin<TupleElement>());
+
+  Base& rep() { return *static_cast<Base*>(this); }
+  const Base& rep() const { return *static_cast<const Base*>(this); }
 
  public:
-  using iterator = VI;
-  using const_iterator = CVI;
+  // using iterator = decltype(std::declval<GeometryRep>().begin());
+  // using const_iterator = decltype(std::declval<const GeometryRep>().begin());
 
-  size_t size() const { return rep().vertices_size(); }
-  iterator begin() {
-    return iterator(rep().template vertices_begin<TupleElement>());
+  size_t size() const {
+    return static_cast<const GeometryRep*>(this)->vertices_size();
   }
-  const_iterator begin() const {
-    return const_iterator(rep().template vertices_begin<TupleElement>());
+  VI begin() { return rep().template vertices_attrib_begin<TupleElement>(); }
+  CVI begin() const {
+    return rep().template vertices_attrib_begin<TupleElement>();
   }
-  iterator end() {
-    return iterator(rep().template vertices_end<TupleElement>());
-  }
-  const_iterator end() const {
-    return const_iterator(rep().template vertices_end<TupleElement>());
-  }
+  VI end() { return rep().template vertices_attrib_end<TupleElement>(); }
+  CVI end() const { return rep().template vertices_attrib_end<TupleElement>(); }
 };
 
 #endif  // _FRAMEWORK_GEOMETRY_VERTEX_ATTRIBUTES_ITERATORS_PROVIDER_H_

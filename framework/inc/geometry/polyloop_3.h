@@ -85,14 +85,17 @@ class Polyloop_3 : public EdgeAttribsIters<Polyloop_3<VertexBase, EdgeBase>,
   // Obtain next iterators from the current iterators.
   template <typename Iter>
   Iter next_vertex(const Iter& iterator) {
-    return iterator + 1 == Iter(vertices_end()) ? Iter(vertices_begin())
-                                                : iterator + 1;
+    Iter iterTemp(iterator);
+    Iter iter = (iterator == Iter(vertices_end() - 1)) ? Iter(vertices_begin())
+                                                       : iterator + 1;
+    return iter;
   }
 
   template <typename Iter>
   Iter next_vertex(const Iter& iterator) const {
-    return iterator + 1 == Iter(vertices_end()) ? Iter(vertices_begin())
-                                                : iterator + 1;
+    Iter iter = (iterator == Iter(vertices_end() - 1)) ? Iter(vertices_begin())
+                                                       : iterator + 1;
+    return iter;
   }
 
   /*
@@ -116,7 +119,6 @@ template <typename VertexBase, typename EdgeBase>
 struct VertexAttributeTraits<Polyloop_3<VertexBase, EdgeBase>> {
  public:
   using value_type = VertexBase;
-  template <typename Value = value_type>
   using container_type = std::vector<value_type>;
   using iterator = typename container_type::iterator;
   using const_iterator = typename container_type::const_iterator;

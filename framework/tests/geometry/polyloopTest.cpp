@@ -21,13 +21,12 @@ class PolyloopSimplicialAdaptorTest : public ::testing::Test {
     p.add(Kernel::Point_3(0, 0, 0));
     p.add(Kernel::Point_3(1, 1, -1));
 
-    /*
     unrolledStripPolicy = {*p.begin(), *(p.begin() + 1), *p.begin()};
     unrolledListPolicy = {*p.begin(), *(p.begin() + 1), *(p.begin() + 1),
                           *p.begin()};
     unrolledMeshPolicy = {*p.begin(),       *(p.begin() + 1), *p.begin(),
                           *(p.begin() + 1), *p.begin(),       *(p.begin() +
-    1)};*/
+    1)};
   }
   virtual void TearDown() {}
 
@@ -48,16 +47,15 @@ class PolyloopLoaderTest : public ::testing::Test {
 TEST_F(PolyloopTest, size) { EXPECT_EQ(3, p.size()); }
 
 TEST_F(PolyloopTest, nextVertex) {
-  std::cout << *p.begin() << std::endl;
-  // EXPECT_EQ(*p.begin(), *p.next_vertex(p.begin() + p.size() - 1));
+  EXPECT_EQ(*p.begin(), *p.next_vertex(p.begin() + p.size() - 1));
 }
 
 /*TEST_F(PolyloopTest, segments) {
   EXPECT_EQ(*p.edges_begin(),
             Kernel::Segment_3(*p.begin(), *p.next_vertex(p.begin())));
-}*/
+}
 
-/*TEST_F(PolyloopTest, squaredDistance) {
+TEST_F(PolyloopTest, squaredDistance) {
   EXPECT_EQ(p.squaredDistance(*p.begin()), 0);
   EXPECT_EQ(p.squaredDistance(Kernel::Point_3(0, 0, 1)), 1);
   EXPECT_EQ(p.squaredDistance(Kernel::Point_3(0, 0.5, 0)), 0);
