@@ -37,7 +37,7 @@ class GenericVertexAttributesIteratorsProvider {
   template <typename VertexAttrib>
   CIter<VertexAttrib> vertices_attrib_begin() const {
     return utils::make_tuple_element_iterator<const VertexAttrib>(
-        static_cast<GeometryRep*>(this)->vertices_begin());
+        static_cast<const GeometryRep*>(this)->vertices_begin());
   }
 
   template <typename VertexAttrib>
@@ -49,7 +49,7 @@ class GenericVertexAttributesIteratorsProvider {
   template <typename VertexAttrib>
   CIter<VertexAttrib> vertices_attrib_end() const {
     return utils::make_tuple_element_iterator<const VertexAttrib>(
-        static_cast<GeometryRep*>(this)->vertices_end());
+        static_cast<const GeometryRep*>(this)->vertices_end());
   }
 };
 

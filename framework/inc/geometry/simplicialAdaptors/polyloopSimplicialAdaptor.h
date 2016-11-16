@@ -14,12 +14,9 @@
 // and last points are connected by the simplicial adaptor.
 template <typename LoopType, typename SimplexType = LineList>
 class PolyloopSimplicialAdaptor
-    : public OrderedCurveSimplicialAdaptorStrategy<
-          PolyloopSimplicialAdaptor<LoopType, SimplexType>, SimplexType> {
+    : public OrderedCurveSimplicialAdaptorStrategy<SimplexType> {
  private:
-  using AdaptorStrategy =
-      OrderedCurveSimplicialAdaptorStrategy<PolyloopSimplicialAdaptor,
-                                            SimplexType>;
+  using AdaptorStrategy = OrderedCurveSimplicialAdaptorStrategy<SimplexType>;
   using LoopCirculator =
       CGAL::Circulator_from_iterator<typename LoopType::const_iterator>;
   using CirculatorContainer = CGAL::Container_from_circulator<LoopCirculator>;
@@ -29,9 +26,6 @@ class PolyloopSimplicialAdaptor
   LoopCirculator m_circulator;
   CirculatorContainer m_circularContainer;
 
-  // The LoopTriangleAdaptor iterator adapts a LoopIterator to return a
-  // degenerate triangle by returning 3 values (*iter, *(iter+1), *iter) before
-  // a single LoopIterator increment
  public:
   using const_iterator =
       utils::stencil_circulator_iterator<LoopIterator,
@@ -41,18 +35,19 @@ class PolyloopSimplicialAdaptor
       : m_polyloop(&polyloop),
         m_circulator(m_polyloop->begin(), m_polyloop->end()),
         m_circularContainer(m_circulator) {}
-  PolyloopGeometryProvider(const LoopType&& polyloop) = delete;
-  ~PolyloopGeometryProvider() {}
+  PolyloopSimplicialAdaptor(const LoopType&& polyloop) = delete;
+  ~PolyloopSimplicialAdaptor() {}
 
   PolyloopSimplicialAdaptor(const PolyloopSimplicialAdaptor& provider) {
     m_polyloop = provider.m_polyloop;
-    m_circulator = LoopCirculator(m_polyloop->begin(), m_polyloop->end());
+    m_circulator = LoopCirculator(m_polyloop->vertices_begin(),
+                                  m_polyloop->vertices_end());
     m_circularContainer = CirculatorContainer(m_circulator);
   }
 
   PolyloopSimplicialAdaptor(PolyloopSimplicialAdaptor&& provider)
       : m_polyloop(provider.m_polyloop),
-        m_circulator(m_polyloop->begin(), m_polyloop->end()),
+        m_circulator(m_polyloop->vertices_begin(), m_polyloop->vertices_end()),
         m_circularContainer(m_circulator) {}
 
   size_t size() const {
@@ -70,6 +65,7 @@ class PolyloopSimplicialAdaptor
   }
 };
 
+/*
 // A polyloop simplicial adaptor is a lightweight object. So, we specialize the
 // storage policy to by value. This allows for nicer client syntax through
 // implicit temporary creation for PolylopSimplicialAdaptor.
@@ -81,6 +77,6 @@ class ElementProviderStorageStrategy<
  protected:
   using CopyProviderStorageStrategy<PolyloopSimplicialAdaptor<
       ElementProvider, ElementType>>::CopyProviderStorageStrategy;
-};
+};*/
 
 #endif  //_FRAMEWORK_GEOMETRY_POLYLOOP_SIMPLICIAL_ADAPTOR_H_

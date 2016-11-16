@@ -13,8 +13,8 @@
 constexpr const char* const COORDINATE_DELIMITERS = ", ";
 
 // Creates a polyloop from an obj file
-bool buildPolyloopFromObj(const std::string& filePath,
-                          GeometryPolyloop_3& polyloop) {
+bool buildPolyloop_3FromObj(const std::string& filePath,
+                            GeometryPolyloop_3& polyloop) {
   std::ifstream file(filePath);
 
   if (!file.good()) {
@@ -80,8 +80,8 @@ bool buildPolyloopFromObj(const std::string& filePath,
 // be the loop created by connecting consecutive vertices in the file. The last
 // and first points are implicitly assumed to be connected (the vertex list
 // file should not close the loop itself).
-bool buildPolyloopFromVertexList(const std::string& filePath,
-                                 GeometryPolyloop_3& polyloop) {
+bool buildPolyloop_3FromVertexList(const std::string& filePath,
+                                   GeometryPolyloop_3& polyloop) {
   std::ifstream file(filePath);
 
   if (!file.good()) {

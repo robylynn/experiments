@@ -50,8 +50,12 @@ class EdgeAttributesIteratorsProvider<
   using CEI = SegmentIterator;
 
  public:
-  CEI edges_begin() const { return CEI(this, this->vertices_begin()); }
-  CEI edges_end() const { return CEI(this, this->vertices_end()); }
+  CEI edges_begin() const {
+    return CEI(this, static_cast<const GeometryRep*>(this)->vertices_begin());
+  }
+  CEI edges_end() const {
+    return CEI(this, static_cast<const GeometryRep*>(this)->vertices_end());
+  }
 };
 
 #endif  // _FRAMEWORK_GEOMETRY_EDGE_ATTRIBUTES_ITERATORS_PROVIDER_H_

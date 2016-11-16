@@ -15,7 +15,7 @@ template <typename SimplexType>
 class OrderedCurveSimplicialAdaptorStrategy {};
 
 template <>
-class OrderedCurveSimplicialAdaptorStrategy<OrderedCurve, PointList> {
+class OrderedCurveSimplicialAdaptorStrategy<PointList> {
  public:
   static constexpr size_t VERTICES_PER_BASE = 1;
   static const std::array<int, VERTICES_PER_BASE>& stencil() {
@@ -25,8 +25,7 @@ class OrderedCurveSimplicialAdaptorStrategy<OrderedCurve, PointList> {
 };
 
 template <>
-class OrderedCurveSimplicialAdaptorStrategy<OrderedCurveSimplicialAdaptor,
-                                            LineList> {
+class OrderedCurveSimplicialAdaptorStrategy<LineList> {
  public:
   static constexpr size_t VERTICES_PER_BASE = 2;
   static const std::array<int, VERTICES_PER_BASE>& stencil() {

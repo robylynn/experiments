@@ -83,15 +83,19 @@ class Polyloop_3 : public EdgeAttribsIters<Polyloop_3<VertexBase, EdgeBase>,
   const_vertex_iterator vertices_end() const { return m_vertexAttribs.end(); }
 
   // Obtain next iterators from the current iterators.
-  vertex_iterator next_vertex(const vertex_iterator& iterator) {
-    return iterator + 1 == vertices_end() ? vertices_begin() : iterator + 1;
+  template <typename Iter>
+  Iter next_vertex(const Iter& iterator) {
+    return iterator + 1 == Iter(vertices_end()) ? Iter(vertices_begin())
+                                                : iterator + 1;
   }
 
-  const_vertex_iterator next_vertex(
-      const const_vertex_iterator& iterator) const {
-    return iterator + 1 == vertices_end() ? vertices_begin() : iterator + 1;
+  template <typename Iter>
+  Iter next_vertex(const Iter& iterator) const {
+    return iterator + 1 == Iter(vertices_end()) ? Iter(vertices_begin())
+                                                : iterator + 1;
   }
 
+  /*
   // Algorithms on Polyloops
   // Given a query for OtherRep, implement distance as the minimum over
   // constituent line segments.
@@ -105,13 +109,14 @@ class Polyloop_3 : public EdgeAttribsIters<Polyloop_3<VertexBase, EdgeBase>,
                                     CGAL::squared_distance(other, second);
                            }));
     return CGAL::squared_distance(other, closestSegment);
-  }
+  }*/
 };
 
 template <typename VertexBase, typename EdgeBase>
 struct VertexAttributeTraits<Polyloop_3<VertexBase, EdgeBase>> {
  public:
   using value_type = VertexBase;
+  template <typename Value = value_type>
   using container_type = std::vector<value_type>;
   using iterator = typename container_type::iterator;
   using const_iterator = typename container_type::const_iterator;
