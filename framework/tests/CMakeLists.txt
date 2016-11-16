@@ -1,20 +1,24 @@
 set(GEOMETRY_TEST_SOURCE_FILES
-  "geometry/cuboidTest.cpp"
-  "geometry/polylineTest.cpp"
+  #"geometry/cuboidTest.cpp"
+  #"geometry/polylineTest.cpp"
   "geometry/polyloopTest.cpp"
-  "geometry/polyloop2DTest.cpp"
-  "geometry/triangleMeshTest.cpp"
+  #"geometry/polyloop2DTest.cpp"
+  #"geometry/triangleMeshTest.cpp"
   "geometry/circleSamplerTest.cpp"
-  "geometry/uniformPlanarGridTest.cpp"
-  "geometry/uniformVoxelGridTest.cpp")
+  #"geometry/uniformPlanarGridTest.cpp"
+  #"geometry/uniformVoxelGridTest.cpp"
+  )
 
 set(UTILS_TEST_SOURCE_FILES
   "utils/tupleIteratorTest.cpp"
   "utils/stencilCirculatorIteratorTest.cpp"
-  "utils/variantWrapperTest.cpp")
+  "utils/attributeIteratorTest.cpp"
+  "utils/variantWrapperTest.cpp"
+  )
 
 set(RENDERING_TEST_SOURCE_FILES
-  "rendering/positionOnlyBufferProviderTest.cpp")
+  #"rendering/positionOnlyBufferProviderTest.cpp"
+  )
 
 set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
 find_package(Threads REQUIRED)

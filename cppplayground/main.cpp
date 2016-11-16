@@ -5,18 +5,16 @@
 #include "valueTypes.h"
 #include "attribSetContainer.h"
 
+void frameworkPrototype();
+
 int main() {
-  // evaluateTemporaries();
-  // evaluateVariadicTemplates();
-  // evaluateValueTypes();
+  //evaluateTemporaries();
+  //evaluateVariadicTemplates();
+  //evaluateValueTypes();
 
-  AttributeSetContainer<int> container(
-      std::vector<std::tuple<int>>{1, 2, 3, 4, 5});
+  frameworkPrototype();
+}
 
-  for (const auto& value : container) {
-    std::cout << value << " ";
-  }
-  std::cout << std::endl;
-
-  return 0;
+// Any framework development API checking
+void frameworkPrototype() {
 }

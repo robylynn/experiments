@@ -10,10 +10,12 @@
 // while, if it provides iteration over separate triangles, the simplex type is
 // a TriangleList.
 
-class TriangleFan {
-};
+class PointList {};
 
-class TriangleList {
-};
+class LineList {};
+
+class TriangleFan {};
+
+class TriangleList {};
 
 #endif  //_FRAMEWORK_GEOMETRY_SIMPLEX_TYPES_H_

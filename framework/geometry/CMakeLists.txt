@@ -1,9 +1,10 @@
 add_library(geometry
-  cuboidGeometryProvider.cpp
-  polylineBuilder.cpp
-  polyloopBuilder.cpp
-  polyloop2Builder.cpp
-  uniformVoxelGrid.cpp)
+  #cuboidGeometryProvider.cpp
+  polyline_3Builder.cpp
+  polyloop_3Builder.cpp
+  #polyloop2Builder.cpp
+  #uniformVoxelGrid.cpp
+  )
 
 find_package(Eigen REQUIRED)
 

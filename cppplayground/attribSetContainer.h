@@ -64,8 +64,8 @@ class AttributeSetContainer<Attribute>
   using Base = GenericAttributeSetContainer<Attribute>;
   using first_iter_ret_type =
       decltype(std::declval<Base>().first_attrib_begin());
-  using iter_ret_type =
-      decltype(std::declval<Base>().attrib_begin<Attribute>());
+  //using iter_ret_type =
+  //    decltype(std::declval<Base>().attrib_begin<Attribute>());
 
  public:
   AttributeSetContainer(std::vector<std::tuple<Attribute>>&& attribList)

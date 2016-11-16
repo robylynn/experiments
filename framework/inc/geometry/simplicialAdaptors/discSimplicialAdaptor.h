@@ -3,18 +3,19 @@
 
 #include <memory>
 
-#include <OGRE/OgreRenderOperation.h>
+#include <containerAlgorithms.h>
+#include "simplicialAdaptorStrategy.h"
 
-#include "containerAlgorithms.h"
-#include "vertexElement.h"
-#include "vertexElementProviderTraits.h"
+template <>
+class SimplicialAdaptorStrategy<DiscSimplicialAdaptor, TriangleFan> {
+}
 
 // A simplicial adaptor for a topological disc. The disc data representation
 // itself must remain valid during the use of this adaptor class, and provide
 // an iterator that first provides the value associated with the  center of the
 // disc, and then, those associated with ordered samples on the disc.
-template <typename DiscRep>
-class DiscSimplicialAdaptor : public SimplicialAdaptor<TriangleFan> {
+template <typename DiscRep, typename SimplexType = TriangleFan>
+class DiscSimplicialAdaptor : public SimplicialAdaptorStrategy<SimplexType> {
  private:
   using DiscIterator = typename DiscRep::const_iterator;
 
@@ -27,11 +28,9 @@ class DiscSimplicialAdaptor : public SimplicialAdaptor<TriangleFan> {
   DiscSimplicialAdaptor(const DiscType&& disc) = delete;
   ~DiscSimplicialAdaptor() {}
 
-  size_t size() const { return m_fanData->size(); }
-
-  const_iterator begin() const { return const_iterator(m_disc->begin()); }
-
-  const_iterator end() const { return const_iterator(m_disc->end()); }
+  size_t size() const { return m_disc->size(); }
+  const_iterator begin() const { return m_disc->begin(); }
+  const_iterator end() const { return m_disc->end(); }
 };
 
 // A disc simplicial adaptor is a lightweight adaptor. So, we specialize the

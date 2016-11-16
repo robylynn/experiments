@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
 #include "polyloop_3.h"
-#include "polyloopGeometryProvider.h"
+#include "simplicialAdaptors/polyloopSimplicialAdaptor.h"
 
 class PolyloopTest : public ::testing::Test {
  protected:
@@ -15,7 +15,7 @@ class PolyloopTest : public ::testing::Test {
   GeometryPolyloop_3 p;
 };
 
-class PolyloopGeometryProviderTest : public ::testing::Test {
+class PolyloopSimplicialAdaptorTest : public ::testing::Test {
  protected:
   virtual void SetUp() {
     p.add(Kernel::Point_3(0, 0, 0));
@@ -62,25 +62,15 @@ TEST_F(PolyloopTest, squaredDistance) {
 }
 
 TEST_F(PolyloopGeometryProviderTest, size) {
-  PolyloopGeometryProvider<GeometryPolyloop_3, PolyloopListPolicy> provider(p);
+  PolyloopSimplicialAdaptor<GeometryPolyloop_3, LineList> provider(p);
   EXPECT_EQ(PolyloopListPolicy::VERTICES_PER_BASE * p.size(), provider.size());
 }
 
 TEST_F(PolyloopGeometryProviderTest, iterateListPolicy) {
-  PolyloopGeometryProvider<GeometryPolyloop_3, PolyloopListPolicy> provider(p);
+  PolyloopGeometryProvider<GeometryPolyloop_3, LineList> provider(p);
   auto iter = provider.begin();
   auto iterUnrolled = unrolledListPolicy.begin();
   for (; iterUnrolled != unrolledListPolicy.end(); ++iter, ++iterUnrolled) {
-    EXPECT_EQ(*iter, *iterUnrolled);
-  }
-  EXPECT_EQ(iter, provider.end());
-}
-
-TEST_F(PolyloopGeometryProviderTest, iterateMeshPolicy) {
-  PolyloopGeometryProvider<GeometryPolyloop_3, PolyloopMeshPolicy> provider(p);
-  auto iter = provider.begin();
-  auto iterUnrolled = unrolledMeshPolicy.begin();
-  for (; iterUnrolled != unrolledMeshPolicy.end(); ++iter, ++iterUnrolled) {
     EXPECT_EQ(*iter, *iterUnrolled);
   }
   EXPECT_EQ(iter, provider.end());

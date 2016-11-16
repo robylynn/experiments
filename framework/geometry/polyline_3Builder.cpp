@@ -4,15 +4,14 @@
 
 #include <boost/tokenizer.hpp>
 
-#include "polyline.h"
+#include "polyline_3.h"
 
 // Handle , and space delimited files for now.
 constexpr const char* const COORDINATE_DELIMITERS = ", ";
 
 // Creates a polyline from an obj file
-template <>
-bool buildPolylineFromObj<Kernel::Point_3>(
-    const std::string& filePath, Polyline<Kernel::Point_3>& polyline) {
+bool buildPolylineFromObj(const std::string& filePath,
+                          GeometryPolyline_3& polyline) {
   std::ifstream file(filePath);
 
   if (!file.good()) {
@@ -22,7 +21,6 @@ bool buildPolylineFromObj<Kernel::Point_3>(
   }
 
   std::string word;
-
 
   // TODO msati3: Currently, just ensures consistency of numbering, more
   // elaborate schemes later?
@@ -34,7 +32,7 @@ bool buildPolylineFromObj<Kernel::Point_3>(
     if (word == "v") {
       Kernel::Point_3 point;
       file >> point;
-      polyline.addPoint(point);
+      polyline.add(point);
     } else if (word == "l") {
       file >> nextIndex;
       if (startIndex == -1) {
@@ -64,9 +62,8 @@ bool buildPolylineFromObj<Kernel::Point_3>(
 // A vertex list file format consists of a sequence of vertices, each line
 // consisting of delimited coordinates of a vertex. The polyline is assumed to
 // be the line created by connecting consecutive vertices in the file.
-template <>
 bool buildPolylineFromVertexList(const std::string& filePath,
-                                 Polyline<Kernel::Point_3>& polyline) {
+                                 GeometryPolyline_3& polyline) {
   std::ifstream file(filePath);
 
   if (!file.good()) {
@@ -90,7 +87,7 @@ bool buildPolylineFromVertexList(const std::string& filePath,
       }
       pointCoords[index++] = std::stod(coord);
     }
-    polyline.addPoint(
+    polyline.add(
         Kernel::Point_3(pointCoords[0], pointCoords[1], pointCoords[2]));
   }
   return true;

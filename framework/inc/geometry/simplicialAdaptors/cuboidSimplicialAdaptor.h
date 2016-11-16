@@ -1,26 +1,20 @@
-#ifndef _CUBOID_GEOMETRY_PROVIDER_H_
-#define _CUBOID_GEOMETRY_PROVIDER_H_
+#ifndef _FRAMEWORK_GEOMETRY_CUBOID_SIMPLICIAL_ADAPTOR_H_
+#define _FRAMEWORK_GEOMETRY_CUBOID_SIMPLICIAL_ADAPTOR_H_
 
 #include <CGAL/Triangle_3.h>
 
 #include "geometryConstants.h"
 #include "geometryTypes.h"
 
-// TODO msati3: Switch to TrianglesBuilder with support for any class that is
-// capable of providing a list of indices into a geometry data-structure.
-
-// The aligned cuboid triangles builder class builds a set of triangles the
-// union of which make up the cuboid. The builder is a read-only store of these
-// triangles, serving only to generate them from an aligned cuboid, and thus,
-// only const_iteration is possible.
-class AlignedCuboidTrianglesBuilder {
+template <>
+class SimplicialAdaptorStrategy<CuboidSimplicialAdaptor, TriangleList> {
  public:
   static constexpr int TRIANGLES_PER_CUBOID = 12;
 
   // Lookup table according to CGAL IsoCuboid indexing scheme (docs.cgal.org)
   static const int s_triangleLUT[TRIANGLES_PER_CUBOID][VERTICES_PER_TRIANGLE];
 
-  AlignedCuboidTrianglesBuilder(const Kernel::Iso_cuboid_3& cuboid)
+  SimplicialAdaptorStrategy(const Kernel::Iso_cuboid_3& cuboid)
       : m_cuboid(cuboid){};
 
   // ------------------------------------------------------------
@@ -82,4 +76,11 @@ class AlignedCuboidTrianglesBuilder {
   Kernel::Iso_cuboid_3 m_cuboid;
 };
 
-#endif  //_CUBOID_GEOMETRY_PROVIDER_H_
+template <typename CuboidRep, typename SimplexType = TriangleList>
+class CuboidSimplicialAdaptor : public SimplicialAdaptorStrategy<SimplexType> {
+ public:
+  CuboidSimplicialAdaptor(const Kernel::Iso_cuboid_3& cuboid)
+      : SimplicialAdaptorStrategy<SimpleType>(cuboid) {}
+};
+
+#endif  //_FRAMEWORK_GEOMETRY_CUBOID_SIMPLICIAL_ADAPTOR_H_
