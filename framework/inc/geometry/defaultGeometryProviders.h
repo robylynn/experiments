@@ -3,11 +3,11 @@
 
 #include <CGAL/Polyhedron_3.h>
 
-#include "polyline.h"
+#include "polyline_3.h"
 #include "polyloop_2.h"
 #include "polyloop_3.h"
-#include "polyloopGeometryProvider.h"
-#include "polylineGeometryProvider.h"
+#include "simplicialAdaptors/polyloopSimplicialAdaptor.h"
+#include "simplicialAdaptors/polylineSimplicialAdaptor.h"
 #include "triangleMeshGeometryProvider.h"
 #include "vertexElementProviderTraits.h"
 #include "defaultElementTypes.h"
@@ -15,7 +15,8 @@
 // A geometry interpretation tag allows geometry to be understood in a
 // particular type, and an appropriate geometry provider used, that understands
 // that type. This is particularly useful for sending across a flat list of
-// geometry in a container, and automatically picking a geometry interpretor that
+// geometry in a container, and automatically picking a geometry interpretor
+// that
 // will understand it as being ordered in accordance with a particular
 // GeometryRepresentation. This allows for interpreting for example, a vector
 // of points as vectors oriented from the origin to the point; understanding a
@@ -28,9 +29,9 @@ struct VertexElementProviderTraits<
   using provider_type =
       GeometryProviderFromTag<GeometryInterpretationTag>::type;
   using const_iterator =
-      typename PolylineGeometryProvider<Polyline<PointType>>::const_iterator;
+      typename PolylineSimplicialAdaptor<GeometryPolyline_3>::const_iterator;
   using storage_strategy = ElementProviderStorageStrategy<
-      PolylineGeometryProvider<Polyline<PointType>>>;
+      PolylineSimplicialAdaptor<Polyline<PointType>>>;
 };
 
 // In case the user passes a simple vector, the best guess is to interpret it
@@ -38,7 +39,7 @@ struct VertexElementProviderTraits<
 template <typename T>
 struct VertexElementProviderTraits<std::vector<T>,
                                    typename VertexElementFromType<T>::type> {
-  using provider_type = PolylineGeometryProvider<std::vector<T>>;
+  using provider_type = PolylineSimplicialAdaptor<std::vector<T>>;
   using const_iterator = typename provider_type::const_iterator;
   using storage_strategy = ElementProviderStorageStrategy<provider_type>;
 };
@@ -58,18 +59,19 @@ struct VertexElementProviderTraits<CGAL::Polyhedron_3<Kernel>, VertexElement> {
 
 template <>
 struct VertexElementProviderTraits<Polyloop_2, PositionVertexElement> {
-  using provider_type = PolyloopGeometryProvider<Polyloop_2>;
-  using const_iterator = PolyloopGeometryProvider<Polyloop_2>::const_iterator;
+  using provider_type = PolyloopSimplicialAdaptor<Polyloop_2>;
+  using const_iterator = PolyloopSimplicialAdaptor<Polyloop_2>::const_iterator;
   using storage_strategy =
-      ElementProviderStorageStrategy<PolyloopGeometryProvider<Polyloop_2>>;
+      ElementProviderStorageStrategy<PolyloopSimplicialAdaptor<Polyloop_2>>;
 };
 
 template <>
-struct VertexElementProviderTraits<Polyloop_3, PositionVertexElement> {
-  using provider_type = PolyloopGeometryProvider<Polyloop_3>;
-  using const_iterator = PolyloopGeometryProvider<Polyloop_3>::const_iterator;
-  using storage_strategy =
-      ElementProviderStorageStrategy<PolyloopGeometryProvider<Polyloop_2>>;
+struct VertexElementProviderTraits<GeometryPolyloop_3, PositionVertexElement> {
+  using provider_type = PolyloopSimplicialAdaptor<GeometryPolyloop_3>;
+  using const_iterator =
+      PolyloopSimplicialAdaptor<GeometryPolyloop_3>::const_iterator;
+  using storage_strategy = ElementProviderStorageStrategy<
+      PolyloopSimplicialAdaptor<GeometryPolyloop_3>>;
 };
 
 #endif  // _FRAMEWORK_GEOMETRY_DEFAULT_GEOMETRY_PROVIDERS_H_

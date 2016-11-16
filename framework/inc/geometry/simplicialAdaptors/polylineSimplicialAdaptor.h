@@ -11,12 +11,9 @@
 // adaptor class, and provide an iterator over vertices of the polyline.
 template <typename LineType, typename SimplexType = LineList>
 class PolylineSimplicialAdaptor
-    : public OrderedCurveSimplicialAdaptorStrategy<PolylineSimplicialAdaptor,
-                                                   SimplexType> {
+    : public OrderedCurveSimplicialAdaptorStrategy<SimplexType> {
  private:
-  using AdaptorStrategy =
-      OrderedCurveSimplicialAdaptorStrategy<PolylineSimplicialAdaptor,
-                                            SimplexType>;
+  using AdaptorStrategy = OrderedCurveSimplicialAdaptorStrategy<SimplexType>;
   using LineIterator = typename LineType::const_iterator;
   const LineType* m_polyline;
 

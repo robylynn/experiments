@@ -62,8 +62,8 @@ class VertexAttributesIteratorsProvider<GeometryRep, true,
   const Base& rep() const { return *static_cast<const Base*>(this); }
 
  public:
-  // using iterator = decltype(std::declval<GeometryRep>().begin());
-  // using const_iterator = decltype(std::declval<const GeometryRep>().begin());
+  using iterator = VI;
+  using const_iterator = CVI;
 
   size_t size() const {
     return static_cast<const GeometryRep*>(this)->vertices_size();

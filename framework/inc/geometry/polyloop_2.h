@@ -6,8 +6,13 @@
 
 #include "geometryTypes.h"
 
+#include <containerAlgorithms.h>
+
 // A polyloop_2 is a closed polyline in 2D. Representation wise, a polyloop_2
-// simply adapts a CGAL::Polygon_2 object
+// simply adapts a CGAL::Polygon_2 object. The generic code is not implemented
+// as yet for polyloops.
+//
+// TODO msati3: Look at making generic.
 class Polyloop_2 {
   using Polygon_2 = CGAL::Polygon_2<Kernel>;
   using PointType = Kernel::Point_2;
@@ -97,6 +102,6 @@ class Polyloop_2 {
 };
 
 // Build a polyloop from Obj file format
-bool buildPolyloopFromObj(const std::string& filePath, Polyloop_2& polyloop);
+bool buildPolyloop_2FromObj(const std::string& filePath, Polyloop_2& polyloop);
 
 #endif  //_FRAMEWORK_GEOMETRY_POLYLOOP2_H_

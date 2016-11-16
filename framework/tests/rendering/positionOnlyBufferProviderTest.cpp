@@ -22,15 +22,15 @@ class NoCopyContainer {
 class PositionOnlyProviderTest : public ::testing::Test {
  protected:
   virtual void SetUp() {
-    loop3D.addPoint(Kernel::Point_3(0, 1, 0));
-    loop3D.addPoint(Kernel::Point_3(0, 0, 0));
+    loop3D.add(Kernel::Point_3(0, 1, 0));
+    loop3D.add(Kernel::Point_3(0, 0, 0));
 
     loop2D.addPoint(Kernel::Point_2(0, 1));
     loop2D.addPoint(Kernel::Point_2(0, 0));
   }
   virtual void TearDown() {}
 
-  Polyloop_3 loop3D;
+  GeometryPolyloop_3 loop3D;
   Polyloop_2 loop2D;
   float unrolledValues[12] = {0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0};
 };
@@ -69,7 +69,7 @@ TEST_F(PositionOnlyProviderTest, iteratePolyloop3) {
 
   float* expectedValuePtr = unrolledValues;
   size_t count = 0;
-  std::vector<int> a {1,2,3,4,5};
+  std::vector<int> a{1, 2, 3, 4, 5};
   for (auto iter = bufferProvider.begin(); iter != bufferProvider.end();
        ++iter) {
     ASSERT_LT(count, sizeof(unrolledValues) / sizeof(unrolledValues[0]));

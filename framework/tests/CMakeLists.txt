@@ -1,9 +1,9 @@
 set(GEOMETRY_TEST_SOURCE_FILES
   #"geometry/cuboidTest.cpp"
-  #"geometry/polylineTest.cpp"
-  "geometry/polyloopTest.cpp"
-  #"geometry/polyloop2DTest.cpp"
-  #"geometry/triangleMeshTest.cpp"
+  "geometry/polyline_3Test.cpp"
+  "geometry/polyloop_2Test.cpp"
+  "geometry/polyloop_3Test.cpp"
+  "geometry/triangleMeshTest.cpp"
   "geometry/circleSamplerTest.cpp"
   #"geometry/uniformPlanarGridTest.cpp"
   #"geometry/uniformVoxelGridTest.cpp"
@@ -17,7 +17,7 @@ set(UTILS_TEST_SOURCE_FILES
   )
 
 set(RENDERING_TEST_SOURCE_FILES
-  #"rendering/positionOnlyBufferProviderTest.cpp"
+  "rendering/positionOnlyBufferProviderTest.cpp"
   )
 
 set(CMAKE_THREAD_PREFER_PTHREAD TRUE)

@@ -10,8 +10,8 @@
 constexpr const char* const COORDINATE_DELIMITERS = ", ";
 
 // Creates a polyline from an obj file
-bool buildPolylineFromObj(const std::string& filePath,
-                          GeometryPolyline_3& polyline) {
+bool buildPolyline_3FromObj(const std::string& filePath,
+                            GeometryPolyline_3& polyline) {
   std::ifstream file(filePath);
 
   if (!file.good()) {
@@ -62,8 +62,8 @@ bool buildPolylineFromObj(const std::string& filePath,
 // A vertex list file format consists of a sequence of vertices, each line
 // consisting of delimited coordinates of a vertex. The polyline is assumed to
 // be the line created by connecting consecutive vertices in the file.
-bool buildPolylineFromVertexList(const std::string& filePath,
-                                 GeometryPolyline_3& polyline) {
+bool buildPolyline_3FromVertexList(const std::string& filePath,
+                                   GeometryPolyline_3& polyline) {
   std::ifstream file(filePath);
 
   if (!file.good()) {

@@ -1,11 +1,8 @@
 #ifndef _FRAMEWORK_GEOMETRY_POLYLOOP_3_H_
 #define _FRAMEWORK_GEOMETRY_POLYLOOP_3_H_
 
-#include <boost/iterator/iterator_adaptor.hpp>
-
 #include <vector>
 
-#include <CGAL/circulator.h>
 #include <CGAL/squared_distance_3.h>
 
 #include <containerAlgorithms.h>
