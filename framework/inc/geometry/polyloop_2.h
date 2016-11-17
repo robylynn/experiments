@@ -14,61 +14,57 @@
 //
 // TODO msati3: Look at making generic.
 class Polyloop_2 {
-  using Polygon_2 = CGAL::Polygon_2<Kernel>;
-  using PointType = Kernel::Point_2;
-  using PointsContainer = Polygon_2;
-  PointsContainer m_points;
+  using Polygon_2 = typename VertexAttributeTraits<Polyloop_2>::container_type;
+  using vertex_value_type =
+      typename VertexAttributeTraits<Polyloop_2>::value_type;
+  using VertexAttributesContainer = Polygon_2;
+  VertexAttributesContainer m_vertexAttribs;
 
  public:
   using SegmentIterator = Polygon_2::Edge_const_iterator;
-  using value_type = PointType;
-  using iterator = typename PointsContainer::Vertex_iterator;
-  using const_iterator = typename PointsContainer::Vertex_const_iterator;
-
-  // A hint on the maximum size that a polyloop may have. This may be useful
-  // for rendering in non-immediate mode.
-  static constexpr size_t HINT_MAX_BOUND = 10000;
+  using value_type = vertex_value_type;
+  using iterator = typename VertexAttributeTraits<Polyloop_2>::iterator;
+  using const_iterator
+      typename VertexAttributeTraits<Polyloop_2>::const_iterator;
 
   // The size of a Polyloop is the number of points it contains
-  size_t size() const { return m_points.size(); }
+  size_t size() const { return m_vertexAttribs.size(); }
 
-  // Add a point at specified location to the Polyloop.
-  void addPoint(iterator iter, const PointType& point) {
-    m_points.insert(iter, point);
+  // Add a vertex at specified location to the Polyloop.
+  void add(iterator iter, const vertex_value_type& point) {
+    m_vertexAttribs.insert(iter, point);
   }
 
-  // Add a point after the last point. If no point in the Polyloop, add
-  // point as first point.
-  void addPoint(const PointType& point) {
-    m_points.insert(m_points.vertices_end(), point);
+  // Add a vertex after the last point. If no vertex in the Polyloop, add
+  // vetex as first vertex.
+  void add(const vertex_value_type& point) {
+    m_vertexAttribs.insert(m_vertexAttribs.vertices_end(), point);
   }
 
-  // Append a bunch of points to the end of the Polyloop.
-  template <typename PointsIterator>
-  void addPoints(const PointsIterator& begin, const PointsIterator& end) {
-    for (PointsIterator iter = begin; iter != end; ++iter) {
-      addPoint(*iter);
+  // Append a bunch of vertices to the end of the Polyloop.
+  template <typename Iterator>
+  void add(const Iterator& begin, const Iterator& end) {
+    for (Iterator iter = begin; iter != end; ++iter) {
+      add(*iter);
     }
   }
 
-  void updatePoint(typename PointsContainer::iterator iter,
-                   const PointType& point) {
-    m_points.set(iter, point);
+  void update(typename VertexAttributesContainer::iterator iter,
+              const vertex_value_type& value) {
+    m_vertexAttribs.set(iter, value);
   }
 
   // The polyloop allows for iteration over points by pass through to container,
   // and conforms to the CGAL MeshPolyline_3 concept
-  auto begin() const -> decltype(m_points.vertices_begin()) {
-    return m_points.vertices_begin();
+  auto begin() const -> decltype(m_vertexAttribs.vertices_begin()) {
+    return m_vertexAttribs.vertices_begin();
   }
-  auto end() const -> decltype(m_points.vertices_end()) {
-    return m_points.vertices_end();
+  auto end() const -> decltype(m_vertexAttribs.vertices_end()) {
+    return m_vertexAttribs.vertices_end();
   }
 
-  SegmentIterator beginSegment() const {
-    return m_points.edges_begin();
-  }
-  SegmentIterator endSegment() const { return m_points.edges_end(); }
+  SegmentIterator beginSegment() const { return m_vertexAttribs.edges_begin(); }
+  SegmentIterator endSegment() const { return m_vertexAttribs.edges_end(); }
 
   // Obtain next iterators from the current iterators
   iterator next(const iterator& iterator) {
@@ -99,6 +95,15 @@ class Polyloop_2 {
   Kernel::Segment_2 getSegment(const const_iterator& iterator) const {
     return Kernel::Segment_2(*iterator, *next(iterator));
   }
+};
+
+template <>
+struct VertexAttributeTraits<Polyloop_2> {
+ public:
+  using value_type = Kernel::Point_3;
+  using container_type = CGAL::Polygon_2<Kernel>;
+  using iterator = typename container_type::Vertex_iterator;
+  using const_iterator = typename container_type::Vertex_const_iterator;
 };
 
 // Build a polyloop from Obj file format

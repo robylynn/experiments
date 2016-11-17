@@ -1,8 +1,9 @@
 #ifndef _FRAMEWORK_GEOMETRY_SQUARED_DISTANCE_H_
 #define _FRAMEWORK_GEOMETRY_SQUARED_DISTANCE_H_
 
-#include "polyline.h"
+#include "polyline_3.h"
 #include "polyloop_3.h"
+#include "polyloop_2.h"
 
 // Add distance computation from points and rays for geometry types
 namespace CGAL {
@@ -13,17 +14,17 @@ inline Kernel::FT squared_distance(const Polyline<Kernel::Point_3>& polyline,
 }
 
 inline Kernel::FT squared_distance(const Kernel::Point_3& point,
-                            const Polyline<Kernel::Point_3>& polyline) {
+                            const Polyline_3& polyline) {
   return squared_distance(polyline, point);
 }
 
-inline Kernel::FT squared_distance(const Polyline<Kernel::Point_3>& polyline,
+inline Kernel::FT squared_distance(const Polyline_3& polyline,
                             const Kernel::Ray_3& ray) {
   return polyline.squaredDistance(ray);
 }
 
 inline Kernel::FT squared_distance(const Kernel::Ray_3& ray,
-                            const Polyline<Kernel::Point_3>& polyline) {
+                            const Polyline_3& polyline) {
   return squared_distance(polyline, ray);
 }
 

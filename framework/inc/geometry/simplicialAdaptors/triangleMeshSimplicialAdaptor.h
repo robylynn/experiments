@@ -1,33 +1,28 @@
-#ifndef _FRAMEWORK_GEOMETRY_TRIANGLE_MESH_GEOMETRY_PROVIDER_H_
-#define _FRAMEWORK_GEOMETRY_TRIANGLE_MESH_GEOMETRY_PROVIDER_H_
+#ifndef _FRAMEWORK_GEOMETRY_TRIANGLE_MESH_SIMPLICIAL_ADAPTOR_H_
+#define _FRAMEWORK_GEOMETRY_TRIANGLE_MESH_SIMPLICIAL_ADAPTOR_H_
 
 #include <OGRE/OgreRenderOperation.h>
 
 #include <CGAL/Triangulation_3.h>
 
 #include "geometryTypes.h"
-// TODO msati3: Use circulator for facet vertex iteration, and get rid of this
-// include
 #include "geometryConstants.h"
-#include "vertexElementProviderTraits.h"
-#include "triangleMeshGeometryProviderAdaptor.h"
-
-class MeshTriangleListPolicy {
- public:
-  static constexpr Ogre::RenderOperation::OperationType PRIMITIVE_TYPE =
-      Ogre::RenderOperation::OT_TRIANGLE_LIST;
-};
+#include "triangleMeshSimplicialProviderAPIAdaptor.h"
+#include "simplexTypes.h"
 
 // The triangle mesh geometry provider provides a stream of triangle vertices,
-// one triangle at a time from a triangle mesh representation
-template <typename MeshType, typename ProviderPolicy = MeshTriangleListPolicy>
-class TriangleMeshGeometryProvider : public ProviderPolicy {
+// one triangle at a time from a triangle mesh representation.
+//
+// Now, triangle meshes may have different representations. The TriangleMeshAPI
+// adaptor serves to unite these differences and present a unified interface to
+// the TriangleMeshSimplicialAdaptor.
+template <typename MeshType, typename SimplexType = TriangleList>
+class TriangleMeshSimplicialAdaptor
+    : public TriangleMeshRepAPIAdaptor<MeshType, SimplexType> {
  private:
-  using GeometryProvider =
-      TriangleMeshGeometryProvider<MeshType, ProviderPolicy>;
-  using MeshAdaptor = TriangleMeshGeometryProviderAdaptor<MeshType>;
+  using MeshAPIAdaptor = TriangleMeshAPIAdaptor<MeshType, SimplexType>;
   const MeshType* m_mesh;
-  MeshAdaptor m_adaptor;
+  MeshAPIAdaptor m_adaptor;
 
  public:
   TriangleMeshGeometryProvider(const MeshType& mesh) : m_mesh(&mesh) {}
@@ -36,12 +31,12 @@ class TriangleMeshGeometryProvider : public ProviderPolicy {
 
   class FacetOrderedVertexIterator
       : public boost::iterator_facade<FacetOrderedVertexIterator,
-                                      const typename MeshAdaptor::value_type,
+                                      const typename MeshAPIAdaptor::value_type,
                                       boost::forward_traversal_tag> {
    public:
-    FacetOrderedVertexIterator(const MeshAdaptor* adaptor,
-                               typename MeshAdaptor::facet_iterator facetIter,
-                               int vertexIndex)
+    FacetOrderedVertexIterator(
+        const MeshAPIAdaptor* adaptor,
+        typename MeshAPIAdaptor::facet_iterator facetIter, int vertexIndex)
         : m_adaptor(adaptor),
           m_facetIter(facetIter),
           m_vertexIndex(vertexIndex),
@@ -65,13 +60,13 @@ class TriangleMeshGeometryProvider : public ProviderPolicy {
              (m_adaptor == other.m_adaptor);
     }
 
-    const typename MeshAdaptor::value_type& dereference() const {
+    const typename MeshAPIAdaptor::value_type& dereference() const {
       return m_adaptor->dereference(m_facetVertexIter);
     }
 
-    const MeshAdaptor* m_adaptor;
-    typename MeshAdaptor::facet_iterator m_facetIter;
-    typename MeshAdaptor::facet_vertex_iterator m_facetVertexIter;
+    const MeshAPIAdaptor* m_adaptor;
+    typename MeshAPIAdaptor::facet_iterator m_facetIter;
+    typename MeshAPIAdaptor::facet_vertex_iterator m_facetVertexIter;
     size_t m_vertexIndex;
   };
 
@@ -87,7 +82,6 @@ class TriangleMeshGeometryProvider : public ProviderPolicy {
                                       0);
   }
 
-  static constexpr int HINT_MAX_BOUND = 100000;
   using const_iterator = FacetOrderedVertexIterator;
 };
 
@@ -104,4 +98,4 @@ class ElementProviderStorageStrategy<
       ElementProvider, ElementType>>::CopyProviderStorageStrategy;
 };
 
-#endif  //_FRAMEWORK_GEOMETRY_TRIANGLE_MESH_GEOMETRY_PROVIDER_H_
+#endif  //_FRAMEWORK_GEOMETRY_TRIANGLE_MESH_SIMPLICIAL_ADAPTOR_H_

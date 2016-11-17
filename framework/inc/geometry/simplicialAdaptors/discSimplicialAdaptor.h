@@ -6,16 +6,12 @@
 #include <containerAlgorithms.h>
 #include "simplicialAdaptorStrategy.h"
 
-template <>
-class SimplicialAdaptorStrategy<DiscSimplicialAdaptor, TriangleFan> {
-}
-
 // A simplicial adaptor for a topological disc. The disc data representation
 // itself must remain valid during the use of this adaptor class, and provide
 // an iterator that first provides the value associated with the  center of the
 // disc, and then, those associated with ordered samples on the disc.
 template <typename DiscRep, typename SimplexType = TriangleFan>
-class DiscSimplicialAdaptor : public SimplicialAdaptorStrategy<SimplexType> {
+class DiscSimplicialAdaptor {
  private:
   using DiscIterator = typename DiscRep::const_iterator;
 
