@@ -50,34 +50,26 @@ struct VertexAttributeProviderTraits<
 
 // In case the user passes a simple vector, the best guess is to interpret it
 // as a list of ordered elements, and use a PolylineSimplicialAdaptor.
-template <typename T>
-struct VertexAttributeProviderTraits<
-    std::vector<T>, typename VertexAttributeFromType<T>::type> {
-  using provider_type = PolylineSimplicialAdaptor<std::vector<T>>;
-  using const_iterator = typename provider_type::const_iterator;
-  using storage_strategy = AttributeProviderStorageStrategy<provider_type>;
+template <typename Attribute, typename SimplexType>
+struct VertexAttributeProviderTraits<std::vector<Attribute>, SimplexType>
+    : public ConstAttributeProviderTraits<
+          PolylineSimplicialAdaptor<std::vector<Attribute>, SimplexType>> {
+  using provided_type = std::vector<Attribute>;
 };
 
-template <typename Kernel, typename VertexAttribute>
-struct VertexAttributeProviderTraits<CGAL::Polyhedron_3<Kernel>,
-                                     VertexAttribute> {
+template <typename Kernel, typename Attribute, typename SimplexType>
+struct VertexAttributeProviderTraits<CGAL::Polyhedron_3<Kernel>>
+    : public ConstAttributeProviderTraits<TriangleMeshSimplicialAdaptor<
+          CGAL::Polyhedron_3<Kernel>, SimplexType>> {
  private:
   using MeshType = CGAL::Polyhedron_3<Kernel>;
 
  public:
-  using provider_type = TriangleMeshGeometryProvider<MeshType>;
-  using const_iterator =
-      typename TriangleMeshGeometryProvider<MeshType>::const_iterator;
-  using storage_strategy =
-      ElementProviderStorageStrategy<TriangleMeshGeometryProvider<MeshType>>;
+  using provided_type = MeshType;
 };
 
-template <>
-struct VertexAttributeProviderTraits<Polyloop_2, PositionVertexAttribute> {
-  using provider_type = PolyloopSimplicialAdaptor<Polyloop_2>;
-  using const_iterator = PolyloopSimplicialAdaptor<Polyloop_2>::const_iterator;
-  using storage_strategy =
-      ElementProviderStorageStrategy<PolyloopSimplicialAdaptor<Polyloop_2>>;
+template <typename SimplexType>
+struct VertexAttributeProviderTraits<Polyloop_2, SimplexType> : public 
 };
 
 template <>

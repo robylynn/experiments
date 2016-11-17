@@ -11,20 +11,19 @@
 
 // The BaseVertexProvider traits provide a convenience for obtaining
 // const_iterator and storage strategy traits of an adaptor
-template <typename ResourceProvider>
-struct SimpleVertexAttribProviderTraits {
-  using simple_provider = ResourceProvider;
+template <typename ResourceProvider, typename SimplexType>
+struct ConstAttributeProviderTraits {
+  using provider_type = ResourceProvider;
   using const_iterator = typename ResourceProvider::const_iterator;
   using storage_strategy = AttributeProviderStorageStrategy<ResourceProvider>;
+  using simplex_type = SimplexType;
 }
 
-template <typename ResourceProvider>
+template <typename ResourceProvider,
+          typename SimplexType = DefaultSimplexType<ResourceProvider>>
 struct VertexAttributeProviderTraits
-    : public SimpleVertexAttribProviderTraits<ResourceProvider> {
-  using simplex_type = PointList;
-  using provider_type = typename SimpleVertexAttribProviderTraits<
-      ResourceProvider>::simple_provider;
-  using provided_type = AttributeProvider;
+    : public ConstAttribProviderTraits<ResourceProvider, SimplexType> {
+  using provided_type = ResourceProvider;
 };
 
 #endif  // _FRAMEWORK_GEOMETRY_VERTEX_ATTRIBUTE_PROVIDER_TRAITS_H_

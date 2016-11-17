@@ -9,20 +9,20 @@
 // A simplicial adaptor for the polyline representation. The polyline
 // representation object itself must remain valid during the use of this
 // adaptor class, and provide an iterator over vertices of the polyline.
-template <typename LineType, typename SimplexType = LineList>
+template <typename LineRep, typename SimplexType = LineList>
 class PolylineSimplicialAdaptor
     : public OrderedCurveSimplicialAdaptorStrategy<SimplexType> {
  private:
   using AdaptorStrategy = OrderedCurveSimplicialAdaptorStrategy<SimplexType>;
-  using LineIterator = typename LineType::const_iterator;
-  const LineType* m_polyline;
+  using LineIterator = typename LineRep::const_iterator;
+  const LineRep* m_polyline;
 
  public:
   using const_iterator =
       utils::stencil_iterator<LineIterator, AdaptorStrategy::VERTICES_PER_BASE>;
 
-  PolylineSimplicialAdaptor(const LineType& polyline) : m_polyline(&polyline) {}
-  PolylineSimplicialAdaptor(const LineType&& polyline) = delete;
+  PolylineSimplicialAdaptor(const LineRep& polyline) : m_polyline(&polyline) {}
+  PolylineSimplicialAdaptor(const LineRep&& polyline) = delete;
   ~PolylineSimplicialAdaptor() {}
 
   size_t size() const {
@@ -41,13 +41,13 @@ class PolylineSimplicialAdaptor
 // A polyline simplicial adaptor is a lightweight object. So, we specialize the
 // storage policy to by value. This allows for nicer client syntax through
 // implicit temporary creation for PolylineSimplicialAdaptor.
-template <typename ElementProvider, typename ElementType>
-class ElementProviderStorageStrategy<
-    PolylineSimplicialAdaptor<ElementProvider, ElementType>>
-    : public CopyProviderStorageStrategy<
-          PolylineSimplicialAdaptor<ElementProvider, ElementType>> {
+template <typename LineRep, typename SimplexType>
+class AttributeProviderStorageStrategy<
+    PolylineSimplicialAdaptor<LineRep, SimplexType>>
+    : public utils::CopyProviderStorageStrategy<
+          PolylineSimplicialAdaptor<LineRep, SimplexType>> {
  protected:
-  using CopyProviderStorageStrategy<PolylineSimplicialAdaptor<
+  using utils::CopyProviderStorageStrategy<PolylineSimplicialAdaptor<
       ElementProvider, ElementType>>::CopyProviderStorageStrategy;
 };
 
