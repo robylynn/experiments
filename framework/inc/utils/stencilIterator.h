@@ -3,6 +3,8 @@
 
 #include <glog/logging.h>
 
+#include <memory>
+
 namespace utils {
 // Provides iteration over a local stencil defined as an array of index
 // offsets. Each element of the stencil is iterated over, and, then, the

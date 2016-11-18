@@ -5,15 +5,22 @@ set(GEOMETRY_TEST_SOURCE_FILES
   "geometry/polyloop2DTest.cpp"
   "geometry/triangleMeshTest.cpp"
   "geometry/uniformPlanarGridTest.cpp"
-  "geometry/uniformVoxelGridTest.cpp")
+  "geometry/uniformVoxelGridTest.cpp"
+  )
+
+set(GEOMETRY_ALGORITHMS_TEST_SOURCE_FILES
+  "geometry/simplification/polyline_3SimplificationTest.cpp"
+  )
 
 set(UTILS_TEST_SOURCE_FILES
   "utils/tupleIteratorTest.cpp"
   "utils/stencilCirculatorIteratorTest.cpp"
-  "utils/variantWrapperTest.cpp")
+  "utils/variantWrapperTest.cpp"
+  )
 
 set(RENDERING_TEST_SOURCE_FILES
-  "rendering/positionOnlyBufferProviderTest.cpp")
+  "rendering/positionOnlyBufferProviderTest.cpp"
+  )
 
 set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
 find_package(Threads REQUIRED)
@@ -24,6 +31,7 @@ add_executable(frameworkTest
   ${GEOMETRY_TEST_SOURCE_FILES}
   ${UTILS_TEST_SOURCE_FILES}
   ${RENDERING_TEST_SOURCE_FILES}
+  ${GEOMETRY_ALGORITHMS_TEST_SOURCE_FILES}
   )
 
 #TODO msati3: Split into multiple executables with contained dependencies?
@@ -40,6 +48,7 @@ target_link_libraries(frameworkTest ${GTEST_LIBRARIES}
   gmp
   mpfr
   geometry
+  geometry_algorithms
   ${GLOG_LIBRARIES})
 
 add_custom_command(TARGET frameworkTest POST_BUILD

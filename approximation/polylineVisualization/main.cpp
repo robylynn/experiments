@@ -8,8 +8,6 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
 
-#include <psimpl.h>
-
 #include <OGRE/Ogre.h>
 #include <OGRE/OgreRectangle2D.h>
 #include <OGRE/OgreConfigFile.h>
@@ -20,10 +18,10 @@
 
 #include <polyloop_3.h>
 #include <polyline.h>
-#include <polyloopGeometryProvider.h>
 #include <defaultRenderables.h>
-#include <defaultBufferProviders.h>
 #include <prefabs.h>
+
+#include <simplification/polyline_3Simplifier.h>
 
 DEFINE_string(
     file_basename,
@@ -39,6 +37,9 @@ DEFINE_string(
     "/home/mukul/development/experiments/approximation/data/simplification/"
     "simplified/curves",
     "Name of the directory where simplified polyloops will be written");
+DEFINE_string(simplification_strategy, "Circle",
+              "Name of the simplification strategy");
+DEFINE_double(simplification_tolerance, 0.025, "Simplification tolerance");
 
 bool initScene(const std::string& windowName, const std::string& sceneName) {
   Ogre::Root* root = Ogre::Root::getSingletonPtr();
@@ -76,7 +77,8 @@ class RenderFrameCallbackHandler {
       Ogre::SceneNode* loopNode = static_cast<Ogre::SceneNode*>(
           sceneManager->getRootSceneNode()->getChild(m_centeredNodeName));
       Ogre::SceneNode* loopCenterNode = loopNode->createChildSceneNode();
-      loopCenterNode->setPosition(loopNode->_getWorldAABB().getCenter());
+      // loopCenterNode->setPosition(loopNode->_getWorldAABB().getCenter());
+      loopCenterNode->setPosition(Ogre::Vector3(0, -15, 0));
 
       CameraController* cameraController =
           new CameraController("PrimaryCameraController", mainCamera);
@@ -94,6 +96,8 @@ int main(int argc, char* argv[]) {
 
   WindowedRenderingApp app("Smoothing");
   using Polyline_3 = Polyline<Kernel::Point_3>;
+  size_t totalPointsRefined = 0;
+  size_t totalPointsSimplified = 0;
 
   if (app.init(1200, 900)) {
     initScene(app.getWindowName(), "PrimaryScene");
@@ -118,50 +122,31 @@ int main(int argc, char* argv[]) {
 
     for (int index = indexes[0]; index <= indexes[1]; ++index) {
       std::string strIndex = std::to_string(index);
-      Polyline_3 p;
+      Polyline_3 polyline;
       if (!buildPolylineFromVertexList(
-              FLAGS_file_basename + strIndex + FLAGS_file_ext, p)) {
+              FLAGS_file_basename + strIndex + FLAGS_file_ext, polyline)) {
         return -1;
       }
 
-      Polyline_3 simplified;
-
-      // Unroll data to flat form for use with psimpl's douglas peucker
-      // algorithm
-      using GeometryProvider =
-          PolylineGeometryProvider<Polyline_3, PolylinePointPolicy>;
-      using GeometryAdaptor =
-          SingleElementProviderAdaptor<GeometryProvider, PositionVertexElement>;
-      VertexElementBufferProvider<GeometryAdaptor, PositionVertexElement>
-          flatIterProvider{GeometryProvider(p)};
-      std::vector<float> simplifiedFlat;
-
-      // Simplify polyline with tolerance.
-      psimpl::simplify_douglas_peucker<3>(flatIterProvider.begin(),
-                                          flatIterProvider.end(), 0.025,
-                                          std::back_inserter(simplifiedFlat));
-
-      // Create simplified polyline from unrolled points.
-      for (
-          auto iter = utils::tuple_iterator<
-              decltype(simplifiedFlat.begin()), 3,
-              Kernel::Point_3>::begin(simplifiedFlat.begin(),
-                                      simplifiedFlat.end());
-          iter !=
-              utils::tuple_iterator<decltype(simplifiedFlat.end()), 3,
-                                    Kernel::Point_3>::end(simplifiedFlat.end());
-          ++iter) {
-        simplified.addPoint(*iter);
-      }
-
-      make_mesh_renderable(p, "loop" + strIndex);
+      make_mesh_renderable(polyline, "loop" + strIndex);
       Ogre::Entity* loopEntity = sceneManager->createEntity("loop" + strIndex);
       Ogre::SceneNode* loopNode =
           sceneManager->getRootSceneNode()->createChildSceneNode("loopNode" +
                                                                  strIndex);
       loopNode->attachObject(loopEntity);
 
-      make_mesh_renderable(simplified, "loopSimplified" + strIndex);
+      Polyline_3Simplifier simplifier(FLAGS_simplification_tolerance);
+      std::tuple<size_t, Polyline_3> simplifiedResult;
+      if (FLAGS_simplification_strategy == "Circle") {
+        simplifiedResult = simplifier.simplify(
+            polyline, Polyline_3SimplificationStrategyNaiveBiarc());
+      } else {
+        simplifiedResult = simplifier.simplify(
+            polyline, Polyline_3SimplificationStrategyDouglasPeucker());
+      }
+      auto simplifiedRep = std::get<1>(simplifiedResult);
+
+      make_mesh_renderable(simplifiedRep, "loopSimplified" + strIndex);
       Ogre::Entity* simplifiedLoopEntity =
           sceneManager->createEntity("loopSimplified" + strIndex);
       simplifiedLoopEntity->setMaterialName("Materials/SimplifiedLines");
@@ -175,12 +160,16 @@ int main(int argc, char* argv[]) {
           FLAGS_output_dir + "/simplified" + strIndex + FLAGS_file_ext;
       LOG(ERROR) << "Writing simplified file to " << outputFilePath
                  << " with simplification ratio "
-                 << simplified.size() / (float)p.size();
+                 << std::get<0>(simplifiedResult) / (float)polyline.size();
+      totalPointsRefined += polyline.size();
+      totalPointsSimplified += std::get<0>(simplifiedResult);
       std::ofstream ofile(outputFilePath);
-      for (const auto& point : simplified) {
+      for (const auto& point : simplifiedRep) {
         ofile << point << "\n";
       }
     }
+    std::cout << "Net simplification ratio "
+              << totalPointsSimplified / (double)totalPointsRefined << std::endl;
 
     Ogre::SceneNode* axesNode =
         sceneManager->getRootSceneNode()->createChildSceneNode();

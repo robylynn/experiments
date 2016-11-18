@@ -19,6 +19,15 @@ typename std::iterator_traits<InputIt>::difference_type count_all(
                        [](const typename InputIt::reference) { return true; });
 }
 
+template <class T, class Compare>
+constexpr const T& clamp(const T& v, const T& lo, const T& hi, Compare comp) {
+  return assert(!comp(hi, lo)), comp(v, lo) ? lo : comp(hi, v) ? hi : v;
+}
+template <typename T>
+constexpr const T& clamp(const T& v, const T& lo, const T& hi) {
+  return clamp(v, lo, hi, std::less<>());
+}
+
 // Create an iterator that creates an n-tuple by taking n entries together from
 // an iterator that provides one entry at a time. The DerefType must have a
 // constructor that accepts N elements of type SingleIter::value_type

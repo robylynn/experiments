@@ -1,0 +1,5 @@
+-I../../../ext/geometry/psimpl
+-I/usr/local/include/eigen3
+-I../../inc/geometry
+-I../../inc/utils
+-I../../inc/rendering
