@@ -3,7 +3,6 @@
 
 #include "geometryTypes.h"
 #include "polyline.h"
-#include "biarc_3.h"
 
 struct Polyline_3SimplificationStrategyDouglasPeucker {};
 struct Polyline_3SimplificationStrategyNaiveBiarc {};
