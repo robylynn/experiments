@@ -8,8 +8,8 @@
 #include <containerAlgorithms.h>
 
 #include "geometryTypes.h"
-#include "vertexAttributesIteratorsProvider.h"
-#include "edgeAttributesIteratorsProvider.h"
+#include "attributes/vertexAttributesIteratorsProvider.h"
+#include "attributes/edgeAttributesIteratorsProvider.h"
 
 // A polyloop is a closed polyline.
 // Representation wise, a polyloop is

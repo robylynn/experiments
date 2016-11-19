@@ -1,0 +1,7 @@
+#ifndef _FRAMEWORK_GEOMETRY_BIARC3_H_
+#define _FRAMEWORK_GEOMETRY_BIARC3_H_
+
+class Biarc_3 {
+};
+
+#endif  //_FRAMEWORK_GEOMETRY_BIARC3_H_

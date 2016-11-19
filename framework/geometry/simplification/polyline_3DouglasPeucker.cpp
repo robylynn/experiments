@@ -4,17 +4,15 @@
 
 #include <containerAlgorithms.h>
 
-#include "simplification/polyline_3Simplifier.h"
 #include "geometryTypes.h"
-#include "polyline.h"
-#include "polylineGeometryProvider.h"
+#include "polyline_3.h"
+#include "simplicialAdaptors/polylineSimplicialAdaptor.h"
 #include "defaultBufferProviders.h"
+#include "simplification/polyline_3Simplifier.h"
 
-using Polyline_3 = Polyline<Kernel::Point_3>;
-
-std::tuple<size_t, Polyline_3> Polyline_3Simplifier::simplify(
-    const Polyline_3& input,
-    const Polyline_3SimplificationStrategyDouglasPeucker& /**/) {
+template <typename Polyline_3>
+std::tuple<size_t, Polyline_3> void douglasPeuckerSimplify(
+    const Polyline_3& input) {
   Polyline_3 simplified;
 
   // Unroll data to flat form for use with psimpl's douglas peucker

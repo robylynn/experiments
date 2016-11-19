@@ -2,7 +2,7 @@
 #define _FRAMEWORK_GEOMETRY_GENERIC_VERTEX_ATTRIBUTES_ITERATORS_PROVIDER_H_
 
 #include "tupleElementIteratorAdaptor.h"
-#include "entityAttributeTraits.h"
+#include "attributes/entityAttributeTraits.h"
 
 namespace impl {
 // Allows for GeometryReps that provide iteration over a container of

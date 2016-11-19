@@ -9,8 +9,8 @@
 #include <CGAL/squared_distance_3.h>
 
 #include "geometryTypes.h"
-#include "vertexAttributesIteratorsProvider.h"
-#include "edgeAttributesIteratorsProvider.h"
+#include "attributes/vertexAttributesIteratorsProvider.h"
+#include "attributes/edgeAttributesIteratorsProvider.h"
 
 // A polyline is an ordered sequence of vertices.
 // Representation wise, a polyline is representable using a container of vertex

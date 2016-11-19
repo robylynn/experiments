@@ -8,6 +8,9 @@
 
 #include <containerAlgorithms.h>
 
+#include "attributes/vertexAttributesIteratorsProvider.h"
+#include "attributes/edgeAttributesIteratorsProvider.h"
+
 // A polyloop_2 is a closed polyline in 2D. Representation wise, a polyloop_2
 // simply adapts a CGAL::Polygon_2 object. The generic code is not implemented
 // as yet for polyloops.
@@ -105,6 +108,8 @@ struct VertexAttributeTraits<Polyloop_2> {
   using iterator = typename container_type::Vertex_iterator;
   using const_iterator = typename container_type::Vertex_const_iterator;
 };
+
+using GeometryPolyloop_2 = Polyloop_2;
 
 // Build a polyloop from Obj file format
 bool buildPolyloop_2FromObj(const std::string& filePath, Polyloop_2& polyloop);

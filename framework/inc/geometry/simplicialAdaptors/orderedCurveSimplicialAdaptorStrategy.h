@@ -1,7 +1,7 @@
 #ifndef _FRAMEWORK_GEOMETRY_ORDERED_CURVE_SIMPLICIAL_ADAPTOR_STRATEGY_H_
 #define _FRAMEWORK_GEOMETRY_ORDERED_CURVE_SIMPLICIAL_ADAPTOR_STRATEGY_H_
 
-#include "simplicialAdaptorStrategy.h"
+#include "simplicialAdaptors/simplicialAdaptorStrategy.h"
 
 // A adaptor strategy for any geometry representation that provides and ordered
 // container of points. Iteration over such a collection of points will provide

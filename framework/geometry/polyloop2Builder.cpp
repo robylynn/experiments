@@ -3,7 +3,8 @@
 #include "polyloop_2.h"
 #include "polyloop_3.h"
 
-bool buildPolyloop_2FromObj(const std::string& filePath, Polyloop_2& polyloop2) {
+bool buildPolyloop_2FromObj(const std::string& filePath,
+                            GeometryPolyloop_2& polyloop2) {
   GeometryPolyloop_3 polyloop3;
   bool retValue = buildPolyloop_3FromObj(filePath, polyloop3);
   if (!retValue) return retValue;
@@ -21,8 +22,8 @@ bool buildPolyloop_2FromObj(const std::string& filePath, Polyloop_2& polyloop2) 
       polyloop3.vertices_attrib_begin<Kernel::Point_3>(),
       polyloop3.vertices_attrib_end<Kernel::Point_3>(),
       [&polyloop2, &coordinateAxes](const auto& point) {
-        polyloop2.addPoint(Kernel::Point_2(point[*coordinateAxes.begin()],
-                                           point[*(++coordinateAxes.begin())]));
+        polyloop2.add(Kernel::Point_2(point[*coordinateAxes.begin()],
+                                      point[*(++coordinateAxes.begin())]));
       });
   return true;
 }
