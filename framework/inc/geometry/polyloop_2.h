@@ -17,18 +17,16 @@
 //
 // TODO msati3: Look at making generic.
 class Polyloop_2 {
-  using Polygon_2 = typename VertexAttributeTraits<Polyloop_2>::container_type;
-  using vertex_value_type =
-      typename VertexAttributeTraits<Polyloop_2>::value_type;
+  using Polygon_2 = CGAL::Polygon_2<Kernel>;
+  using vertex_value_type = typename Polygon_2::value_type;
   using VertexAttributesContainer = Polygon_2;
   VertexAttributesContainer m_vertexAttribs;
 
  public:
   using SegmentIterator = Polygon_2::Edge_const_iterator;
   using value_type = vertex_value_type;
-  using iterator = typename VertexAttributeTraits<Polyloop_2>::iterator;
-  using const_iterator
-      typename VertexAttributeTraits<Polyloop_2>::const_iterator;
+  using iterator = Polygon_2::Vertex_iterator;
+  using const_iterator = Polygon_2::Vertex_const_iterator;
 
   // The size of a Polyloop is the number of points it contains
   size_t size() const { return m_vertexAttribs.size(); }
@@ -103,7 +101,7 @@ class Polyloop_2 {
 template <>
 struct VertexAttributeTraits<Polyloop_2> {
  public:
-  using value_type = Kernel::Point_3;
+  using value_type = Kernel::Point_2;
   using container_type = CGAL::Polygon_2<Kernel>;
   using iterator = typename container_type::Vertex_iterator;
   using const_iterator = typename container_type::Vertex_const_iterator;

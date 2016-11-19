@@ -10,11 +10,11 @@ set(GEOMETRY_TEST_SOURCE_FILES
   )
 
 set(GEOMETRY_ALGORITHMS_TEST_SOURCE_FILES
-  "geometry/simplification/polyline_3SimplificationTest.cpp"
+  #"geometry/simplification/polyline_3SimplificationTest.cpp"
   )
 
 set(UTILS_TEST_SOURCE_FILES
-  "utils/tupleIteratorTest.cpp"
+  "utils/blockIteratorTest.cpp"
   "utils/stencilCirculatorIteratorTest.cpp"
   "utils/attributeIteratorTest.cpp"
   "utils/variantWrapperTest.cpp"

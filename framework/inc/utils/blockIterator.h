@@ -1,6 +1,9 @@
 #ifndef _FRAMEWORK_UTILS_BLOCK_ITERATOR_H_
 #define _FRAMEWORK_UTILS_BLOCK_ITERATOR_H_
 
+#include <boost/iterator/iterator_facade.hpp>
+#include <glog/logging.h>
+
 namespace utils {
 
 /** Create an iterator over an n-block by taking n entries together from
