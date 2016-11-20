@@ -5,10 +5,13 @@
 
 #include <CGAL/Triangulation_3.h>
 
+#include <storageStrategies.h>
+
+#include "attributeProviderTraits.h"
+#include "simplexTypes.h"
 #include "geometryTypes.h"
 #include "geometryConstants.h"
 #include "triangleMeshSimplicialProviderAPIAdaptor.h"
-#include "simplexTypes.h"
 
 // The triangle mesh geometry provider provides a stream of triangle vertices,
 // one triangle at a time from a triangle mesh representation.
@@ -16,18 +19,20 @@
 // Now, triangle meshes may have different representations. The TriangleMeshAPI
 // adaptor serves to unite these differences and present a unified interface to
 // the TriangleMeshSimplicialAdaptor.
-template <typename MeshType, typename SimplexType = TriangleList>
+template <typename MeshType, typename SimplexType = TriangleList,
+          typename Attribute = PositionAttribute_3>
 class TriangleMeshSimplicialAdaptor
-    : public TriangleMeshRepAPIAdaptor<MeshType, SimplexType> {
+    : public TriangleMeshAPIAdaptor<MeshType, SimplexType, Attribute> {
  private:
-  using MeshAPIAdaptor = TriangleMeshAPIAdaptor<MeshType, SimplexType>;
+  using MeshAPIAdaptor =
+      TriangleMeshAPIAdaptor<MeshType, SimplexType, Attribute>;
   const MeshType* m_mesh;
   MeshAPIAdaptor m_adaptor;
 
  public:
-  TriangleMeshGeometryProvider(const MeshType& mesh) : m_mesh(&mesh) {}
-  TriangleMeshGeometryProvider(const MeshType&& mesh) = delete;
-  ~TriangleMeshGeometryProvider() {}
+  TriangleMeshSimplicialAdaptor(const MeshType& mesh) : m_mesh(&mesh) {}
+  TriangleMeshSimplicialAdaptor(const MeshType&& mesh) = delete;
+  ~TriangleMeshSimplicialAdaptor() {}
 
   class FacetOrderedVertexIterator
       : public boost::iterator_facade<FacetOrderedVertexIterator,
@@ -87,15 +92,15 @@ class TriangleMeshSimplicialAdaptor
 
 // A triangle mesh geometry provider is a lightweight object. So, we specialize
 // the storage policy to by value. This allows for nicer client syntax through
-// implicit temporary creation for MeshGeometryProvider.
-template <typename ElementProvider, typename ElementType>
-class ElementProviderStorageStrategy<
-    TriangleMeshGeometryProvider<ElementProvider, ElementType>>
-    : public CopyProviderStorageStrategy<
-          TriangleMeshGeometryProvider<ElementProvider, ElementType>> {
+// implicit temporary creation for MeshSimplicialAdaptor.
+template <typename MeshType, typename SimplexType, typename AttributeType>
+class AttributeProviderStorageStrategy<
+    TriangleMeshSimplicialAdaptor<MeshType, SimplexType, AttributeType>>
+    : public utils::CopyStorageStrategy<
+          TriangleMeshSimplicialAdaptor<MeshType, SimplexType, AttributeType>> {
  protected:
-  using CopyProviderStorageStrategy<TriangleMeshGeometryProvider<
-      ElementProvider, ElementType>>::CopyProviderStorageStrategy;
+  using utils::CopyStorageStrategy<TriangleMeshSimplicialAdaptor<
+      MeshType, SimplexType, AttributeType>>::CopyStorageStrategy;
 };
 
 #endif  //_FRAMEWORK_GEOMETRY_TRIANGLE_MESH_SIMPLICIAL_ADAPTOR_H_

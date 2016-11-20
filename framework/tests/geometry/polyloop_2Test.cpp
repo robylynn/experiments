@@ -6,9 +6,9 @@
 class Polyloop_2RepTest : public ::testing::Test {
  protected:
   virtual void SetUp() {
-    p.addPoint(Kernel::Point_2(0, 0));
-    p.addPoint(Kernel::Point_2(1, 0));
-    p.addPoint(Kernel::Point_2(0, 1));
+    p.add(Kernel::Point_2(0, 0));
+    p.add(Kernel::Point_2(1, 0));
+    p.add(Kernel::Point_2(0, 1));
   }
   virtual void TearDown() {}
 
@@ -18,9 +18,9 @@ class Polyloop_2RepTest : public ::testing::Test {
 class Polyloop_2SimplicialAdaptorTest : public ::testing::Test {
  protected:
   virtual void SetUp() {
-    p.addPoint(Kernel::Point_2(0, 0));
-    p.addPoint(Kernel::Point_2(100, 100));
-    p.addPoint(Kernel::Point_2(100, 0));
+    p.add(Kernel::Point_2(0, 0));
+    p.add(Kernel::Point_2(100, 100));
+    p.add(Kernel::Point_2(100, 0));
   }
   virtual void TearDown() {}
 

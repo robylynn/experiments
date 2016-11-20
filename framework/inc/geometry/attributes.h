@@ -15,7 +15,7 @@ struct PositionAttribute_3 {
 };
 
 struct ColorAttribute {
-  using type = CGAL::Color
+  using type = CGAL::Color;
 };
 
 #endif//_FRAMEWORK_GEOMETRY_ATTRIBUTES_H_

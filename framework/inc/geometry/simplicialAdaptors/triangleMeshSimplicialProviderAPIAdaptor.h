@@ -12,11 +12,11 @@
 #include <CGAL/Triangulation_2.h>
 
 #include "attributes.h"
+#include "simplexTypes.h"
 
 // TODO msati3: Investigate how to furnish tuples of attributes for different
 // mesh representations.
-template <typename Triangulation, typename SimplexType,
-          typename... Attributes = PositionAttribute_3>
+template <typename Triangulation, typename SimplexType, typename Attribute>
 class TriangleMeshAPIAdaptor {};
 
 // Code to adapt some common triangle mesh containers of CGAL to use a uniform
@@ -29,7 +29,7 @@ class TriangleMeshAPIAdaptor<Triangulation, TriangleList, Attribute> {
 
  public:
   using facet_iterator = typename MeshType::Finite_faces_iterator;
-  using value_type = VT;
+  using value_type = Attribute;
   using facet_vertex_iterator =
       boost::transform_iterator<std::function<const value_type&(int)>,
                                 boost::counting_iterator<int>>;
@@ -42,7 +42,7 @@ class TriangleMeshAPIAdaptor<Triangulation, TriangleList, Attribute> {
 
     template <typename AT = Attribute>
     const value_type& operator()(int index) const {
-      return operator()(index, VertexElement());
+      return operator()(index, Attribute());
     }
 
     const value_type& operator()(int index,
@@ -123,10 +123,11 @@ class HalfEdgeBasedAPIAdaptor {
 
 // Specialize for Polyhedrons
 template <typename Kernel, typename Attribute>
-class TriangleMeshAPIAdaptor<CGAL::Polyhedron_3<Kernel>, Attribute>
+class TriangleMeshAPIAdaptor<CGAL::Polyhedron_3<Kernel>, TriangleList,
+                             Attribute>
     : public HalfEdgeBasedAPIAdaptor<
-          TriangleMeshGeometryProviderAdaptor<CGAL::Polyhedron_3<Kernel>,
-                                              Attribute>,
+          TriangleMeshAPIAdaptor<CGAL::Polyhedron_3<Kernel>, TriangleList,
+                                 Attribute>,
           Attribute, typename Attribute::type,
           typename CGAL::Polyhedron_3<Kernel>::Facet_const_iterator,
           typename CGAL::Polyhedron_3<Kernel>::Halfedge_const_handle> {
@@ -155,7 +156,8 @@ class TriangleMeshAPIAdaptor<CGAL::Polyhedron_3<Kernel>, Attribute>
 // the vertex index.
 template <typename Triangulation, typename Attribute>
 class TriangleMeshAPIAdaptor<
-    CGAL::Surface_mesh_complex_2_in_triangulation_3<Triangulation>, Attribute> {
+    CGAL::Surface_mesh_complex_2_in_triangulation_3<Triangulation>,
+    TriangleList, Attribute> {
   using MeshType =
       CGAL::Surface_mesh_complex_2_in_triangulation_3<Triangulation>;
 

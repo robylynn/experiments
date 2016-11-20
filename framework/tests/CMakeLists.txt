@@ -21,7 +21,7 @@ set(UTILS_TEST_SOURCE_FILES
   )
 
 set(RENDERING_TEST_SOURCE_FILES
-  "rendering/positionOnlyBufferProviderTest.cpp"
+  #"rendering/positionOnlyBufferProviderTest.cpp"
   )
 
 set(CMAKE_THREAD_PREFER_PTHREAD TRUE)

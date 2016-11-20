@@ -9,7 +9,7 @@ add_library(geometry
   #cuboidGeometryProvider.cpp
   polyline_3Builder.cpp
   polyloop_3Builder.cpp
-  polyloop2Builder.cpp
+  polyloop_2Builder.cpp
   #uniformVoxelGrid.cpp
   )
 

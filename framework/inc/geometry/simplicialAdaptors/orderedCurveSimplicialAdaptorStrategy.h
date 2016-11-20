@@ -1,6 +1,8 @@
 #ifndef _FRAMEWORK_GEOMETRY_ORDERED_CURVE_SIMPLICIAL_ADAPTOR_STRATEGY_H_
 #define _FRAMEWORK_GEOMETRY_ORDERED_CURVE_SIMPLICIAL_ADAPTOR_STRATEGY_H_
 
+#include "simplexTypes.h"
+
 // A adaptor strategy for any geometry representation that provides and ordered
 // container of points. Iteration over such a collection of points will provide
 // a pointlist, while stencil iteration using a {0,1} stencil will provide a

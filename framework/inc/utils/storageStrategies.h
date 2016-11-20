@@ -2,38 +2,42 @@
 #define _FRAMEWORK_UTILS_RESOURCE_PROVIDER_STORAGE_STRATEGIES_H_
 
 namespace utils {
-// A resource provider is an object that provides a particular (set of)
-// resources. Often, adaptors are written that transform an underlying resource
-// provider to provider a transformed version of the resource.
-//
-// This file allows easy customization of a provider's storage strategy
-// in a class that uses object composition for provider storage. Each resource
-// provider advertizes its Storage strategy via a type-traits system. The
-// classes that compose a resource provider can then use the types traits.
+/** A resource provider is an object that provides a particular (set of)
+ * resources. Often, adaptors are written that transform an underlying resource
+ * provider to provider a transformed version of the resource.
+ *
+ * This file allows easy customization of a provider's storage strategy
+ * in a class that uses object composition for provider storage. Each resource
+ * provider advertizes its storage strategy via a type-traits system. The
+ * classes that compose a resource provider can then use the types traits.
+ */
 
-// Default storage strategy for element providers within the
-// ElementBufferProvider is pointer storage.
+/** The composing class should store a pointer for this resource provider.
+ * This is often the case when a concrete resource provider is being used
+ * and stored in a containing class.
+ */
 template <typename ResourceProvider>
-class ResourceProviderStorageStrategy {
+class PointerStorageStrategy {
  protected:
-  ResourceProviderStorageStrategy(const ResourceProvider& provider)
+  PointerStorageStrategy(const ResourceProvider& provider)
       : m_provider(&provider) {}
   // We don't allow creation from temporaries, as we expect the object to
   // remain valid over the life of the Object.
-  ResourceProviderStorageStrategy(const ResourceProvider&& provider) = delete;
+  PointerStorageStrategy(const ResourceProvider&& provider) = delete;
 
   const ResourceProvider* m_provider;
 };
 
-// A lightweight provider can inherit from here to allow for stack based
-// storage of the provider. The provider itself must be copy-constructible.
+/** A lightweight provider can inherit from here to allow for stack based
+ * storage of the provider. The provider itself must be copy-constructible.
+ */
 template <typename ResourceProvider>
-class CopyProviderStorageStrategy {
+class CopyStorageStrategy {
  protected:
-  CopyProviderStorageStrategy(const ResourceProvider& provider)
+  CopyStorageStrategy(const ResourceProvider& provider)
       : m_lightWeightProvider(provider), m_provider(&m_lightWeightProvider) {}
 
-  CopyProviderStorageStrategy(ResourceProvider&& provider)
+  CopyStorageStrategy(ResourceProvider&& provider)
       : m_lightWeightProvider(provider), m_provider(&m_lightWeightProvider) {}
 
   const ResourceProvider m_lightWeightProvider;

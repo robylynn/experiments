@@ -4,11 +4,13 @@
 #include <memory>
 
 #include <containerAlgorithms.h>
+#include "attributes/vertexAttributeProviderTraits.h"
 #include "orderedCurveSimplicialAdaptorStrategy.h"
 
-// A simplicial adaptor for the polyline representation. The polyline
-// representation object itself must remain valid during the use of this
-// adaptor class, and provide an iterator over vertices of the polyline.
+/* A simplicial adaptor for the polyline representation. The polyline
+* representation object itself must remain valid during the use of this
+* adaptor class, and provide an iterator over vertices of the polyline.
+*/
 template <typename LineRep, typename SimplexType = LineList>
 class PolylineSimplicialAdaptor
     : public OrderedCurveSimplicialAdaptorStrategy<SimplexType> {
@@ -44,11 +46,16 @@ class PolylineSimplicialAdaptor
 template <typename LineRep, typename SimplexType>
 class AttributeProviderStorageStrategy<
     PolylineSimplicialAdaptor<LineRep, SimplexType>>
-    : public utils::CopyProviderStorageStrategy<
+    : public utils::CopyStorageStrategy<
           PolylineSimplicialAdaptor<LineRep, SimplexType>> {
  protected:
-  using utils::CopyProviderStorageStrategy<PolylineSimplicialAdaptor<
-      ElementProvider, ElementType>>::CopyProviderStorageStrategy;
+  using utils::CopyStorageStrategy<PolylineSimplicialAdaptor<
+      AttributeProvider, AttributeType>>::CopyStorageStrategy;
+};
+
+template <typename LineRep, typename SimplexType>
+struct DefaultSimplexType<PolylineSimplicialAdaptor<LineRep, SimplexType>> {
+  using type = SimplexType;
 };
 
 #endif  //_FRAMEWORK_GEOMETRY_POLYLINE_SIMPLICIAL_ADAPTOR_H_

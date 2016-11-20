@@ -4,8 +4,8 @@
 #include <CGAL/Projection_traits_xy_3.h>
 #include <CGAL/Triangulation_2.h>
 
-#include "geometryTypes.h"
-#include "triangleMeshGeometryProvider.h"
+#include <geometryTypes.h>
+#include <simplicialAdaptors/triangleMeshSimplicialAdaptor.h>
 
 class MeshProviderTest : public ::testing::Test {
  protected:
@@ -26,12 +26,12 @@ class MeshProviderTest : public ::testing::Test {
 };
 
 TEST_F(MeshProviderTest, size) {
-  TriangleMeshGeometryProvider<MeshRepPoly> provider(tetrahedron);
+  TriangleMeshSimplicialAdaptor<MeshRepPoly> provider(tetrahedron);
   EXPECT_EQ(4 * 3, provider.size());
 }
 
 TEST_F(MeshProviderTest, iterationPolyhedron) {
-  TriangleMeshGeometryProvider<MeshRepPoly> provider(tetrahedron);
+  TriangleMeshSimplicialAdaptor<MeshRepPoly> provider(tetrahedron);
   size_t count = 0;
   for (auto iter = provider.begin(); iter != provider.end(); ++iter, ++count) {
     ASSERT_LT(count, provider.size());
@@ -42,13 +42,14 @@ TEST_F(MeshProviderTest, iterationPolyhedron) {
 TEST_F(MeshProviderTest, iterationTriangulation2) {
   CGAL::Triangulation_2<CGAL::Projection_traits_xy_3<Kernel>> triangulation;
   triangulation.insert(&points[0], &points[3]);
-  TriangleMeshGeometryProvider<MeshRepTriangulation2> provider(triangulation);
+  TriangleMeshSimplicialAdaptor<MeshRepTriangulation2> provider(triangulation);
   size_t count = 0;
   for (auto iter = provider.begin(); iter != provider.end(); ++iter, ++count) {
     ASSERT_LT(count, provider.size());
   }
   EXPECT_EQ(count, provider.size());
-  std::set<Kernel::Point_3> triangulationPoints(provider.begin(), provider.end());
+  std::set<Kernel::Point_3> triangulationPoints(provider.begin(),
+                                                provider.end());
   std::set<Kernel::Point_3> expectedPoints(&points[0], &points[3]);
   EXPECT_EQ(triangulationPoints, expectedPoints);
 }
