@@ -6,7 +6,7 @@
 #include <CGAL/circulator.h>
 
 #include <containerAlgorithms.h>
-#include "attributeProviderTraits.h"
+#include "attributes/vertexAttributeProviderTraits.h"
 #include "orderedCurveSimplicialAdaptorStrategy.h"
 
 /* A simplicial adaptor for the polyloop representation.
@@ -84,6 +84,6 @@ class AttributeProviderStorageStrategy<
 template <typename LoopRep, typename SimplexType>
 class DefaultSimplexType<PolyloopSimplicialAdaptor<LoopRep, SimplexType>> {
   using type = SimplexType;
-}
+};
 
 #endif  //_FRAMEWORK_GEOMETRY_POLYLOOP_SIMPLICIAL_ADAPTOR_H_

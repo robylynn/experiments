@@ -11,7 +11,7 @@
 #include <CGAL/Polyhedron_3.h>
 #include <CGAL/Triangulation_2.h>
 
-#include "attributes.h"
+#include "attributeTypes.h"
 #include "simplexTypes.h"
 
 // TODO msati3: Investigate how to furnish tuples of attributes for different

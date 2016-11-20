@@ -39,7 +39,7 @@ struct ConstAttributeProviderTraits {
   using provider_type = ResourceProvider;
   using const_iterator = typename ResourceProvider::const_iterator;
   using storage_strategy = AttributeProviderStorageStrategy<ResourceProvider>;
-}
+};
 
 /**
  * A simplicial decomposition provider must also annotate with the type of
