@@ -36,7 +36,7 @@ before_install:
 
     # install Boost
   - git clone --recursive https://github.com/boostorg/boost.git
-  - cd boost
+  - cd boost/boost
   - git checkout boost-1.62.0
   - git submodule update
   - ./b2 headers
