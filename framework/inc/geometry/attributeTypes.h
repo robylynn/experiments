@@ -5,6 +5,7 @@
 #include <CGAL/IO/Color.h>
 
 #include "geometryTypes.h"
+#include "attributes/attributesToTypes.h"
 
 /* A collection of common attributes that are associated with geometry
  * representations. The tagging of attributes allows multiple attributes to
@@ -17,6 +18,10 @@ struct PositionAttribute_3 {
 
 struct ColorAttribute {
   using type = CGAL::Color;
+};
+
+struct SegmentAttribute_3 {
+  using type = Kernel::Segment_3;
 };
 
 #endif//_FRAMEWORK_GEOMETRY_ATTRIBUTE_TYPES_H_

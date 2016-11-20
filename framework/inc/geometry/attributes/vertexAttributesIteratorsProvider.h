@@ -64,6 +64,7 @@ class VertexAttributesIteratorsProvider<GeometryRep, true,
  public:
   using iterator = VI;
   using const_iterator = CVI;
+  using value_type = typename std::iterator_traits<VI>::value_type;
 
   size_t size() const {
     return static_cast<const GeometryRep*>(this)->vertices_size();

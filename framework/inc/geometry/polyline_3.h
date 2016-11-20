@@ -9,6 +9,7 @@
 #include <CGAL/squared_distance_3.h>
 
 #include "geometryTypes.h"
+#include "attributeTypes.h"
 #include "attributes/vertexAttributesIteratorsProvider.h"
 #include "attributes/edgeAttributesIteratorsProvider.h"
 
@@ -23,12 +24,13 @@
 // and this information need not be stored. Thus, this policy decision
 // of providing EdgeAttributes is designated to a policy class, which must
 // provide for iteration over EdgeBase elements.
-template <typename VertexBase = std::tuple<Kernel::Point_3>,
-          typename EdgeBase = std::tuple<Kernel::Segment_3>>
-class Polyline_3 : public EdgeAttribsIters<Polyline_3<VertexBase, EdgeBase>,
-                                           false, EdgeBase>,
-                   public VertexAttribsIters<Polyline_3<VertexBase, EdgeBase>,
-                                             true, VertexBase> {
+template <typename VertexBase = std::tuple<PositionAttribute_3>,
+          typename EdgeBase = std::tuple<SegmentAttribute_3>>
+class Polyline_3
+    : public EdgeAttribsIters<Polyline_3<VertexBase, EdgeBase>, false,
+                              attributes_to_types_t<EdgeBase>>,
+      public VertexAttribsIters<Polyline_3<VertexBase, EdgeBase>, true,
+                                attributes_to_types_t<VertexBase>> {
   using VertexAttributesContainer = typename VertexAttributeTraits<
       Polyline_3<VertexBase, EdgeBase>>::container_type;
   VertexAttributesContainer m_vertexAttribs;
@@ -102,7 +104,7 @@ class Polyline_3 : public EdgeAttribsIters<Polyline_3<VertexBase, EdgeBase>,
 template <typename VertexBase, typename EdgeBase>
 struct VertexAttributeTraits<Polyline_3<VertexBase, EdgeBase>> {
  public:
-  using value_type = VertexBase;
+  using value_type = attributes_to_types_t<VertexBase>;
   using container_type = std::vector<value_type>;
   using iterator = typename container_type::iterator;
   using const_iterator = typename container_type::const_iterator;
@@ -110,14 +112,14 @@ struct VertexAttributeTraits<Polyline_3<VertexBase, EdgeBase>> {
 
 // A simple geometry polyloop also adds begin and end iterators over the single
 // type they contain
-template <typename TupleElement>
-using SimplePolyline_3 = Polyline_3<std::tuple<TupleElement>>;
-using GeometryPolyline_3 = SimplePolyline_3<Kernel::Point_3>;
+template <typename Attribute>
+using SimplePolyline_3 = Polyline_3<std::tuple<Attribute>>;
+using GeometryPolyline_3 = SimplePolyline_3<PositionAttribute_3>;
 
 // Build a polyline from Obj file format
 bool buildPolyline_3FromObj(const std::string& filePath,
-                          GeometryPolyline_3& polyline);
+                            GeometryPolyline_3& polyline);
 bool buildPolyline_3FromVertexList(const std::string& filePath,
-                                 GeometryPolyline_3& polyline);
+                                   GeometryPolyline_3& polyline);
 
 #endif  //_FRAMWORK_GEOMETRY_POLYLINE_3_H_

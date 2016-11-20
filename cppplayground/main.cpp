@@ -5,7 +5,6 @@
 #include "variadicTemplates.h"
 #include "valueTypes.h"
 #include "attribSetContainer.h"
-#include "containerAlgorithms.h"
 
 void frameworkPrototype();
 
@@ -17,8 +16,12 @@ int main() {
   frameworkPrototype();
 }
 
+#include "attributes/attributesToTypes.h"
+#include "attributeTypes.h"
+#include "geometryTypes.h"
+
 // Any framework development API checking
 void frameworkPrototype() {
-  std::array<int, 4> vect{1, 2, 3, 4};
-  std::cout << utils::make_tuple(vect, std::make_index_sequence<2>{}) << std::endl;
+  attributes_to_types_t<std::tuple<PositionAttribute_3>> position{
+      Kernel::Point_3(0, 0, 0)};
 }

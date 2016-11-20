@@ -5,13 +5,14 @@
 #include "attributes/entityAttributeTraits.h"
 
 namespace impl {
-// Allows for GeometryReps that provide iteration over a container of
-// distinctly typed tuples of vertex attributes to provide iterators over
-// individual tuple types. A geometry rep can state to be primarily a vertex
-// attribute provider, in which case, it also has access to begin and end
-// iterators that forward to the vertices_begin calls. In case the geometry
-// representation holds a single vertex attributes, the begin and end calls
-// also unfold the tuple.
+/** Allows for GeometryReps that provide iteration over a container of
+ * distinctly typed tuples of vertex attributes to provide iterators over
+ * individual tuple types. A geometry rep can state to be primarily a vertex
+ * attribute provider, in which case, it also has access to begin and end
+ * iterators that forward to the vertices_begin calls. In case the geometry
+ * representation holds a single vertex attributes, the begin and end calls
+ * also unfold the tuple.
+ */
 template <typename GeometryRep, typename VertexAttributes>
 class GenericVertexAttributesIteratorsProvider {
  private:

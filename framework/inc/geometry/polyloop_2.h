@@ -4,10 +4,10 @@
 #include <CGAL/Polygon_2.h>
 #include <CGAL/Segment_2.h>
 
-#include "geometryTypes.h"
-
 #include <containerAlgorithms.h>
 
+#include "geometryTypes.h"
+#include "attributeTypes.h"
 #include "attributes/vertexAttributesIteratorsProvider.h"
 #include "attributes/edgeAttributesIteratorsProvider.h"
 
@@ -15,7 +15,7 @@
 // simply adapts a CGAL::Polygon_2 object. The generic code is not implemented
 // as yet for polyloops.
 //
-// TODO msati3: Look at making generic.
+// TODO msati3: Look at making generic akin to Polyloop and polylines?
 class Polyloop_2 {
   using Polygon_2 = CGAL::Polygon_2<Kernel>;
   using vertex_value_type = typename Polygon_2::value_type;

@@ -36,9 +36,10 @@ before_install:
 
     # install Boost
   - git clone --recursive https://github.com/boostorg/boost.git
-  - cd boost/boost
+  - cd boost
   - git checkout boost-1.62.0
   - git submodule update
+  - ./bootstrap.sh
   - ./b2 headers
   - sudo ./b2 install
   - cd "${TRAVIS_BUILD_DIR}"
