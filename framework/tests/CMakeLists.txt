@@ -3,7 +3,7 @@ set(GEOMETRY_TEST_SOURCE_FILES
   "geometry/polyline_3Test.cpp"
   "geometry/polyloop_2Test.cpp"
   "geometry/polyloop_3Test.cpp"
-  "geometry/triangleMeshTest.cpp"
+  #"geometry/triangleMeshTest.cpp"
   "geometry/circleSamplerTest.cpp"
   #"geometry/uniformPlanarGridTest.cpp"
   #"geometry/uniformVoxelGridTest.cpp"
@@ -52,7 +52,7 @@ target_link_libraries(frameworkTest ${GTEST_LIBRARIES}
   gmp
   mpfr
   geometry
-  geometry_algorithms
+  #geometry_algorithms
   ${GLOG_LIBRARIES})
 
 add_custom_command(TARGET frameworkTest POST_BUILD

@@ -5,4 +5,4 @@ cd build
 cmake ..
 make -j8
 (cd framework/tests; ./frameworkTest)
-(cd averaging/tests; ./averagingTest)
+#(cd averaging/tests; ./averagingTest)

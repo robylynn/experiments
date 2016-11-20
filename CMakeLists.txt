@@ -22,6 +22,6 @@ include_directories(${GLOG_INCLUDE_DIR})
 include_directories(${GFLAGS_INCLUDE_DIR})
 
 add_subdirectory(framework)
-add_subdirectory(approximation)
-add_subdirectory(averaging)
+#add_subdirectory(approximation)
+#add_subdirectory(averaging)
 add_subdirectory(cppplayground)
