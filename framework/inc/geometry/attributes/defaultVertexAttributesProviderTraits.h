@@ -1,5 +1,5 @@
-#ifndef _FRAMEWORK_GEOMETRY_DEFAULT_VERTEX_ATTRIBUTE_PROVIDER_TRAITS_H_
-#define _FRAMEWORK_GEOMETRY_DEFAULT_VERTEX_ATTRIBUTE_PROVIDER_TRAITS_H_
+#ifndef _FRAMEWORK_GEOMETRY_DEFAULT_VERTEX_ATTRIBUTES_PROVIDER_TRAITS_H_
+#define _FRAMEWORK_GEOMETRY_DEFAULT_VERTEX_ATTRIBUTES_PROVIDER_TRAITS_H_
 
 #include <CGAL/Polyhedron_3.h>
 
@@ -10,7 +10,7 @@
 #include "simplicialAdaptors/polylineSimplicialAdaptor.h"
 #include "simplicialAdaptors/triangleMeshSimplicialAdaptor.h"
 
-#include "vertexAttributeProviderTraits.h"
+#include "vertexAttributesProviderTraits.h"
 
 /**
  * There is a desire for the client to easily instantiate attribute providers
@@ -26,27 +26,13 @@
  * VertexAttributeProviders implicitly.
  */
 
-// In case the user passes a simple vector, the best guess is to interpret it
-// as a list of ordered elements, and use a PolylineSimplicialAdaptor.
-template <typename Attribute, typename SimplexType>
-struct VertexAttributeProviderTraits<std::vector<Attribute>, SimplexType>
-    : public ConstAttributeProviderTraits<
-          PolylineSimplicialAdaptor<std::vector<Attribute>, SimplexType>> {
-  using provided_type = std::vector<Attribute>;
-};
-
-template <typename GeometryInterpretationTag, typename T>
-struct VertexAttributeProviderTraits<
-    std::tuple<GeometryInterpretationTag, std::vector<T>>>,
-    typename VertexAttributeFromType<T>::type >
-        : public SimpleVertexAttributeProviderTraits<
-              PolylineSimplicialAdaptor<GeometryInterpretationTag>> {
-  using provider_type =
-      PolylineSimplicialAdaptor<GeometryInterpretationTag>::type;
-  using const_iterator =
-      typename PolylineSimplicialAdaptor<GeometryPolyline_3>::const_iterator;
-  using storage_strategy = AttributeProviderStorageStrategy<
-      PolylineSimplicialAdaptor<Polyline<PointType>>>;
+// In case the user passes in a tuple of a vector, and an attribute type,
+// use a PolylineSimplicialAdaptor.
+template <typename Attribute>
+    struct VertexElementProviderTraits <
+    std::tuple<Attribute, std::vector<attributes_to_types_t<Attribute>>>
+    : public ConstAttributesProviderTraits <
+      PolylineSimplicialAdaptor<std::vector<attributes_to_types_t<Attribute>>> {
 };
 
 template <typename Kernel, typename Attribute, typename SimplexType>
@@ -60,13 +46,14 @@ struct VertexAttributeProviderTraits<CGAL::Polyhedron_3<Kernel>>
   using provided_type = MeshType;
 };
 
-template <typename SimplexType>
-struct VertexAttributeProviderTraits<Polyloop_2, SimplexType> : public 
-};
-
 template <>
-struct VertexAttributeProviderTraits<GeometryPolyloop_3,
-                                     PositionVertexAttribute> {
+struct VertexAttributesProviderTraits<Polyloop_2>
+    : public ConstAttributeProviderTraits<
+          PolylineSimplicialAdaptor<Polyloop_2>> {};
+
+template <typename VertexBase, typename EdgeBase>
+    struct VertexElementProviderTraits <
+    Polyloop_3<VertexBase, PositionVertexAttribute> {
   using provider_type = PolyloopSimplicialAdaptor<GeometryPolyloop_3>;
   using const_iterator =
       PolyloopSimplicialAdaptor<GeometryPolyloop_3>::const_iterator;
@@ -74,4 +61,4 @@ struct VertexAttributeProviderTraits<GeometryPolyloop_3,
       PolyloopSimplicialAdaptor<GeometryPolyloop_3>>;
 };
 
-#endif  // _FRAMEWORK_GEOMETRY_DEFAULT_VERTEX_ATTRIBUTE_PROVIDER_TRAITS_H_
+#endif  // _FRAMEWORK_GEOMETRY_DEFAULT_VERTEX_ATTRIBUTES_PROVIDER_TRAITS_H_

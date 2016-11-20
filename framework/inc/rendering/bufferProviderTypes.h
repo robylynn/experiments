@@ -4,8 +4,9 @@
 #include "singleElementProviderAdaptor.h"
 #include "tupleElementBufferProvider.h"
 
-// Convenience typedefs for common single element buffer providers obtained
-// from Geometry reps.
+/** Convenience typedefs for common single element buffer providers obtained
+ * from Geometry reps.
+ */
 template <typename GeometryRep,
           typename GeometryProvider = typename VertexElementProviderTraits<
               GeometryRep, PositionVertexElement>::provider_type>
@@ -20,7 +21,8 @@ using ColorOnlyBufferProvider = VertexElementBufferProvider<
     SingleElementProviderAdaptor<ColorProvider, ColorVertexElement>,
     ColorVertexElement>;
 
-// Convenience types for some tuple element buffer providers
+/** Convenience types for some tuple element buffer providers
+ */
 template <typename DataProvider>
 using PositionColorBufferProvider =
     TupleBufferDataProvider<DataProvider, PositionVertexElement,

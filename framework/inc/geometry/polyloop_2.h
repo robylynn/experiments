@@ -7,7 +7,7 @@
 #include <containerAlgorithms.h>
 
 #include "geometryTypes.h"
-#include "attributeTypes.h"
+#include "attributes/attributeTypes.h"
 #include "attributes/vertexAttributesIteratorsProvider.h"
 #include "attributes/edgeAttributesIteratorsProvider.h"
 
@@ -27,9 +27,6 @@ class Polyloop_2 {
   using value_type = vertex_value_type;
   using iterator = Polygon_2::Vertex_iterator;
   using const_iterator = Polygon_2::Vertex_const_iterator;
-
-  // The size of a Polyloop is the number of points it contains
-  size_t size() const { return m_vertexAttribs.size(); }
 
   // Add a vertex at specified location to the Polyloop.
   void add(iterator iter, const vertex_value_type& point) {
@@ -55,12 +52,13 @@ class Polyloop_2 {
     m_vertexAttribs.set(iter, value);
   }
 
-  // The polyloop allows for iteration over points by pass through to container,
-  // and conforms to the CGAL MeshPolyline_3 concept
-  auto begin() const -> decltype(m_vertexAttribs.vertices_begin()) {
+  // The size of a Polyloop is the number of points it contains
+  size_t vertices_size() const { return m_vertexAttribs.size(); }
+
+  auto vertices_begin() const -> decltype(m_vertexAttribs.vertices_begin()) {
     return m_vertexAttribs.vertices_begin();
   }
-  auto end() const -> decltype(m_vertexAttribs.vertices_end()) {
+  auto vertices_end() const -> decltype(m_vertexAttribs.vertices_end()) {
     return m_vertexAttribs.vertices_end();
   }
 
@@ -69,11 +67,11 @@ class Polyloop_2 {
 
   // Obtain next iterators from the current iterators
   iterator next(const iterator& iterator) {
-    return iterator + 1 == end() ? begin() : iterator + 1;
+    return iterator + 1 == vertices_end() ? vertices_begin() : iterator + 1;
   }
 
   const_iterator next(const const_iterator& iterator) const {
-    return iterator + 1 == end() ? begin() : iterator + 1;
+    return iterator + 1 == vertices_end() ? vertices_begin() : iterator + 1;
   }
 
   // Algorithms on Polyloops
@@ -99,7 +97,7 @@ class Polyloop_2 {
 };
 
 template <>
-struct VertexAttributeTraits<Polyloop_2> {
+struct VertexAttributesProviderTraits<Polyloop_2> {
  public:
   using value_type = Kernel::Point_2;
   using container_type = CGAL::Polygon_2<Kernel>;

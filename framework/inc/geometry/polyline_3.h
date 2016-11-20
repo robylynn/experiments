@@ -9,7 +9,7 @@
 #include <CGAL/squared_distance_3.h>
 
 #include "geometryTypes.h"
-#include "attributeTypes.h"
+#include "attributes/attributeTypes.h"
 #include "attributes/vertexAttributesIteratorsProvider.h"
 #include "attributes/edgeAttributesIteratorsProvider.h"
 
@@ -26,16 +26,19 @@
 // provide for iteration over EdgeBase elements.
 template <typename VertexBase = std::tuple<PositionAttribute_3>,
           typename EdgeBase = std::tuple<SegmentAttribute_3>>
-class Polyline_3
-    : public EdgeAttribsIters<Polyline_3<VertexBase, EdgeBase>, false,
-                              attributes_to_types_t<EdgeBase>>,
-      public VertexAttribsIters<Polyline_3<VertexBase, EdgeBase>, true,
-                                attributes_to_types_t<VertexBase>> {
-  using VertexAttributesContainer = typename VertexAttributeTraits<
+class Polyline_3 : public EdgeAttribsIters<Polyline_3<VertexBase, EdgeBase>,
+                                           false, EdgeBase>,
+                   public VertexAttribsIters<Polyline_3<VertexBase, EdgeBase>,
+                                             true, VertexBase> {
+  using VertexAttributesContainer = typename VertexAttributesProviderTraits<
       Polyline_3<VertexBase, EdgeBase>>::container_type;
   VertexAttributesContainer m_vertexAttribs;
 
  public:
+  Polyline_3(VertexAttributesContainer&& vertices)
+      : m_vertexAttribs(vertices) {}
+  Polyline_3() {}
+
   using vertex_value_type = typename VertexAttributesContainer::value_type;
   using vertex_iterator = typename VertexAttributesContainer::iterator;
   using const_vertex_iterator =
@@ -72,16 +75,16 @@ class Polyline_3
 
   // The polyline allows for iteration over points by pass through to container,
   // and conforms to the CGAL MeshPolyline_3 concept
-  auto begin() -> decltype(m_vertexAttribs.begin()) {
+  auto vertices_begin() -> decltype(m_vertexAttribs.begin()) {
     return m_vertexAttribs.begin();
   }
-  auto begin() const -> decltype(m_vertexAttribs.begin()) {
+  auto vertices_begin() const -> decltype(m_vertexAttribs.begin()) {
     return m_vertexAttribs.begin();
   }
-  auto end() -> decltype(m_vertexAttribs.end()) {
+  auto vertices_end() -> decltype(m_vertexAttribs.end()) {
     return m_vertexAttribs.end();
   }
-  auto end() const -> decltype(m_vertexAttribs.end()) {
+  auto vertices_end() const -> decltype(m_vertexAttribs.end()) {
     return m_vertexAttribs.end();
   }
 
@@ -102,9 +105,9 @@ class Polyline_3
 };
 
 template <typename VertexBase, typename EdgeBase>
-struct VertexAttributeTraits<Polyline_3<VertexBase, EdgeBase>> {
+struct VertexAttributesProviderTraits<Polyline_3<VertexBase, EdgeBase>> {
  public:
-  using value_type = attributes_to_types_t<VertexBase>;
+  using value_type = utils::tag_to_type_t<VertexBase>;
   using container_type = std::vector<value_type>;
   using iterator = typename container_type::iterator;
   using const_iterator = typename container_type::const_iterator;
@@ -115,6 +118,27 @@ struct VertexAttributeTraits<Polyline_3<VertexBase, EdgeBase>> {
 template <typename Attribute>
 using SimplePolyline_3 = Polyline_3<std::tuple<Attribute>>;
 using GeometryPolyline_3 = SimplePolyline_3<PositionAttribute_3>;
+
+// Make a polyline_3 given a container that houses a tuple of attributes.
+template <typename VertexBase,
+          typename EdgeBase = std::tuple<SegmentAttribute_3>,
+          typename SFINAE = std::tuple_element_t<0, VertexBase>>
+auto make_polyline_3(typename VertexAttributesProviderTraits<
+    Polyline_3<VertexBase, EdgeBase>>::container_type&& data) {
+  return Polyline_3<VertexBase, EdgeBase>(data);
+}
+
+// Make a polyline_3 given a container that houses a single attribute.
+template <typename Attribute,
+          typename EdgeBase = std::tuple<SegmentAttribute_3>>
+auto make_polyline_3(typename VertexAttributesProviderTraits<
+    Polyline_3<Attribute, EdgeBase>>::container_type&& data) {
+  Polyline_3<std::tuple<Attribute>, EdgeBase> retPolyline;
+  for (const auto& attrib : data) {
+    retPolyline.add(std::tuple<typename Attribute::type>(attrib));
+  }
+  return retPolyline;
+}
 
 // Build a polyline from Obj file format
 bool buildPolyline_3FromObj(const std::string& filePath,

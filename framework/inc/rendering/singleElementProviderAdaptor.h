@@ -8,11 +8,12 @@
 #include "renderingConstants.h"
 #include "vertexElementBufferProvider.h"
 
-// Adapts a class that provides begin and end over a single VertexElement type
-// only to be a suitable vertex element buffer provider by providing begin and
-// end wrappers that accept and VertexElement, and forwarding the calls to the
-// VertexElement provider. This allows for simple STL containers to be used as
-// VertexElement providers.
+/** Adapts a class that provides begin and end over a single VertexAttribute type
+ * only to be a suitable vertex element buffer provider by providing begin and
+ * end wrappers that accept and VertexElement, and forwarding the calls to the
+ * VertexAttribute provider. This allows for simple STL containers to be used as
+ * VertexAttribute providers.
+ */
 template <typename ElementProvider, typename ElementType>
 class SingleElementProviderAdaptor
     : VertexElementProviderTraits<ElementProvider,

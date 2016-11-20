@@ -1,5 +1,5 @@
-#ifndef _FRAMEWORK_GEOMETRY_ATTRIBUTE_PROVIDER_TRAITS_H_
-#define _FRAMEWORK_GEOMETRY_ATTRIBUTE_PROVIDER_TRAITS_H_
+#ifndef _FRAMEWORK_GEOMETRY_ATTRIBUTES_PROVIDER_TRAITS_H_
+#define _FRAMEWORK_GEOMETRY_ATTRIBUTES_PROVIDER_TRAITS_H_
 
 #include <storageStrategies.h>
 #include <simplexTypes.h>
@@ -21,12 +21,12 @@
  * provider will be stored as a pointer (as it is a heavy object). Proxy
  * providers (adaptors) can ask to be stored by copy.
  */
-template <typename AttributeProvider>
-class AttributeProviderStorageStrategy
-    : public utils::PointerStorageStrategy<AttributeProvider> {
+template <typename AttributesProvider>
+class AttributesProviderStorageStrategy
+    : public utils::PointerStorageStrategy<AttributesProvider> {
  protected:
   using utils::PointerStorageStrategy<
-      AttributeProvider>::PointerStorageStrategy;
+      AttributesProvider>::PointerStorageStrategy;
 };
 
 /**
@@ -35,10 +35,19 @@ class AttributeProviderStorageStrategy
  * providing.
  */
 template <typename ResourceProvider>
-struct ConstAttributeProviderTraits {
+struct ConstAttributesProviderTraits {
   using provider_type = ResourceProvider;
   using const_iterator = typename ResourceProvider::const_iterator;
-  using storage_strategy = AttributeProviderStorageStrategy<ResourceProvider>;
+  using storage_strategy = AttributesProviderStorageStrategy<ResourceProvider>;
+};
+
+/**
+ * A non-const attribute provider must also expose an iterator type.
+ */
+template <typename ResourceProvider>
+struct NonConstAttributesProviderTraits
+    : public ConstAttributesProviderTraits<ResourceProvider> {
+  using interator = typename ResourceProvider::iterator;
 };
 
 /**
@@ -47,9 +56,8 @@ struct ConstAttributeProviderTraits {
  */
 template <typename ResourceProvider, typename SimplexType>
 struct SimplicialDecompositionProviderTraits
-    : public ConstAttributeProviderTraits<ResourceProvider> {
+    : public ConstAttributesProviderTraits<ResourceProvider> {
   using simplex_type = SimplexType;
 };
 
-
-#endif  //_FRAMEWORK_GEOMETRY_ATTRIBUTE_PROVIDER_TRAITS_H_
+#endif  //_FRAMEWORK_GEOMETRY_ATTRIBUTES_PROVIDER_TRAITS_H_

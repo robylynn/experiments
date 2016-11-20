@@ -28,15 +28,17 @@ class PolylineSimplicialAdaptor
   ~PolylineSimplicialAdaptor() {}
 
   size_t size() const {
-    return AdaptorStrategy::VERTICES_PER_BASE * m_polyline->size();
+    return AdaptorStrategy::VERTICES_PER_BASE * m_polyline->vertices_size();
   }
 
   const_iterator begin() const {
-    return const_iterator(m_polyline->begin(), AdaptorStrategy::stencil());
+    return const_iterator(m_polyline->vertices_begin(),
+                          AdaptorStrategy::stencil());
   }
 
   const_iterator end() const {
-    return const_iterator(m_polyline->end() - 1, AdaptorStrategy::stencil());
+    return const_iterator(m_polyline->vertices_end() - 1,
+                          AdaptorStrategy::stencil());
   }
 };
 

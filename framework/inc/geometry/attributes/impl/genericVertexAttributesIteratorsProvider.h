@@ -2,7 +2,7 @@
 #define _FRAMEWORK_GEOMETRY_GENERIC_VERTEX_ATTRIBUTES_ITERATORS_PROVIDER_H_
 
 #include "tupleElementIteratorAdaptor.h"
-#include "attributes/entityAttributeTraits.h"
+#include "attributes/vertexAttributesProviderTraits.h"
 
 namespace impl {
 /** Allows for GeometryReps that provide iteration over a container of
@@ -11,45 +11,50 @@ namespace impl {
  * attribute provider, in which case, it also has access to begin and end
  * iterators that forward to the vertices_begin calls. In case the geometry
  * representation holds a single vertex attributes, the begin and end calls
- * also unfold the tuple.
+ * also unfold the tuple. Delayed instantiation ensures that the non-const
+ * versions are not compiled into classes where they are not provided for by
+ * the geometry rep.
  */
 template <typename GeometryRep, typename VertexAttributes>
 class GenericVertexAttributesIteratorsProvider {
  private:
-  using VI = typename VertexAttributeTraits<GeometryRep>::iterator;
-  using CVI = typename VertexAttributeTraits<GeometryRep>::const_iterator;
+  using VI = typename VertexAttributesProviderTraits<GeometryRep>::iterator;
+  using CVI =
+      typename VertexAttributesProviderTraits<GeometryRep>::const_iterator;
   using VB = std::remove_reference_t<decltype(*std::declval<VI>())>;
 
-  template <typename VA>
+  template <typename Attrib>
   using Iter =
-      decltype(utils::make_tuple_element_iterator<VA>(std::declval<VI>()));
-  template <typename VA>
+      decltype(utils::make_tuple_element_iterator<Attrib>(std::declval<VI>()));
+  template <typename Attrib>
   using CIter =
-      decltype(utils::make_tuple_element_iterator<VA>(std::declval<CVI>()));
+      decltype(utils::make_tuple_element_iterator<Attrib>(std::declval<CVI>()));
+  template <typename Attrib>
+  using AT = utils::tag_to_type_t<Attrib>;
 
  public:
-  // Iterators over vertex attributes.
+  // Iterators over VertexAttribute::type for a given vertex attribute.
   template <typename VertexAttrib>
-  Iter<VertexAttrib> vertices_attrib_begin() {
-    return utils::make_tuple_element_iterator<VertexAttrib>(
+  Iter<AT<VertexAttrib>> vertices_attrib_begin() {
+    return utils::make_tuple_element_iterator<AT<VertexAttrib>>(
         static_cast<GeometryRep*>(this)->vertices_begin());
   }
 
   template <typename VertexAttrib>
-  CIter<VertexAttrib> vertices_attrib_begin() const {
-    return utils::make_tuple_element_iterator<const VertexAttrib>(
+  CIter<AT<VertexAttrib>> vertices_attrib_begin() const {
+    return utils::make_tuple_element_iterator<const AT<VertexAttrib>>(
         static_cast<const GeometryRep*>(this)->vertices_begin());
   }
 
   template <typename VertexAttrib>
-  Iter<VertexAttrib> vertices_attrib_end() {
-    return utils::make_tuple_element_iterator<VertexAttrib>(
+  Iter<AT<VertexAttrib>> vertices_attrib_end() {
+    return utils::make_tuple_element_iterator<AT<VertexAttrib>>(
         static_cast<GeometryRep*>(this)->vertices_end());
   }
 
   template <typename VertexAttrib>
-  CIter<VertexAttrib> vertices_attrib_end() const {
-    return utils::make_tuple_element_iterator<const VertexAttrib>(
+  CIter<AT<VertexAttrib>> vertices_attrib_end() const {
+    return utils::make_tuple_element_iterator<const AT<VertexAttrib>>(
         static_cast<const GeometryRep*>(this)->vertices_end());
   }
 };

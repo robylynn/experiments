@@ -5,8 +5,6 @@
 #include <boost/uuid/uuid_io.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 
-#include "defaultGeometryProviders.h"
-
 #include "vertexElementBufferProvider.h"
 #include "singleElementProviderAdaptor.h"
 #include "geometryMesh.h"

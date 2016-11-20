@@ -1,6 +1,6 @@
 #include "renderingServicesManager.h"
 #include "dynamicMeshManager.h"
-#include "selectionManager.h"
+#include "selection/selectionManager.h"
 
 RenderingServicesManager::RenderingServicesManager()
     : m_selectionManager(new SelectionManager()),

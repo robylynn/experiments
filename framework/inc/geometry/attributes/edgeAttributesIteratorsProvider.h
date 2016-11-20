@@ -1,17 +1,17 @@
 #ifndef _FRAMEWORK_GEOMETRY_EDGE_ATTRIBUTES_ITERATORS_PROVIDER_H_
 #define _FRAMEWORK_GEOMETRY_EDGE_ATTRIBUTES_ITERATORS_PROVIDER_H_
 
-#include "entityAttributeTraits.h"
+#include "edgeAttributesProviderTraits.h"
 
 // For arbitrary edge attributes, we need to store these in a vector. This is
 // not currently implemented.
 template <typename GeometryRep, bool primary_simplex = false,
-          typename EdgeAttributes = std::tuple<Kernel::Segment_3>,
+          typename EdgeAttributes = std::tuple<SegmentAttribute_3>,
           typename SFINAE = void>
 class EdgeAttributesIteratorsProvider {};
 
 template <typename GR, bool PS = false,
-          typename EAS = std::tuple<Kernel::Segment_3>, typename SFINAE = void>
+          typename EAS = std::tuple<SegmentAttribute_3>, typename SFINAE = void>
 using EdgeAttribsIters = EdgeAttributesIteratorsProvider<GR, PS, EAS, SFINAE>;
 
 // For a simple edge position provider, an iterator over edge attributes (edge
@@ -20,11 +20,12 @@ using EdgeAttribsIters = EdgeAttributesIteratorsProvider<GR, PS, EAS, SFINAE>;
 template <typename GeometryRep, bool primary_simplex>
 class EdgeAttributesIteratorsProvider<
     GeometryRep, primary_simplex, std::tuple<Kernel::Segment_3>,
-    typename std::enable_if<
-        std::is_same<typename VertexAttributeTraits<GeometryRep>::value_type,
-                     std::tuple<Kernel::Point_3>>::value>::type> {
-  using VI = typename VertexAttributeTraits<GeometryRep>::iterator;
-  using CVI = typename VertexAttributeTraits<GeometryRep>::const_iterator;
+    typename std::enable_if<std::is_same<
+        typename VertexAttributesProviderTraits<GeometryRep>::value_type,
+        std::tuple<PositionAttribute_3::type>>::value>::type> {
+  using VI = typename VertexAttributesProviderTraits<GeometryRep>::iterator;
+  using CVI =
+      typename VertexAttributesProviderTraits<GeometryRep>::const_iterator;
 
   class SegmentIterator
       : public boost::iterator_adaptor<
@@ -41,7 +42,7 @@ class EdgeAttributesIteratorsProvider<
 
    private:
     friend class boost::iterator_core_access;
-    const std::tuple<Kernel::Segment_3> dereference() const {
+    const std::tuple<SegmentAttribute_3::type> dereference() const {
       return std::make_tuple(m_rep->getSegment(this->base()));
     }
     const GeometryRep* m_rep;

@@ -1,12 +1,11 @@
-#ifndef _FRAMEWORK_GEOMETRY_VERTEX_ATTRIBUTE_PROVIDER_TRAITS_H_
-#define _FRAMEWORK_GEOMETRY_VERTEX_ATTRIBUTE_PROVIDER_TRAITS_H_
+#ifndef _FRAMEWORK_GEOMETRY_VERTEX_ATTRIBUTES_PROVIDER_TRAITS_H_
+#define _FRAMEWORK_GEOMETRY_VERTEX_ATTRIBUTES_PROVIDER_TRAITS_H_
 
-#include "attributeProviderTraits.h"
+#include "attributesProviderTraits.h"
 
 /**
- * A VertexAttributeProvider provide's iteration over vertex properties. These
- * might be some connectivity information that can be gleamed off these
- * provided point-samples. This is done via a DefaultSimplexType. By default we
+ * A VertexAttributesProvider provide's iteration over vertex properties. A
+ * VertexAttributes provider is a simplex provider as well. By default we
  * assume that a vertex attribute provider provides a sequence of points that
  * are to be interpreted simply as such. But, a particular vertex attribute
  * provider can specialize for the type of simplex it provides. For example, a
@@ -29,10 +28,9 @@ struct DefaultSimplexType {
 template <typename ResourceProvider,
           typename SimplexType =
               typename DefaultSimplexType<ResourceProvider>::type>
-struct VertexAttributeProviderTraits
-    : public ConstAttributeProviderTraits<ResourceProvider>,
+struct VertexAttributesProviderTraits
+    : public ConstAttributesProviderTraits<ResourceProvider>,
       public SimplicialDecompositionProviderTraits<ResourceProvider,
                                                    SimplexType> {};
 
-
-#endif  // _FRAMEWORK_GEOMETRY_VERTEX_ATTRIBUTE_PROVIDER_TRAITS_H_
+#endif  // _FRAMEWORK_GEOMETRY_VERTEX_ATTRIBUTES_PROVIDER_TRAITS_H_

@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
 #include "defaultBufferProviders.h"
-#include "defaultGeometryProviders.h"
+#include "attributes/defaultVertexAttributeProviderTraits.h"
 
 class NoCopyContainer {
  private:

@@ -5,7 +5,8 @@
 #include <CGAL/IO/Color.h>
 
 #include "geometryTypes.h"
-#include "attributes/attributesToTypes.h"
+#include "taggedTypeUnpacker.h"
+#include "attributes/attributeTypeDimensionIndexer.h"
 
 /* A collection of common attributes that are associated with geometry
  * representations. The tagging of attributes allows multiple attributes to

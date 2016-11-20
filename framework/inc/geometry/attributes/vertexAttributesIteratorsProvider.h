@@ -25,8 +25,9 @@ class VertexAttributesIteratorsProvider<GeometryRep, true, VertexAttributes>
     : public impl::GenericVertexAttributesIteratorsProvider<GeometryRep,
                                                             VertexAttributes> {
  private:
-  using VI = typename VertexAttributeTraits<GeometryRep>::iterator;
-  using CVI = typename VertexAttributeTraits<GeometryRep>::const_iterator;
+  using VI = typename VertexAttributesProviderTraits<GeometryRep>::iterator;
+  using CVI =
+      typename VertexAttributesProviderTraits<GeometryRep>::const_iterator;
 
   GeometryRep& rep() { return *static_cast<GeometryRep*>(this); }
   const GeometryRep& rep() const {
@@ -41,22 +42,23 @@ class VertexAttributesIteratorsProvider<GeometryRep, true, VertexAttributes>
   CVI end() const { return rep().vertices_end(); }
 };
 
-// If the primary simplex of a GeometryRep is a Vertex, also provide begin and
+// If the primary simplex of a GeometryRep is a vertex, and, the vertices of
+// the geometry rep carry a single attribute type, also provide begin and
 // end over container. However, we also add transparent dereferencing to
 // unfolded tuple element in this case.
-template <typename GeometryRep, typename TupleElement>
+template <typename GeometryRep, typename Attribute>
 class VertexAttributesIteratorsProvider<GeometryRep, true,
-                                        std::tuple<TupleElement>>
+                                        std::tuple<Attribute>>
     : public impl::GenericVertexAttributesIteratorsProvider<
-          GeometryRep, std::tuple<TupleElement>> {
+          GeometryRep, std::tuple<Attribute>> {
   using Base =
       impl::GenericVertexAttributesIteratorsProvider<GeometryRep,
-                                                     std::tuple<TupleElement>>;
+                                                     std::tuple<Attribute>>;
 
   using VI = decltype(
-      std::declval<Base>().template vertices_attrib_begin<TupleElement>());
-  using CVI = decltype(std::declval<const Base>()
-                           .template vertices_attrib_begin<TupleElement>());
+      std::declval<Base>().template vertices_attrib_begin<Attribute>());
+  using CVI = decltype(
+      std::declval<const Base>().template vertices_attrib_begin<Attribute>());
 
   Base& rep() { return *static_cast<Base*>(this); }
   const Base& rep() const { return *static_cast<const Base*>(this); }
@@ -69,12 +71,12 @@ class VertexAttributesIteratorsProvider<GeometryRep, true,
   size_t size() const {
     return static_cast<const GeometryRep*>(this)->vertices_size();
   }
-  VI begin() { return rep().template vertices_attrib_begin<TupleElement>(); }
+  VI begin() { return rep().template vertices_attrib_begin<Attribute>(); }
   CVI begin() const {
-    return rep().template vertices_attrib_begin<TupleElement>();
+    return rep().template vertices_attrib_begin<Attribute>();
   }
-  VI end() { return rep().template vertices_attrib_end<TupleElement>(); }
-  CVI end() const { return rep().template vertices_attrib_end<TupleElement>(); }
+  VI end() { return rep().template vertices_attrib_end<Attribute>(); }
+  CVI end() const { return rep().template vertices_attrib_end<Attribute>(); }
 };
 
 #endif  // _FRAMEWORK_GEOMETRY_VERTEX_ATTRIBUTES_ITERATORS_PROVIDER_H_

@@ -6,7 +6,7 @@
 #include <CGAL/circulator.h>
 
 #include <containerAlgorithms.h>
-#include "attributes/vertexAttributeProviderTraits.h"
+#include "attributes/vertexAttributesProviderTraits.h"
 #include "orderedCurveSimplicialAdaptorStrategy.h"
 
 /* A simplicial adaptor for the polyloop representation.
@@ -36,7 +36,7 @@ class PolyloopSimplicialAdaptor
 
   PolyloopSimplicialAdaptor(const LoopRep& polyloop)
       : m_polyloop(&polyloop),
-        m_circulator(m_polyloop->begin(), m_polyloop->end()),
+        m_circulator(m_polyloop->vertices_begin(), m_polyloop->vertices_end()),
         m_circularContainer(m_circulator) {}
   PolyloopSimplicialAdaptor(const LoopRep&& polyloop) = delete;
   ~PolyloopSimplicialAdaptor() {}
@@ -54,7 +54,7 @@ class PolyloopSimplicialAdaptor
         m_circularContainer(m_circulator) {}
 
   size_t size() const {
-    return AdaptorStrategy::VERTICES_PER_BASE * m_polyloop->size();
+    return AdaptorStrategy::VERTICES_PER_BASE * m_polyloop->vertices_size();
   }
 
   const_iterator begin() const {
@@ -72,7 +72,7 @@ class PolyloopSimplicialAdaptor
 // storage policy to by value. This allows for nicer client syntax through
 // implicit temporary creation for PolylopSimplicialAdaptor.
 template <typename LoopRep, typename SimplexType>
-class AttributeProviderStorageStrategy<
+class AttributesProviderStorageStrategy<
     PolyloopSimplicialAdaptor<LoopRep, SimplexType>>
     : public utils::CopyStorageStrategy<
           PolyloopSimplicialAdaptor<LoopRep, SimplexType>> {

@@ -1,5 +1,6 @@
 #include <CGAL/bounding_box.h>
 
+#include "attributes/attributeTypes.h"
 #include "polyloop_2.h"
 #include "polyloop_3.h"
 
@@ -19,8 +20,8 @@ bool buildPolyloop_2FromObj(const std::string& filePath,
   coordinateAxes.erase(axisToDrop);
 
   std::for_each(
-      polyloop3.vertices_attrib_begin<Kernel::Point_3>(),
-      polyloop3.vertices_attrib_end<Kernel::Point_3>(),
+      polyloop3.vertices_attrib_begin<PositionAttribute_3>(),
+      polyloop3.vertices_attrib_end<PositionAttribute_3>(),
       [&polyloop2, &coordinateAxes](const auto& point) {
         polyloop2.add(Kernel::Point_2(point[*coordinateAxes.begin()],
                                       point[*(++coordinateAxes.begin())]));

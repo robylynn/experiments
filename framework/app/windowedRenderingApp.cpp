@@ -9,7 +9,7 @@
 #include "notifier.h"
 #include "windowedRenderingApp.h"
 
-#include "selectionManager.h"
+#include "selection/selectionManager.h"
 
 namespace {
 

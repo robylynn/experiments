@@ -1,17 +1,16 @@
-#ifndef _FRAMEWORK_RENDERING_VERTEX_ELEMENT_INDEXER_H_
-#define _FRAMEWORK_RENDERING_VERTEX_ELEMENT_INDEXER_H_
+#ifndef _FRAMEWORK_GEOMETRY_ATTRIBUTE_TYPE_DIMENSION_INDEXER_H_
+#define _FRAMEWORK_GEOMETRY_ATTRIBUTE_TYPE_DIMENSION_INDEXER_H_
 
 #include <glog/logging.h>
-
 #include <CGAL/Point_2.h>
 
-// Indexes a particular coordinate of a vertex element (which is of type
-// CGAL::Point_3, CGAL::Point_2, CGAL::Color, etc.
-//
-// We specialize for the above types, where a simple operator[] doesn't do the
-// job.
+/** Indexes a particular coordinate of a vertex attribute's type
+ * (CGAL::Point_3, CGAL::Point_2, CGAL::Color, etc). This class
+ * is specialized when a simple operator[] doesn't do the job.
+ */
+
 template <typename IterRefType>
-class VertexElementIndexer {
+class AttributeTypeDimensionIndexer {
  public:
   auto operator()(const IterRefType& ref, size_t coordinateIndex)
       -> decltype(std::declval<IterRefType>()[0]) const {
@@ -20,7 +19,7 @@ class VertexElementIndexer {
 };
 
 template <typename K>
-class VertexElementIndexer<const CGAL::Point_2<K>> {
+class AttributeTypeDimensionIndexer<const CGAL::Point_2<K>> {
  public:
   auto operator()(const CGAL::Point_2<K>& point, size_t coordinateIndex)
       -> decltype(std::declval<CGAL::Point_2<K>>()[0]) const {
@@ -33,4 +32,4 @@ class VertexElementIndexer<const CGAL::Point_2<K>> {
   }
 };
 
-#endif  //_FRAMEWORK_RENDERING_VERTEX_ELEMENT_INDEXER_H_
+#endif  //_FRAMEWORK_GEOMETRY_ATTRIBUTE_TYPE_DIMENSION_INDEXER_H_

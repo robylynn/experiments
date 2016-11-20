@@ -35,19 +35,20 @@ class Polyloop_2LoaderTest : public ::testing::Test {
   Polyloop_2 p;
 };
 
-TEST_F(Polyloop_2RepTest, size) { EXPECT_EQ(3, p.size()); }
+TEST_F(Polyloop_2RepTest, size) { EXPECT_EQ(3, p.vertices_size()); }
 
 TEST_F(Polyloop_2RepTest, next) {
-  EXPECT_EQ(*p.begin(), *p.next(p.begin() + p.size() - 1));
+  EXPECT_EQ(*p.vertices_begin(),
+            *p.next(p.vertices_begin() + p.vertices_size() - 1));
 }
 
 TEST_F(Polyloop_2RepTest, segments) {
-  EXPECT_EQ(*p.beginSegment(),
-            Kernel::Segment_2(*p.begin(), *p.next(p.begin())));
+  EXPECT_EQ(*p.beginSegment(), Kernel::Segment_2(*p.vertices_begin(),
+                                                 *p.next(p.vertices_begin())));
 }
 
 TEST_F(Polyloop_2RepTest, squaredDistance) {
-  EXPECT_EQ(p.squaredDistance(*p.begin()), 0);
+  EXPECT_EQ(p.squaredDistance(*p.vertices_begin()), 0);
   EXPECT_EQ(p.squaredDistance(Kernel::Point_2(0, 0)), 0);
   EXPECT_EQ(p.squaredDistance(Kernel::Point_2(0, 0.5)), 0);
   EXPECT_EQ(p.squaredDistance(Kernel::Point_2(2, 0)), 1);
@@ -55,7 +56,7 @@ TEST_F(Polyloop_2RepTest, squaredDistance) {
 
 TEST_F(Polyloop_2SimplicialAdaptorTest, size) {
   PolyloopSimplicialAdaptor<Polyloop_2, LineList> provider(p);
-  EXPECT_EQ(2 * p.size(), provider.size());
+  EXPECT_EQ(2 * p.vertices_size(), provider.size());
 }
 
 TEST_F(Polyloop_2SimplicialAdaptorTest, iterate) {
@@ -70,6 +71,6 @@ TEST_F(Polyloop_2SimplicialAdaptorTest, iterate) {
 
 TEST_F(Polyloop_2LoaderTest, loading) {
   EXPECT_EQ(buildPolyloop_2FromObj("data/polyloop2DLoad.obj", p), true);
-  EXPECT_EQ(p.size(), 47);
-  EXPECT_EQ(*p.begin(), Kernel::Point_2(-1.0f, 0.0f));
+  EXPECT_EQ(p.vertices_size(), 47);
+  EXPECT_EQ(*p.vertices_begin(), Kernel::Point_2(-1.0f, 0.0f));
 }

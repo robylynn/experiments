@@ -16,12 +16,12 @@ int main() {
   frameworkPrototype();
 }
 
-#include "attributes/attributesToTypes.h"
-#include "attributeTypes.h"
+#include "attributes/attributeTypes.h"
 #include "geometryTypes.h"
+#include "polyloop_3.h"
 
 // Any framework development API checking
 void frameworkPrototype() {
-  attributes_to_types_t<std::tuple<PositionAttribute_3>> position{
-      Kernel::Point_3(0, 0, 0)};
+  std::vector<Kernel::Point_3> data {Kernel::Point_3(0,0,0), Kernel::Point_3(1,0,0)};
+  auto polyloop = make_polyloop_3<PositionAttribute_3>(std::move(data));
 }

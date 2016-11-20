@@ -5,7 +5,7 @@
 #include <OGRE/OgreManualObject.h>
 #include <OGRE/OgreRenderOperation.h>
 
-#include "selectionManager.h"
+#include "selection/selectionManager.h"
 
 void SelectionManager::selectionQuery(float mouseX, float mouseY) {
   Ogre::Ray selectionRay = m_camera->getCameraToViewportRay(mouseX, mouseY);

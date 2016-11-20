@@ -8,30 +8,29 @@
 #include <containerAlgorithms.h>
 
 #include "geometryTypes.h"
-#include "attributeTypes.h"
+#include "attributes/attributeTypes.h"
 #include "attributes/vertexAttributesIteratorsProvider.h"
 #include "attributes/edgeAttributesIteratorsProvider.h"
 
 // A polyloop is a closed polyline.
-// Representation wise, a polyloop is
-// representable using a container of vertices, with adjacent vertices
-// implicitly understood to be connected to each other. The vertices themselves
-// carry a tuple of (discrete type) vertex attributes. Each of the vertex
-// attribute types need to be CopyConstructible and assignable.
+// Representation wise, a polyloop is representable using a container of
+// vertices, with adjacent vertices implicitly understood to be connected to
+// each other. The vertices themselves carry a tuple of (discrete type) vertex
+// attributes. Each of the vertex attribute types need to be CopyConstructible
+// and assignable.
 
-// The polyloop also exposes a const iterator for its composing edges.
-// If the polyloop has no edge specific information, an iterator over edge
-// positions can simply generated on the fly, and this information need not be
-// stored. Thus, this policy decision of providing EdgeAttributes is designated
-// to a policy class, which must provide for iteration over EdgeBase elements.
+// The polyloop also exposes a const iterator for its composing edges.  If the
+// polyloop has no edge specific information, an iterator over edge positions
+// can simply generated on the fly, and this information need not be stored.
+// Thus, this policy decision of providing EdgeAttributes is designated to a
+// policy class, which must provide for iteration over EdgeBase elements.
 template <typename VertexBase = std::tuple<PositionAttribute_3>,
           typename EdgeBase = std::tuple<SegmentAttribute_3>>
-class Polyloop_3
-    : public EdgeAttribsIters<Polyloop_3<VertexBase, EdgeBase>, false,
-                              attributes_to_types_t<EdgeBase>>,
-      public VertexAttribsIters<Polyloop_3<VertexBase, EdgeBase>, true,
-                                attributes_to_types_t<VertexBase>> {
-  using VertexAttributesContainer = typename VertexAttributeTraits<
+class Polyloop_3 : public EdgeAttribsIters<Polyloop_3<VertexBase, EdgeBase>,
+                                           false, EdgeBase>,
+                   public VertexAttribsIters<Polyloop_3<VertexBase, EdgeBase>,
+                                             true, VertexBase> {
+  using VertexAttributesContainer = typename VertexAttributesProviderTraits<
       Polyloop_3<VertexBase, EdgeBase>>::container_type;
   VertexAttributesContainer m_vertexAttribs;
 
@@ -115,9 +114,9 @@ class Polyloop_3
 };
 
 template <typename VertexBase, typename EdgeBase>
-struct VertexAttributeTraits<Polyloop_3<VertexBase, EdgeBase>> {
+struct VertexAttributesProviderTraits<Polyloop_3<VertexBase, EdgeBase>> {
  public:
-  using value_type = attributes_to_types_t<VertexBase>;
+  using value_type = utils::tag_to_type_t<VertexBase>;
   using container_type = std::vector<value_type>;
   using iterator = typename container_type::iterator;
   using const_iterator = typename container_type::const_iterator;
@@ -128,6 +127,27 @@ struct VertexAttributeTraits<Polyloop_3<VertexBase, EdgeBase>> {
 template <typename Attribute>
 using SimplePolyloop_3 = Polyloop_3<std::tuple<Attribute>>;
 using GeometryPolyloop_3 = SimplePolyloop_3<PositionAttribute_3>;
+
+// Make a polyline_3 given a container that houses a tuple of attributes.
+template <typename VertexBase,
+          typename EdgeBase = std::tuple<SegmentAttribute_3>,
+          typename SFINAE = std::tuple_element_t<0, VertexBase>>
+auto make_polyloop_3(typename VertexAttributesProviderTraits<
+    Polyloop_3<VertexBase, EdgeBase>>::container_type&& data) {
+  return Polyloop_3<VertexBase, EdgeBase>(data);
+}
+
+// Make a polyline_3 given a container that houses a single attribute.
+template <typename Attribute,
+          typename EdgeBase = std::tuple<SegmentAttribute_3>>
+auto make_polyloop_3(typename VertexAttributesProviderTraits<
+    Polyloop_3<Attribute, EdgeBase>>::container_type&& data) {
+  Polyloop_3<std::tuple<Attribute>, EdgeBase> retPolyloop;
+  for (const auto& attrib : data) {
+    retPolyloop.add(std::tuple<typename Attribute::type>(attrib));
+  }
+  return retPolyloop;
+}
 
 // Build a polyloop from different file formats.
 bool buildPolyloop_3FromObj(const std::string& filePath,

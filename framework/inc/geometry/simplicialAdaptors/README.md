@@ -1,6 +1,7 @@
 Simplicial adaptors understand geometry representations enough to be able to
-generate simplicial decompositions of them. They also allow for iteration over
-the geometry representation guided by the simplicial decomposition.
+generate simplicial decompositions of them. A simplicial decomposition allows
+for ordered iteration over vertices, and also tags the type of decomposition
+it is providing (PointList, LineList, TriangleList, etc).
 
 A particular simplicial provider will only provide a set of simplicial
 decompositions (those that are natural to the geometry representation that the

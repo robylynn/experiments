@@ -85,7 +85,7 @@ class PopulateVertexElementDataVisitor {
     float* buffer =
         static_cast<float*>(vbuf->lock(Ogre::HardwareBuffer::HBL_DISCARD));
 
-    // Copy over the geometry provided by the geometry provider
+    // Copy over the data provided by the vertex buffer provider
     std::for_each(m_dataProvider.begin(vertexElement),
                   m_dataProvider.end(vertexElement),
                   [&buffer](float data) { *buffer++ = data; });
