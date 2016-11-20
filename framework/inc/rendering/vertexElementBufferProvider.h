@@ -1,5 +1,5 @@
-#ifndef _FRAMEWORK_RENDERING_VERTEX_ELEMENT_BUFFER_PROVIDER_H_
-#define _FRAMEWORK_RENDERING_VERTEX_ELEMENT_BUFFER_PROVIDER_H_
+#ifndef _FRAMEWORK_RENDERING_VERTEX_ELEMENTS_BUFFER_PROVIDER_H_
+#define _FRAMEWORK_RENDERING_VERTEX_ELEMENTS_BUFFER_PROVIDER_H_
 
 #include <functional>
 
@@ -19,36 +19,37 @@
  * Thus, it adapts a class that provides iterations over a contained vertex
  * attribute set to be a suitable vertex data provider for a particular vertex
  * element by forwarding requests for begin and end iterators to the
- * VertexAttributeProvider, which could provide the type const_iterator over
- * its contents, and the returned iterators should be indexable from 0 to
- * VertexElement::elementSize. In case the returned iterators are indexable for
- * only a subset of this range, the VertexAttributeProvider's data will be
+ * VertexAttributeProvider, dereferencing the resulting information, and, if
+ * it is a tuple, obtaining the attribute corresponding to the VertexElement,
+ * and then indexing into the returned value (which should be indexable from 0
+ * to VertexElement::elementSize). In case the returned iterators are indexable
+ * for only a subset of this range, the VertexAttributeProvider's data will be
  * extended with the defaultExtension value for the VertexElement associated
  * wit the AttributeType that the VertexAttributeProvider is providing.
  *
  * The vertex element buffer provider demands the following traits from the
  * VertexAttributeProvider: const_iterator -- an iterator over the vertices.
  * Additionally, if the provider object is passed in itself, instead of the
- * provider iterators, the provider must also provide the following: begin
- * and end (return type = const_iterator), that also accept a AttributeType
- * as parameter, and yield an iterator that may be dereferenced to obtain the
+ * provider iterators, the provider must also provide the following: begin and
+ * end (return type = const_iterator), that also accept a AttributeType as
+ * parameter, and yield an iterator that may be dereferenced to obtain the
  * AttributeProvider's ProvidedElement type.
  */
-template <typename VertexAttributesProvider, typename ...VertexAttributes>
-class VertexElementBufferProvider
+template <typename VertexAttributesProvider, typename... VertexAttributes>
+class VertexElementsBufferProvider
     : public typename VertexAttributesProviderTraits<
           VertexAttributesProvider>::storage_strategy {
   using AttributesIterator = typename VertexAttributesProviderTraits<
       VertexAttributesProvider>::const_iterator;
 
  public:
-  using VertexElement = vertex_element_for_attributes_t<VertexAttribute>;
+  using VertexElements = vertex_element_for_attributes_t<VertexAttributes>;
 
   // Accept and store element provider.
   VertexElementBufferProvider(const VertexAttributesProvider& provider)
       : StorageStrategy(provider) {}
 
-  template <typename AttribsIter = AttributesIterator>
+  template <typename VertexElement, typename AttribsIter = AttributesIterator>
   class CoordinateIterator
       : public boost::iterator_facade<
             CoordinateIterator<AttribsIter>, typename VertexElement::AtomicType,
