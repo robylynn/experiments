@@ -8,7 +8,9 @@
 #include "defaultBufferProviders.h"
 
 template <typename PointType>
-Polyline<PointType> laplacianSmoothing(const Polyline<PointType>& polyline) {
+Polyline<PointType> laplacianSmoothing(const Polyline<PointType>& polyline,
+                                       float stepSize,
+                                       size_t numIterations) {
   Eigen::MatrixXf laplacian =
       Eigen::MatrixXf::Zero(polyline.size(), polyline.size());
 
@@ -36,12 +38,14 @@ Polyline<PointType> laplacianSmoothing(const Polyline<PointType>& polyline) {
   std::vector<float> unrolledPolyline;
   unrolledPolyline.insert(unrolledPolyline.begin(), flatIterProvider.begin(),
                           flatIterProvider.end());
-  Eigen::Map<Eigen::MatrixXf> polylineMatrix(unrolledPolyline.data(),
-                                             polyline.size(), 3);
 
-  double timeStep = 0.05;
-  // std::cout << polylineMatrix << std::cout;
-  polylineMatrix = polylineMatrix + timeStep * laplacian * polylineMatrix;
+  Eigen::Map<
+      Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>
+      polylineMatrix(unrolledPolyline.data(), polyline.size(), 3);
+
+  for (int i = 0; i < numIterations; ++i) {
+    polylineMatrix = polylineMatrix + stepSize * laplacian * polylineMatrix;
+  }
 
   // Create smoothed polyline from unrolled points.
   Polyline<PointType> smoothed;
@@ -54,7 +58,6 @@ Polyline<PointType> laplacianSmoothing(const Polyline<PointType>& polyline) {
                                  Kernel::Point_3>::end(unrolledPolyline.end());
        ++iter) {
     smoothed.addPoint(*iter);
-    std::cout << *iter << std::endl;
   }
   return smoothed;
 }

@@ -51,6 +51,8 @@ template <typename LineType, typename ProviderPolicy = PolylineListPolicy>
 class PolylineGeometryProvider : public ProviderPolicy {
  private:
   using LineIterator = typename LineType::const_iterator;
+  int m_maxStencil = *std::max_element(ProviderPolicy::stencil().begin(),
+                                      ProviderPolicy::stencil().end());
 
   const LineType* m_polyline;
 
@@ -75,7 +77,8 @@ class PolylineGeometryProvider : public ProviderPolicy {
   }
 
   const_iterator end() const {
-    return const_iterator(m_polyline->end() - 1, ProviderPolicy::stencil());
+    return const_iterator(m_polyline->end() - m_maxStencil,
+                          ProviderPolicy::stencil());
   }
 };
 
