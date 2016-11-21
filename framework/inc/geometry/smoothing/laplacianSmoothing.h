@@ -1,7 +1,7 @@
 #ifndef _FRAMEWORK_GEOMETRY_SMOOTHING_LAPLACIAN_SMOOTHING_H_
 #define _FRAMEWORK_GEOMETRY_SMOOTHING_LAPLACIAN_SMOOTHING_H_
 
-#include <Eigen/Dense>
+#include <Eigen/Core>
 
 #include "polyline.h"
 #include "polylineGeometryProvider.h"
@@ -9,8 +9,7 @@
 
 template <typename PointType>
 Polyline<PointType> laplacianSmoothing(const Polyline<PointType>& polyline,
-                                       float stepSize,
-                                       size_t numIterations) {
+                                       float stepSize, size_t numIterations) {
   Eigen::MatrixXf laplacian =
       Eigen::MatrixXf::Zero(polyline.size(), polyline.size());
 
@@ -44,7 +43,10 @@ Polyline<PointType> laplacianSmoothing(const Polyline<PointType>& polyline,
       polylineMatrix(unrolledPolyline.data(), polyline.size(), 3);
 
   for (int i = 0; i < numIterations; ++i) {
+    // One motion towards the neighbor average.
     polylineMatrix = polylineMatrix + stepSize * laplacian * polylineMatrix;
+    // One motion away from the neighbor average.
+    polylineMatrix = polylineMatrix - 0.5 * stepSize * laplacian * polylineMatrix;
   }
 
   // Create smoothed polyline from unrolled points.
