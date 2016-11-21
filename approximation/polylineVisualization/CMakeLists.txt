@@ -1,8 +1,12 @@
 include (OgreRenderingApplication)
 include (CopyOgreResources)
 
+find_package(Eigen REQUIRED)
+
 add_executable(polylineVisualization
   main.cpp)
+
+include_directories(${EIGEN_INCLUDE_DIRS})
 
 target_link_libraries(polylineVisualization ${Boost_LIBRARIES}
   ${GLOG_LIBRARIES}

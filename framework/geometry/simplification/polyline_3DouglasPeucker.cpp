@@ -27,7 +27,7 @@ std::tuple<size_t, Polyline_3> void douglasPeuckerSimplify(
 
   // Simplify polyline with tolerance.
   psimpl::simplify_douglas_peucker<3>(flatIterProvider.begin(),
-                                      flatIterProvider.end(), 0.025,
+                                      flatIterProvider.end(), m_tolerance,
                                       std::back_inserter(simplifiedFlat));
 
   // Create simplified polyline from unrolled points.

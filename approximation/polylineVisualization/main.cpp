@@ -21,6 +21,7 @@
 #include <defaultRenderables.h>
 #include <prefabs.h>
 
+#include <smoothing/polyline_3Smoother.h>
 #include <simplification/polyline_3Simplifier.h>
 
 DEFINE_string(
@@ -39,6 +40,9 @@ DEFINE_string(
     "Name of the directory where simplified polyloops will be written");
 DEFINE_string(simplification_strategy, "Circle",
               "Name of the simplification strategy");
+DEFINE_double(smoothing_step_size, 0.05,
+              "Stepsize taken per smoothing iteration");
+DEFINE_double(smoothing_num_iterations, 100, "Number of smoothing iterations");
 DEFINE_double(simplification_tolerance, 0.025, "Simplification tolerance");
 
 bool initScene(const std::string& windowName, const std::string& sceneName) {
@@ -135,6 +139,11 @@ int main(int argc, char* argv[]) {
                                                                  strIndex);
       loopNode->attachObject(loopEntity);
 
+      Polyline_3Smoother smoother;
+      polyline = smoother.smooth(polyline, Polyline_3SmoothingStrategyLaplacian(
+                                               FLAGS_smoothing_step_size,
+                                               FLAGS_smoothing_num_iterations));
+
       Polyline_3Simplifier simplifier(FLAGS_simplification_tolerance);
       std::tuple<size_t, Polyline_3> simplifiedResult;
       if (FLAGS_simplification_strategy == "Circle") {
@@ -169,7 +178,8 @@ int main(int argc, char* argv[]) {
       }
     }
     std::cout << "Net simplification ratio "
-              << totalPointsSimplified / (double)totalPointsRefined << std::endl;
+              << totalPointsSimplified / (double)totalPointsRefined
+              << std::endl;
 
     Ogre::SceneNode* axesNode =
         sceneManager->getRootSceneNode()->createChildSceneNode();

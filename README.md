@@ -5,6 +5,7 @@ Currently:
 * Investigate 3D curve averaging.
 * Investigate polyline approximation with bounded error.
 * Investigate local curvature based smoothing with area preservation.
+* Various learning efforts.
 
 General notes:
 All of the experiments are built upon a framework that allows for (hopefully),

@@ -8,7 +8,7 @@
 
 #include "geometryConstants.h"
 #include "geometryTypes.h"
-#include "simplification/polyline_3Simplifier.h"
+#include "polyline_3.h"
 
 // Check if the set of family of planes that share the line through being and
 // end and have the distance between all points between being and end less than
