@@ -9,7 +9,6 @@
 #include "geometryConstants.h"
 #include "geometryTypes.h"
 #include "polyline.h"
-#include "biarc_3.h"
 #include "simplification/polyline_3Simplifier.h"
 
 using Polyline_3 = Polyline<Kernel::Point_3>;

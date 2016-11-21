@@ -10,6 +10,7 @@ set(GEOMETRY_TEST_SOURCE_FILES
 
 set(GEOMETRY_ALGORITHMS_TEST_SOURCE_FILES
   "geometry/simplification/polyline_3SimplificationTest.cpp"
+  "geometry/smoothing/polyline_3SmoothingTest.cpp"
   )
 
 set(UTILS_TEST_SOURCE_FILES
