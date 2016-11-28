@@ -32,22 +32,32 @@ class HeightFieldVisualizer {
                                  m_visParams.y_res(), m_visParams.x_extent(),
                                  m_visParams.y_extent());
 
-    Ogre::Entity* heightFieldEntity =
-        Framework::AppContext::getDynamicMeshManager().addMesh(
-            planarGrid, m_heightFieldSceneNode);
-
     std::function<Kernel::FT(const Kernel::Point_2&)> samplingFunction =
         [ this, inducedFieldCRef =
                     std::cref(*m_inducedField) ](const Kernel::Point_2& point) {
       return inducedFieldCRef.get()(point) - m_value;
     };
 
-    Finite_vertices_iterator iter =
-        triangulation.finite_vertices_begin();
-    for (; iter != triangulation.finite_vertices_end(); ++iter) {
+    std::vector<Kernel::Point_3> pointSamples;
+    pointSamples.reserve(planarGrid.size());
+    std::copy(planarGrid.begin(), planarGrid.end(),
+              std::back_inserter(pointSamples));
+    std::vector<CGAL::Color> colorSamples;
+    colorSamples.reserve(pointSamples.size());
+
+    auto colorIter = fieldValues.begin();
+    for (auto iter = pointSamples.begin(); iter != pointSamples.end();
+         ++iter, ++colorIter) {
       Kernel::FT sample = samplingFunction(iter->point());
-      iter->info() = CGAL::Color(sample, sample, sample);
+      *colorIter = CGAL::Color(sample, sample, sample);
     }
+
+    Ogre::Entity* heightFieldEntity =
+        Framework::AppContext::getDynamicMeshManager().addMesh(
+            planarGrid, m_heightFieldSceneNode,
+            UniformPlanarGridInterpretationTag(),
+            std::tuple<PositionAttribute_3, ColorAttribute>, pointSamples,
+            fieldValues);
   }
 
  private:
