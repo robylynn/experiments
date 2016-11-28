@@ -38,26 +38,19 @@ class HeightFieldVisualizer {
       return inducedFieldCRef.get()(point) - m_value;
     };
 
-    std::vector<Kernel::Point_3> pointSamples;
-    pointSamples.reserve(planarGrid.size());
-    std::copy(planarGrid.begin(), planarGrid.end(),
-              std::back_inserter(pointSamples));
-    std::vector<CGAL::Color> colorSamples;
-    colorSamples.reserve(pointSamples.size());
-
-    auto colorIter = fieldValues.begin();
-    for (auto iter = pointSamples.begin(); iter != pointSamples.end();
-         ++iter, ++colorIter) {
+    std::vector<std::tuple<Kernel::Point_3, CGAL::Color>> gridSamples;
+    gridSamples.reserve(planarGrid.size());
+    for (auto iter = gridSamples.begin(); iter != gridSamples.end(); ++iter) {
       Kernel::FT sample = samplingFunction(iter->point());
-      *colorIter = CGAL::Color(sample, sample, sample);
+      gridSamples.push_back(
+          std::make_tuple(*iter, CGAL::Color(sample, sample, sample)));
     }
 
     Ogre::Entity* heightFieldEntity =
         Framework::AppContext::getDynamicMeshManager().addMesh(
             planarGrid, m_heightFieldSceneNode,
             UniformPlanarGridInterpretationTag(),
-            std::tuple<PositionAttribute_3, ColorAttribute>, pointSamples,
-            fieldValues);
+            std::tuple<PositionAttribute_3, ColorAttribute>(), gridSamples);
   }
 
  private:
