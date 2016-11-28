@@ -4,11 +4,11 @@
 
 #include <containerAlgorithms.h>
 
-#include "simplification/polyline_3Simplifier.h"
+#include "defaultBufferProviders.h"
 #include "geometryTypes.h"
 #include "polyline.h"
 #include "polylineGeometryProvider.h"
-#include "defaultBufferProviders.h"
+#include "simplification/polyline_3Simplifier.h"
 
 using Polyline_3 = Polyline<Kernel::Point_3>;
 
@@ -38,10 +38,10 @@ std::tuple<size_t, Polyline_3> Polyline_3Simplifier::simplify(
                                  Kernel::Point_3>::begin(simplifiedFlat.begin(),
                                                          simplifiedFlat.end());
        iter !=
-           utils::tuple_iterator<decltype(simplifiedFlat.end()), 3,
-                                 Kernel::Point_3>::end(simplifiedFlat.end());
+       utils::tuple_iterator<decltype(simplifiedFlat.end()), 3,
+                             Kernel::Point_3>::end(simplifiedFlat.end());
        ++iter) {
     simplified.addPoint(*iter);
   }
-  return {simplified.size(), simplified};
+  return std::make_tuple(simplified.size(), simplified);
 }

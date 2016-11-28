@@ -2,10 +2,10 @@ project(saxpyCuda)
 
 find_package(CUDA QUIET REQUIRED)
 
-set(CUDA_HOST_COMPILER gcc-4.8)
+list(APPEND CUDA_NVCC_FLAGS
+  "-arch=sm_52; -std=c++11")
 
-set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS}
-  -gencode arch=compute_52,code=sm_52 -Xcompiler -std=c++98)
+set(CUDA_PROPAGATE_HOST_FLAGS OFF)
 
 cuda_add_executable(saxpyCuda
   main.cu)
