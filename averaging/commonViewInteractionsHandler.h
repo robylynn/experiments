@@ -5,7 +5,7 @@
 #include <CEGUI/CEGUI.h>
 
 #include "commonViewInterface.h"
-#include "fieldVisualizers.h"
+#include "fieldLevelSetVisualizer.h"
 
 class CommonViewInteractionsHandler {
  public:
