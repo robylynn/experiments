@@ -45,6 +45,9 @@ before_install:
   - sudo make install &>> install.log
   - cd "${TRAVIS_BUILD_DIR}"
 
+    # install cuda
+  - sudo apt-get install cuda
+
     # install the latest version of cgal
   - sudo apt-get install -qq libboost-all-dev
   - sudo apt-get install -qq libmpfr-dev

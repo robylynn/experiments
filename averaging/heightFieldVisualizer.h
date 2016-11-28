@@ -1,66 +1,60 @@
 #ifndef _HEIGHT_FIELD_VISUALIZER_H_
 #define _HEIGHT_FIELD_VISUALIZER_H_
 
+#include <CGAL/Plane_3.h>
+
+#include <OGRE/OgreEntity.h>
+#include <OGRE/OgreSceneManager.h>
+#include <OGRE/OgreSceneNode.h>
+
+// Visualize a planar section of a scalar field as a height field.
 template <class Field>
-class PlanarDistanceFieldVisualizer {
+class HeightFieldVisualizer {
  public:
-  PlanarDistanceFieldVisualizer(const Field& inducedField,
-                                Ogre::SceneNode* polyloopsSceneNode)
+  HeightFieldVisualizer(
+      const Field& inducedField,
+      const HeightFieldVisualizationParams& visualizationParams,
+      Ogre::SceneNode* parent)
       : m_inducedField(&inducedField),
-        m_polyloopsSceneNode(polyloopsSceneNode),
-        m_distanceFieldSceneNode(
-            polyloopsSceneNode->getParentSceneNode()->createChildSceneNode()) {}
+        m_plane(plane),
+        m_heightFieldSceneNode(parent->createChildSceneNode()) {
+    addHeightFieldVisualizerToScene();
+    recomputeVisualization();
+  }
 
-  void addToScene() {
-    // Customize some materials. TODO msati3: Add a node listener to the
-    // polyloops scene node here.
-    Ogre::AxisAlignedBox loopBounds = m_polyloopsSceneNode->_getWorldAABB();
-    UniformPlanarGrid planarGrid(Kernel::Plane_3(0, 0, 1, 0), 10, 10, 6, 6);
-    typedef CGAL::Projection_traits_xy_3<Kernel> GeometryTraits;
-    typedef CGAL::Delaunay_triangulation_2<
-        GeometryTraits,
-        CGAL::Triangulation_data_structure_2<
-            CGAL::Triangulation_vertex_base_with_info_2<CGAL::Color, Kernel>,
-            CGAL::Triangulation_face_base_2<Kernel>>> Triangulation;
-    Triangulation triangulation(planarGrid.begin(), planarGrid.end());
+  void setPlane(const Kernel::Plane_3& plane) {
+    m_plane = plane;
+    recomputeVisualization();
+  }
 
-    using TMeshGeometryProvider = TriangleMeshGeometryProvider<Triangulation>;
-    TMeshGeometryProvider meshGeometryProvider(triangulation);
-    /*auto gridMeshRenderable =
-        new Meshable<TMeshGeometryProvider>("scalarFieldHeatMap");
-    gridMeshRenderable->setVertexBufferData(
-        RenderBufferProvider<TMeshGeometryProvider>(meshGeometryProvider));
+  void addHeightFieldVisualizerToScene() {
+    UniformPlanarGrid planarGrid(m_visParams.plane(), m_visParams.x_res(),
+                                 m_visParams.y_res(), m_visParams.x_extent(),
+                                 m_visParams.y_extent());
 
-    Ogre::Root* root = Ogre::Root::getSingletonPtr();
-    Ogre::SceneManager* sceneManager = root->getSceneManager("PrimaryScene");
-    Ogre::Entity* gridEntity =
-        sceneManager->createEntity("heatMap", "scalarFieldHeatMap");
-    gridEntity->setMaterialName("Materials/DefaultTriangles");
+    Ogre::Entity* heightFieldEntity =
+        Framework::AppContext::getDynamicMeshManager().addMesh(
+            planarGrid, m_heightFieldSceneNode);
 
     std::function<Kernel::FT(const Kernel::Point_2&)> samplingFunction =
-        [ this, inducedFieldCRef = std::cref(*m_inducedField) ](
-            const Kernel::Point_2& point) {
+        [ this, inducedFieldCRef =
+                    std::cref(*m_inducedField) ](const Kernel::Point_2& point) {
       return inducedFieldCRef.get()(point) - m_value;
     };
 
-    Triangulation::Finite_vertices_iterator iter =
+    Finite_vertices_iterator iter =
         triangulation.finite_vertices_begin();
     for (; iter != triangulation.finite_vertices_end(); ++iter) {
       Kernel::FT sample = samplingFunction(iter->point());
       iter->info() = CGAL::Color(sample, sample, sample);
     }
-
-    // Remove all children from scene node, and re-populate with new level-set
-    m_distanceFieldSceneNode->removeAndDestroyAllChildren();
-    m_distanceFieldSceneNode->attachObject(gridEntity);
-    m_distanceFieldSceneNode->showBoundingBox(true);
   }
 
  private:
   Kernel::FT m_value;
-  Ogre::SceneNode* m_polyloopsSceneNode;
-  Ogre::SceneNode* m_distanceFieldSceneNode;
+  Ogre::SceneNode* m_heightFieldSceneNode;
   const Field* m_inducedField;
+  HeightFieldVisualizationParams m_visParams;
 };
 
-#endif //_HEIGHT_FIELD_VISUALIZER_H_
+#endif  //_HEIGHT_FIELD_VISUALIZER_H_

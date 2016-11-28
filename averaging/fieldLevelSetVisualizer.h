@@ -1,13 +1,13 @@
 #ifndef _FIELD_LEVEL_SET_VISUALIZER_H_
 #define _FIELD_LEVEL_SET_VISUALIZER_H_
 
-#include <OGRE/OgreSceneNode.h>
-#include <OGRE/OgreSceneManager.h>
 #include <OGRE/OgreEntity.h>
+#include <OGRE/OgreSceneManager.h>
+#include <OGRE/OgreSceneNode.h>
 
 #include <appContext.h>
-#include <geometryTypes.h>
 #include <dynamicMeshManager.h>
+#include <geometryTypes.h>
 
 #include "levelSetMeshBuilder.h"
 
@@ -18,8 +18,9 @@ class LevelSetMeshVisualizer {
   static constexpr Kernel::FT MIN_LEVEL = 1;
 
  public:
-  LevelSetMeshVisualizer(Ogre::SceneNode* parent) : m_inducedField(nullptr) {
-    m_levelSetSceneNode = parent->createChildSceneNode();
+  LevelSetMeshVisualizer(Ogre::SceneNode* parent)
+      : m_inducedField(nullptr),
+        m_levelSetSceneNode(parent->createChildSceneNode()) {
     setNormalizedLevel(0.1);
   }
 
@@ -45,8 +46,8 @@ class LevelSetMeshVisualizer {
     if (!m_inducedField) return;
 
     std::function<Kernel::FT(const Kernel::Point_3&)> samplingFunction =
-        [ this, inducedFieldCRef = std::cref(*m_inducedField) ](
-            const Kernel::Point_3& point) {
+        [ this, inducedFieldCRef =
+                    std::cref(*m_inducedField) ](const Kernel::Point_3& point) {
       return inducedFieldCRef.get()(point) - m_value;
     };
 
