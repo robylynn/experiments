@@ -19,6 +19,11 @@ target_link_libraries(polylineVisualization ${Boost_LIBRARIES}
   geometry
   geometry_algorithms)
 
+add_custom_target(copyPolylineVisualizationExecuteScript ALL
+  COMMAND ${CMAKE_COMMAND} -E  copy
+  ${CMAKE_CURRENT_SOURCE_DIR}/execute.sh
+  ${CMAKE_CURRENT_BINARY_DIR}/execute.sh)
+
 add_custom_target(copyPolylineVisualizationData ALL
   COMMAND ${CMAKE_COMMAND} -E  copy_directory
   ${CMAKE_CURRENT_SOURCE_DIR}/data
