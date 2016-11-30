@@ -76,10 +76,14 @@ class DefaultBoundingBoxProvider {
         decltype(dataProvider.begin()), 3,
         Kernel::Point_3>::begin(dataProvider.begin(PositionVertexElement()),
                                 dataProvider.end(PositionVertexElement()));
-    Kernel::Iso_cuboid_3 cuboid = CGAL::bounding_box(
-        pointIterBegin, utils::make_end_tuple_iterator(pointIterBegin));
+    // Assume an infinite bounding box for a single point.
+    // TODO Critical msati3: Better handling of this?
+    if (dataProvider.size() != 6) {
+      Kernel::Iso_cuboid_3 cuboid = CGAL::bounding_box(
+          pointIterBegin, utils::make_end_tuple_iterator(pointIterBegin));
 
-    m_boundingBox = GeometryInterop::renderingFromGeom(cuboid);
+      m_boundingBox = GeometryInterop::renderingFromGeom(cuboid);
+    }
   }
 
   Ogre::AxisAlignedBox operator()() { return m_boundingBox; }

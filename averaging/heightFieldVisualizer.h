@@ -15,10 +15,10 @@ struct HeightFieldVisualizationParams {
   HeightFieldVisualizationParams()
       : plane(Kernel::Point_3(0, 0, 0), Kernel::Point_3(1, 0, 0),
               Kernel::Point_3(0, 1, 0)),
-        x_res(100),
-        y_res(100),
-        x_extent(5),
-        y_extent(5) {}
+        x_res(1000),
+        y_res(1000),
+        x_extent(10),
+        y_extent(10) {}
 
   Kernel::Plane_3 plane;
   size_t x_res;
@@ -57,7 +57,7 @@ class HeightFieldVisualizer {
     std::function<Kernel::FT(const Kernel::Point_2&)> samplingFunction =
         [ this, inducedFieldCRef =
                     std::cref(*m_inducedField) ](const Kernel::Point_2& point) {
-      return inducedFieldCRef.get()(point) - m_value;
+      return inducedFieldCRef.get()(point);
     };
 
     std::vector<std::tuple<Kernel::Point_2, float>> gridSamples;
@@ -65,7 +65,7 @@ class HeightFieldVisualizer {
     for (auto iter = planarGrid.begin(); iter != planarGrid.end(); ++iter) {
       Kernel::Point_2 pointPlanar = Kernel::Point_2((*iter)[0], (*iter)[1]);
       Kernel::FT sample = samplingFunction(pointPlanar);
-      gridSamples.push_back(std::make_tuple(pointPlanar, sample));
+      gridSamples.push_back(std::make_tuple(pointPlanar, sqrt(sample)));
     }
 
     if (m_heightFieldObject != nullptr) {
@@ -75,15 +75,28 @@ class HeightFieldVisualizer {
 
     m_heightFieldObject =
         m_heightFieldSceneNode->getCreator()->createManualObject("heightField");
-    m_heightFieldObject->begin("Materials/DefaultPoints",
+    m_heightFieldObject->begin("Materials/PassThrough",
                                Ogre::RenderOperation::OT_POINT_LIST);
 
+    auto minMaxEntries =
+        std::minmax_element(gridSamples.begin(), gridSamples.end(),
+                            [](const auto& first, const auto& second) {
+                              return std::get<1>(first) < std::get<1>(second);
+                            });
+    auto minMaxValue = std::make_pair(std::get<1>(*minMaxEntries.first),
+                                      std::get<1>(*minMaxEntries.second));
+
+    float normalizingFactor = minMaxValue.second - minMaxValue.first;
+    normalizingFactor = normalizingFactor == 0 ? 1 : normalizingFactor;
+
     for (const auto& gridSampleTuple : gridSamples) {
-      std::cout << std::get<0>(gridSampleTuple) << " "
-                << std::get<1>(gridSampleTuple) << "\n";
       m_heightFieldObject->position(std::get<0>(gridSampleTuple).x(),
                                     std::get<0>(gridSampleTuple).y(),
                                     std::get<1>(gridSampleTuple));
+      float colorValue = (std::get<1>(gridSampleTuple) - minMaxValue.first) /
+                         normalizingFactor;
+      colorValue = pow(colorValue, 0.8);
+      m_heightFieldObject->colour(Ogre::ColourValue(0, colorValue, 0));
     }
     m_heightFieldObject->end();
 
@@ -91,7 +104,6 @@ class HeightFieldVisualizer {
   }
 
  private:
-  Kernel::FT m_value;
   Ogre::SceneNode* m_heightFieldSceneNode;
   const Field* m_inducedField;
   HeightFieldVisualizationParams m_visParams;

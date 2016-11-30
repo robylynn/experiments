@@ -18,6 +18,8 @@ class AveragingPolyloops_2View : public IAveragingView {
   Ogre::SceneNode* m_rootNode;
   Ogre::SceneNode* m_polyloopsRootNode;
   std::unique_ptr<SquaredDistField_2> m_squaredDistField;
+  std::vector<Kernel::Point_2> m_pointsGeometry;
+  std::vector<Kernel::Line_2> m_linesGeometry;
 };
 
 #endif  //_AVERAGING_POLYLOOPS_2_VIEW_H_

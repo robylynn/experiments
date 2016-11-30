@@ -14,7 +14,7 @@
 
 #include "averagingPolyloops_2View.h"
 
-constexpr int NUM_DATASETS = 2;
+constexpr int NUM_DATASETS = 5;
 
 namespace Context = Framework::AppContext;
 
@@ -37,9 +37,11 @@ bool readDataSet(const std::string& datasetName,
       file >> point;
       points.push_back(point);
     } else if (word == "Line") {
-      Kernel::Line_2 line;
-      file >> line;
-      lines.push_back(line);
+      Kernel::Point_2 point1;
+      Kernel::Point_2 point2;
+      file >> point1;
+      file >> point2;
+      lines.push_back(Kernel::Line_2(point1, point2));
     }
   }
   return true;
@@ -52,19 +54,32 @@ AveragingPolyloops_2View::AveragingPolyloops_2View(Ogre::SceneNode* rootNode)
       m_polyloopsRootNode(m_rootNode->createChildSceneNode()) {}
 
 void AveragingPolyloops_2View::populateData() {
+  m_pointsGeometry.clear();
+  m_linesGeometry.clear();
   m_squaredDistField.reset(new SquaredDistField_2());
-  std::vector<Kernel::Point_2> points;
-  std::vector<Kernel::Line_2> lines;
+  DynamicMeshManager& dynamicMeshManager =
+      Framework::AppContext::getDynamicMeshManager();
+
   std::string dataSetName =
       "data/dataset" + std::to_string(m_dataSetIndex) + "_2D.obj";
 
-  readDataSet(dataSetName, points, lines);
-  m_dataSetIndex = ++m_dataSetIndex == NUM_DATASETS? 0 : m_dataSetIndex;
+  readDataSet(dataSetName, m_pointsGeometry, m_linesGeometry);
+  m_dataSetIndex = ++m_dataSetIndex == NUM_DATASETS ? 0 : m_dataSetIndex;
 
-  for (const auto& point : points) {
+  for (const auto& point : m_pointsGeometry) {
     m_squaredDistField->addGeometry(point);
+    /*std::vector<Kernel::Point_2> pointVec{point};
+    Ogre::Entity* pointEntity =
+        dynamicMeshManager.addMesh(pointVec, m_polyloopsRootNode);
+    pointEntity->setMaterialName("Materials/GeometryPoint");*/
   }
-  for (const auto& line : lines) {
+  for (const auto& line : m_linesGeometry) {
     m_squaredDistField->addGeometry(line);
+    /*std::vector<Kernel::Point_2> lineVec{
+        line.projection(Kernel::Point_2(-10, -10)),
+        line.projection(Kernel::Point_2(10, 10))};
+    Ogre::Entity* lineEntity =
+        dynamicMeshManager.addMesh(lineVec, m_polyloopsRootNode);
+    lineEntity->setMaterialName("Materials/GeometryLine");*/
   }
 }

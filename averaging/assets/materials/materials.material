@@ -43,7 +43,7 @@ material Materials/DefaultPoints
     pass
     {
       lighting off
-        point_size 10
+        point_size 2
         polygon_mode points
         texture_unit
         {
@@ -142,6 +142,37 @@ material Materials/DirectedVectors
   }
 }
 
+material Materials/GeometryPoint
+{
+  technique
+  {
+    pass
+    {
+      lighting off
+        point_size 10
+        polygon_mode points
+        texture_unit
+        {
+          colour_op_ex source1 src_manual src_current 1 0 0
+        }
+    }
+  }
+}
+
+material Materials/GeometryLine : Materials/DefaultLines
+{
+  technique edges
+  {
+    pass 0
+    {
+      fragment_program_ref DefaultLinesFrag
+      {
+        param_named baseColor float4 1 0 0 1
+      }
+    }
+  }
+}
+
 material Materials/SimpleAverage : Materials/DirectedVectors
 {
   set_texture_alias VectorTexture redVector.png
@@ -164,4 +195,20 @@ material Materials/AveragePolyloops : Materials/DefaultLines
       }
     }
   }
+}
+
+material Materials/PassThrough
+{
+   technique
+   {
+      pass
+      {
+         lighting off
+         point_size 3
+         polygon_mode points
+         diffuse vertexcolour
+         specular vertexcolour
+         ambient vertexcolour
+      }
+   }
 }
