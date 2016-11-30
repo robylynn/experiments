@@ -3,6 +3,7 @@
 
 #include "polyline.h"
 #include "polyloop_3.h"
+#include "polyloop_2.h"
 
 // Add distance computation from points and rays for geometry types
 namespace CGAL {

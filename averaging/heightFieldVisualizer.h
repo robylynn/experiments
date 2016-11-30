@@ -4,33 +4,55 @@
 #include <CGAL/Plane_3.h>
 
 #include <OGRE/OgreEntity.h>
+#include <OGRE/OgreManualObject.h>
 #include <OGRE/OgreSceneManager.h>
 #include <OGRE/OgreSceneNode.h>
+
+#include <uniformPlanarGrid.h>
+
+// TODO msati3: Move this to protobuf
+struct HeightFieldVisualizationParams {
+  HeightFieldVisualizationParams()
+      : plane(Kernel::Point_3(0, 0, 0), Kernel::Point_3(1, 0, 0),
+              Kernel::Point_3(0, 1, 0)),
+        x_res(100),
+        y_res(100),
+        x_extent(5),
+        y_extent(5) {}
+
+  Kernel::Plane_3 plane;
+  size_t x_res;
+  size_t y_res;
+  float x_extent;
+  float y_extent;
+};
 
 // Visualize a planar section of a scalar field as a height field.
 template <class Field>
 class HeightFieldVisualizer {
  public:
   HeightFieldVisualizer(
-      const Field& inducedField,
-      const HeightFieldVisualizationParams& visualizationParams,
-      Ogre::SceneNode* parent)
-      : m_inducedField(&inducedField),
-        m_plane(plane),
-        m_heightFieldSceneNode(parent->createChildSceneNode()) {
-    addHeightFieldVisualizerToScene();
-    recomputeVisualization();
-  }
+      Ogre::SceneNode* parent,
+      const HeightFieldVisualizationParams& visualizationParams =
+          HeightFieldVisualizationParams())
+      : m_visParams(visualizationParams),
+        m_heightFieldSceneNode(parent->createChildSceneNode()),
+        m_heightFieldObject(nullptr) {}
 
   void setPlane(const Kernel::Plane_3& plane) {
-    m_plane = plane;
+    m_visParams.plane = plane;
     recomputeVisualization();
   }
 
-  void addHeightFieldVisualizerToScene() {
-    UniformPlanarGrid planarGrid(m_visParams.plane(), m_visParams.x_res(),
-                                 m_visParams.y_res(), m_visParams.x_extent(),
-                                 m_visParams.y_extent());
+  void setField(const Field* inducedField) {
+    m_inducedField = inducedField;
+    recomputeVisualization();
+  }
+
+  void recomputeVisualization() {
+    UniformPlanarGrid planarGrid(m_visParams.plane, m_visParams.x_res,
+                                 m_visParams.y_res, m_visParams.x_extent,
+                                 m_visParams.y_extent);
 
     std::function<Kernel::FT(const Kernel::Point_2&)> samplingFunction =
         [ this, inducedFieldCRef =
@@ -38,19 +60,34 @@ class HeightFieldVisualizer {
       return inducedFieldCRef.get()(point) - m_value;
     };
 
-    std::vector<std::tuple<Kernel::Point_3, CGAL::Color>> gridSamples;
+    std::vector<std::tuple<Kernel::Point_2, float>> gridSamples;
     gridSamples.reserve(planarGrid.size());
-    for (auto iter = gridSamples.begin(); iter != gridSamples.end(); ++iter) {
-      Kernel::FT sample = samplingFunction(iter->point());
-      gridSamples.push_back(
-          std::make_tuple(*iter, CGAL::Color(sample, sample, sample)));
+    for (auto iter = planarGrid.begin(); iter != planarGrid.end(); ++iter) {
+      Kernel::Point_2 pointPlanar = Kernel::Point_2((*iter)[0], (*iter)[1]);
+      Kernel::FT sample = samplingFunction(pointPlanar);
+      gridSamples.push_back(std::make_tuple(pointPlanar, sample));
     }
 
-    Ogre::Entity* heightFieldEntity =
-        Framework::AppContext::getDynamicMeshManager().addMesh(
-            planarGrid, m_heightFieldSceneNode,
-            UniformPlanarGridInterpretationTag(),
-            std::tuple<PositionAttribute_3, ColorAttribute>(), gridSamples);
+    if (m_heightFieldObject != nullptr) {
+      m_heightFieldSceneNode->getCreator()->destroyManualObject(
+          m_heightFieldObject);
+    }
+
+    m_heightFieldObject =
+        m_heightFieldSceneNode->getCreator()->createManualObject("heightField");
+    m_heightFieldObject->begin("Materials/DefaultPoints",
+                               Ogre::RenderOperation::OT_POINT_LIST);
+
+    for (const auto& gridSampleTuple : gridSamples) {
+      std::cout << std::get<0>(gridSampleTuple) << " "
+                << std::get<1>(gridSampleTuple) << "\n";
+      m_heightFieldObject->position(std::get<0>(gridSampleTuple).x(),
+                                    std::get<0>(gridSampleTuple).y(),
+                                    std::get<1>(gridSampleTuple));
+    }
+    m_heightFieldObject->end();
+
+    m_heightFieldSceneNode->attachObject(m_heightFieldObject);
   }
 
  private:
@@ -58,6 +95,7 @@ class HeightFieldVisualizer {
   Ogre::SceneNode* m_heightFieldSceneNode;
   const Field* m_inducedField;
   HeightFieldVisualizationParams m_visParams;
+  Ogre::ManualObject* m_heightFieldObject;
 };
 
 #endif  //_HEIGHT_FIELD_VISUALIZER_H_

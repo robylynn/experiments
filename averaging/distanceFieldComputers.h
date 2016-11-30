@@ -6,6 +6,7 @@
 #include <CGAL/Point_3.h>
 
 #include <geometryTypes.h>
+#include <geometryVariants.h>
 #include <squaredDistance.h>
 #include <orientedSide.h>
 

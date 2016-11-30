@@ -9,7 +9,7 @@
 class AveragingPolyloops_3View : public IAveragingView {
  public:
   AveragingPolyloops_3View(Ogre::SceneNode* rootNode);
-  const SquaredDistField* getGeometryInducedField() {
+  const SquaredDistField_3* getGeometryInducedField() {
     return m_squaredDistField.get();
   }
   void populateData();
@@ -17,7 +17,7 @@ class AveragingPolyloops_3View : public IAveragingView {
  private:
   Ogre::SceneNode* m_rootNode;
   Ogre::SceneNode* m_polyloopsRootNode;
-  std::unique_ptr<SquaredDistField> m_squaredDistField;
+  std::unique_ptr<SquaredDistField_3> m_squaredDistField;
 };
 
 #endif  //_AVERAGING_POLYLOOPS_3_VIEW_H_
