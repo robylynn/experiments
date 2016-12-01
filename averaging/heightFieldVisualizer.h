@@ -65,7 +65,7 @@ class HeightFieldVisualizer {
     for (auto iter = planarGrid.begin(); iter != planarGrid.end(); ++iter) {
       Kernel::Point_2 pointPlanar = Kernel::Point_2((*iter)[0], (*iter)[1]);
       Kernel::FT sample = samplingFunction(pointPlanar);
-      gridSamples.push_back(std::make_tuple(pointPlanar, sqrt(sample)));
+      gridSamples.push_back(std::make_tuple(pointPlanar, sample));
     }
 
     if (m_heightFieldObject != nullptr) {
@@ -90,13 +90,16 @@ class HeightFieldVisualizer {
     normalizingFactor = normalizingFactor == 0 ? 1 : normalizingFactor;
 
     for (const auto& gridSampleTuple : gridSamples) {
-      m_heightFieldObject->position(std::get<0>(gridSampleTuple).x(),
-                                    std::get<0>(gridSampleTuple).y(),
-                                    std::get<1>(gridSampleTuple));
+      m_heightFieldObject->position(
+          std::get<0>(gridSampleTuple).x(), std::get<0>(gridSampleTuple).y(),
+          std::get<1>(gridSampleTuple) - minMaxValue.first);
       float colorValue = (std::get<1>(gridSampleTuple) - minMaxValue.first) /
                          normalizingFactor;
-      colorValue = pow(colorValue, 0.8);
-      m_heightFieldObject->colour(Ogre::ColourValue(0, colorValue, 0));
+      if ((int)(colorValue / 0.005) % 2 == 0) {
+        m_heightFieldObject->colour(Ogre::ColourValue(0, colorValue, 0));
+      } else {
+        m_heightFieldObject->colour(Ogre::ColourValue(0, 0, 1 - colorValue));
+      }
     }
     m_heightFieldObject->end();
 
