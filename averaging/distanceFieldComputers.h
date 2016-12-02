@@ -6,8 +6,9 @@
 #include <CGAL/Point_3.h>
 
 #include <geometryTypes.h>
-#include <squaredDistance.h>
+#include <geometryVariants.h>
 #include <orientedSide.h>
+#include <squaredDistance.h>
 
 // Given a sample location, computes the scalar field that is equal to the
 // squared distance of the sample from a given geometry representation.

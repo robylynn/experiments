@@ -1,0 +1,7 @@
+# TrianglePoints
+Point -1 0
+Point 1 0
+Point 0 1
+
+#Point&Line
+#Line 0 0 1 0

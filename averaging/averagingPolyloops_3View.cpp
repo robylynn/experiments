@@ -1,7 +1,7 @@
 #include <Eigen/Eigenvalues>
 
-#include <OGRE/OgreSceneManager.h>
 #include <OGRE/OgreEntity.h>
+#include <OGRE/OgreSceneManager.h>
 #include <OGRE/OgreSubEntity.h>
 
 #include <appContext.h>
@@ -20,7 +20,7 @@ namespace {
 // Compute snapping by gradient computation
 class NumericalSnapper {
  public:
-  NumericalSnapper(const SquaredDistField& distField,
+  NumericalSnapper(const SquaredDistField_3& distField,
                    float stepSize = s_stepSize,
                    float numericalGridSize = s_gridSize)
       : m_stepSize(stepSize),
@@ -38,7 +38,7 @@ class NumericalSnapper {
  private:
   float m_stepSize;
   NaiveHessianEstimator m_estimator;
-  HessianComputer<SquaredDistField> m_computer;
+  HessianComputer<SquaredDistField_3> m_computer;
 
   static constexpr float s_stepSize = 0.05;
   static constexpr float s_gridSize = 0.05;
@@ -57,7 +57,7 @@ class SnapAverage {
         m_normalizedConvergenceThreshold(normalizedConvergenceThreshold) {}
 
   Polyloop_3 operator()(const std::vector<Polyloop_3>& loops) {
-    SquaredDistField squaredDistField;
+    SquaredDistField_3 squaredDistField;
     for (const auto& loop : loops) {
       squaredDistField.addGeometry(loop);
     }
@@ -104,14 +104,14 @@ class SnapAverage {
     Ogre::Entity* pEntitySnapAvg =
         Context::getDynamicMeshManager().addMesh(snapped, m_parentNode);
     pEntitySnapAvg->setMaterialName("Materials/DefaultLines");
-    pEntitySnapAvg->getSubEntity(0)
-        ->setCustomParameter(1, Ogre::Vector4(0, 0, 1, 1));
+    pEntitySnapAvg->getSubEntity(0)->setCustomParameter(
+        1, Ogre::Vector4(0, 0, 1, 1));
 
     Ogre::Entity* pEntitySnapVectors =
         Context::getDynamicMeshManager().addMesh(snapVectors, m_parentNode);
     pEntitySnapVectors->setMaterialName("Materials/DefaultLines");
-    pEntitySnapVectors->getSubEntity(0)
-        ->setCustomParameter(1, Ogre::Vector4(0, 0, 1, 1));
+    pEntitySnapVectors->getSubEntity(0)->setCustomParameter(
+        1, Ogre::Vector4(0, 0, 1, 1));
   }
 
  private:
@@ -127,7 +127,7 @@ AveragingPolyloops_3View::AveragingPolyloops_3View(Ogre::SceneNode* rootNode)
       m_polyloopsRootNode(m_rootNode->createChildSceneNode()) {}
 
 void AveragingPolyloops_3View::populateData() {
-  // m_squaredDistField.reset(new SquaredDistField());
+  // m_squaredDistField.reset(new SquaredDistField_3());
   std::vector<Polyloop_3> loops;
   for (int i = 0; i < NUM_LOOPS; ++i) {
     std::string loopName = "loop" + std::to_string(i);
