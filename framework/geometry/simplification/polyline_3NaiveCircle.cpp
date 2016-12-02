@@ -132,7 +132,6 @@ std::tuple<bool, std::vector<Kernel::Point_3>> findCircleFit(
   }
   if (fLineValid) {
     simplifiedSamples.push_back(*begin);
-    simplifiedSamples.push_back(*end);
     LOG(INFO) << "\t\tFit line between " << *begin << " " << *end << std::endl;
     return std::make_tuple(true, simplifiedSamples);
   }
@@ -174,7 +173,6 @@ std::tuple<bool, std::vector<Kernel::Point_3>> findCircleFit(
       }
       fValidFitFound = fCircleValid;
       if (fValidFitFound) {
-        simplifiedSamplesTry.push_back(*end);
         LOG(INFO) << "\t\tFit circle c:" << circleCandidate.center()
                   << " r:" << circleRadius << " between " << *begin << " "
                   << *end << std::endl;
@@ -199,7 +197,6 @@ std::tuple<bool, std::vector<Kernel::Point_3>, PointIter> greedyFitCircle(
                                Kernel::Point_3(-1, 0, 0));
   std::vector<Kernel::Point_3> simplifiedSamples;
   simplifiedSamples.push_back(*begin);
-  simplifiedSamples.push_back(*(begin + 1));
   // Try increments of powers of two, to size largest range of points where a
   // circle fits. Return with a line fit if the greedy fit is just requested for
   // two consecutive points.
@@ -251,7 +248,7 @@ std::tuple<bool, std::vector<Kernel::Point_3>, PointIter> greedyFitCircle(
 std::tuple<size_t, Polyline_3> Polyline_3Simplifier::simplify(
     const Polyline_3& input,
     const Polyline_3SimplificationStrategyNaiveBiarc& /**/) {
-  auto begin = input.begin();
+  auto current = input.begin();
   auto end = input.end();
 
   Polyline_3 simplifiedLine;
@@ -259,9 +256,9 @@ std::tuple<size_t, Polyline_3> Polyline_3Simplifier::simplify(
   std::tuple<bool, std::vector<Kernel::Point_3>, Polyline_3::const_iterator>
       fitResult;
   do {
-    LOG(INFO) << "Will begin next sample from " << *begin << std::endl;
-    fitResult = greedyFitCircle(begin, end, m_tolerance);
-    begin = std::get<2>(fitResult);
+    LOG(INFO) << "Will begin next sample from " << *current << std::endl;
+    fitResult = greedyFitCircle(current, end, m_tolerance);
+    current = std::get<2>(fitResult);
     DLOG_IF(ERROR, !std::get<0>(fitResult)) << "Could not fit any valid "
                                                "primitive? This should not "
                                                "happen without a buggy code";
@@ -271,6 +268,8 @@ std::tuple<size_t, Polyline_3> Polyline_3Simplifier::simplify(
       simplifiedLine.addPoint(*iter);
     }
     numPrimitivesSimplified++;
-  } while (begin + 1 != end);
+  } while (current + 1 != end);
+  // Add the last point to the simplified result.
+  simplifiedLine.addPoint(*current);
   return std::make_tuple(numPrimitivesSimplified, simplifiedLine);
 }
