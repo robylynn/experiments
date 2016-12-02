@@ -1,0 +1,12 @@
+(DoE for no retractions on kong pass 310 with G5P0)
+
+(FIRST FEEDRATE)
+#550=50
+(FEEDRATE INCREMENT)
+#547 = 50
+(NUMBER OF FEEDS TO TRY)
+#559 = 3
+
+(NUMBER OF TRIALS TO RUN)
+#557 = 9
+M99

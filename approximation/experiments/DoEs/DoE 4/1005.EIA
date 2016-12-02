@@ -1,0 +1,17 @@
+(DoE for 0.001 moves for each axis, using high speed machining mode)
+(...SMOOTHING TOLERANCE 0, .0015, .005, .01, .025)
+
+(FIRST FEEDRATE)
+#550=50
+(FEEDRATE INCREMENT)
+#547 = 50
+(NUMBER OF FEEDS TO TRY)
+#559 = 3
+
+(NUMBER OF TRIALS TO RUN)
+#557 = 15
+
+(SPINDLE SPEED INCREMENT)
+#562 = 100
+
+M99
