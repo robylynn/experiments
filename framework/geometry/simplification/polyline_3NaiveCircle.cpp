@@ -81,8 +81,8 @@ FindWedgeResult findWedgeForTolerance(PointIter begin, PointIter end,
         // Early exit if no interval overlap already. No wedge is found in this
         // case.
         if (validWedgeAngles[0] > validWedgeAngles[1]) {
-          // std::cout << "\t\t\tNo valid wedge found " << validWedgeAngles[0]
-          //          << " " << validWedgeAngles[1] << std::endl;
+          LOG(INFO) << "\t\t\tNo valid wedge found " << validWedgeAngles[0]
+                    << " " << validWedgeAngles[1] << std::endl;
           return std::make_tuple(wedgeFound, wedgePlane1, wedgePlane2);
         }
       }
@@ -126,39 +126,44 @@ std::tuple<bool, std::vector<Kernel::Point_3>> findCircleFit(
     Kernel::FT squaredDist = CGAL::squared_distance(endPointsSegment, *iter);
     if (squaredDist > sqTolerance) {
       fLineValid = false;
-      // std::cout << "\t\t\tTolerance exceeded for line by " << *iter << " "
-      //          << squaredDist << std::endl;
+      LOG(INFO) << "\t\t\tTolerance exceeded for line by " << *iter << " "
+                << squaredDist << std::endl;
     }
   }
   if (fLineValid) {
     simplifiedSamples.push_back(*begin);
     simplifiedSamples.push_back(*end);
-    // std::cout << "\t\tFit line between " << *begin << " " << *end <<
-    // std::endl;
+    LOG(INFO) << "\t\tFit line between " << *begin << " " << *end << std::endl;
     return std::make_tuple(true, simplifiedSamples);
   }
 
   bool fValidFitFound = false;
+  // Try fitting incrementally, a circle between begin and end, passing through
+  // a point in between begin and end, and that satisfies the tolerance
+  // criteria.
   for (auto iter = begin + 1; iter != end && !fValidFitFound; ++iter) {
     std::vector<Kernel::Point_3> simplifiedSamplesTry;
+    simplifiedSamplesTry.push_back(*begin);
     if (!CGAL::collinear(*begin, *iter, *end)) {
       Kernel::Circle_3 circleCandidate(*begin, *iter, *end);
       Kernel::FT circleRadius = sqrt(circleCandidate.squared_radius());
       bool fCircleValid = true;
-      for (auto iter = begin + 1; iter != end - 1 && fCircleValid; ++iter) {
+      for (auto iter = begin + 1; iter != end && fCircleValid; ++iter) {
         Kernel::Point_3 pointCirclePlaneProjection =
             circleCandidate.supporting_plane().projection(*iter);
         Kernel::FT squaredDist =
             CGAL::squared_distance(pointCirclePlaneProjection, *iter) +
-            (CGAL::squared_distance(circleCandidate.center(),
-                                    pointCirclePlaneProjection) -
-             circleCandidate.squared_radius());
+            abs(CGAL::squared_distance(circleCandidate.center(),
+                                       pointCirclePlaneProjection) -
+                circleCandidate.squared_radius());
         if (squaredDist > sqTolerance) {
-          // std::cout << "\t\t\tTolerance exceeded for circle c:"
-          //          << circleCandidate.center() << " r:" << circleRadius
-          //          << " by " << *iter << " " << squaredDist << std::endl;
+          LOG(INFO) << "\t\t\tTolerance exceeded for circle c:"
+                    << circleCandidate.center() << " r:" << circleRadius
+                    << " by " << *iter << " " << squaredDist << std::endl;
           fCircleValid = false;
         } else {
+          LOG(INFO) << "\t\t\tTolerance for point "
+                    << pointCirclePlaneProjection << squaredDist << std::endl;
           Kernel::Vector_3 unitCenterSegment(circleCandidate.center(),
                                              pointCirclePlaneProjection);
           unitCenterSegment =
@@ -169,9 +174,10 @@ std::tuple<bool, std::vector<Kernel::Point_3>> findCircleFit(
       }
       fValidFitFound = fCircleValid;
       if (fValidFitFound) {
-        // std::cout << "\t\tFit circle c:" << circleCandidate.center()
-        //          << " r:" << circleRadius << " between " << *begin << " "
-        //          << *end << std::endl;
+        simplifiedSamplesTry.push_back(*end);
+        LOG(INFO) << "\t\tFit circle c:" << circleCandidate.center()
+                  << " r:" << circleRadius << " between " << *begin << " "
+                  << *end << std::endl;
         simplifiedSamples = std::move(simplifiedSamplesTry);
         break;  // We are done searching as we have found 'a' fit -- this may
                 // not be optimal however. TODO msati3: Is this hacky?
@@ -193,7 +199,7 @@ std::tuple<bool, std::vector<Kernel::Point_3>, PointIter> greedyFitCircle(
                                Kernel::Point_3(-1, 0, 0));
   std::vector<Kernel::Point_3> simplifiedSamples;
   simplifiedSamples.push_back(*begin);
-  simplifiedSamples.push_back(*end);
+  simplifiedSamples.push_back(*(begin + 1));
   // Try increments of powers of two, to size largest range of points where a
   // circle fits. Return with a line fit if the greedy fit is just requested for
   // two consecutive points.
@@ -202,7 +208,7 @@ std::tuple<bool, std::vector<Kernel::Point_3>, PointIter> greedyFitCircle(
 
   // A single step remains. This will be a circle of infinite radius (line).
   if (begin + 2 == end) {
-    // std::cout << "\t\tFit line as last segment left " << std::endl;
+    LOG(INFO) << "\t\tFit line as last segment left " << std::endl;
     return retVal;
   }
 
@@ -222,8 +228,8 @@ std::tuple<bool, std::vector<Kernel::Point_3>, PointIter> greedyFitCircle(
     };
     fAtEnd = (curEnd == end);
     PointIter fitEnd = fAtEnd ? curEnd - 1 : curEnd;
-    // std::cout << "\tTry fitting from " << *begin << " to " << *fitEnd
-    //          << std::endl;
+    LOG(INFO) << "\tTry fitting from " << *begin << " to " << *fitEnd
+              << std::endl;
     auto wedgeResult = findWedgeForTolerance(begin, fitEnd, tolerance);
     // Stop searching when the next iteration does not yield a valid wedge.
     if (std::get<0>(wedgeResult)) {
@@ -253,7 +259,7 @@ std::tuple<size_t, Polyline_3> Polyline_3Simplifier::simplify(
   std::tuple<bool, std::vector<Kernel::Point_3>, Polyline_3::const_iterator>
       fitResult;
   do {
-    // std::cout << "Will begin next sample from " << *begin << std::endl;
+    LOG(INFO) << "Will begin next sample from " << *begin << std::endl;
     fitResult = greedyFitCircle(begin, end, m_tolerance);
     begin = std::get<2>(fitResult);
     DLOG_IF(ERROR, !std::get<0>(fitResult)) << "Could not fit any valid "
