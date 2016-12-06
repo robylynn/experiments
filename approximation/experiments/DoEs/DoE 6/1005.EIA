@@ -1,0 +1,17 @@
+(DoE for projected points on cirles for pass 310 of kong)
+(...SMOOTHING TOLERANCE 0, .0015, .005, .01, .025)
+
+(FIRST FEEDRATE)
+#550=50
+(FEEDRATE INCREMENT)
+#547 = 50
+(NUMBER OF FEEDS TO TRY)
+#559 = 5
+
+(NUMBER OF TRIALS TO RUN)
+#557 = 1
+
+(SPINDLE SPEED INCREMENT)
+#562 = 100
+
+M99

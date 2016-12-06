@@ -1,0 +1,19 @@
+(DoE for 0.005 moves for each axis, using high speed machining mode)
+POPEN
+DPRNT[DOE 0.005 HSM]
+PCLOS
+
+(FIRST FEEDRATE)
+#550=50
+(FEEDRATE INCREMENT)
+#547 = 50
+(NUMBER OF FEEDS TO TRY)
+#559 = 3
+
+(NUMBER OF TRIALS TO RUN)
+#557 = 12
+
+(SPINDLE SPEED INCREMENT)
+#562 = 100
+
+M99
