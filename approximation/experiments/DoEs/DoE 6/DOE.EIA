@@ -41,10 +41,11 @@ G65 P1005
 (FILE NAME INDEX)
 #556 = #555
 
-/ M1
+/2 M1
 
 (DoE FOR AXIS TIMING)
 (EXPERIMENTS: SMC 0, 3, 7, 8, 5AX SPLINE)
+(...SMOOTHING TOLERANCE 0, .0015, .005, .01, .025)
 
 (BEGIN TRIALS)
 WHILE [#558 LE #559] DO1
@@ -78,21 +79,25 @@ WHILE [#558 LE #559] DO1
 			(BEGIN TRIAL)
 			(--------------------------------------------------------)
 			(PLACE IN HEADER OF SUB: G0XYZ\\G1F[#550]\\#3001 = 0)
-			(PRECEDE ALL MOVE LINES WITH /2 FOR BLOCC SKIP)
+			(PRECEDE ALL MOVE LINES WITH / FOR BLOCC SKIP)
 			G65P[#556]
+			(STORE TRIAL 1 DATA IN 560, ETC)
 			(STORE IN 560)
 			(PLACE IN FOOTER OF SUB: #560 = #3001)
 			(--------------------------------------------------------)
 			
 			(CALCULATE TRIAL NUMBER)
+			(#549 = [#553-#552-[#551-1]*#557+1])
 			#549 = [#556-#555+1]
 			
 			(WRITE OUT TRIAL DATA)
 			POPEN
 			DPRNT[TRIAL*#549[3 0]]
 			DPRNT[SUB*#556[4 0]]
+			(DPRNT[MACRO*VAR*#553[3 0]])
 			DPRNT[FEEDRATE*#550[4 0]]
 			(WRITE TIME)
+			(DPRNT[TIME*#[#553][6 2]])
 			DPRNT[TIME*#560[6 2]]
 			(WRITE SMC SETTING)
 			DPRNT[SMOOTH*#551[1 0]]
@@ -101,7 +106,7 @@ WHILE [#558 LE #559] DO1
 			#553 = #553 + 1
 			#556 = #556 + 1
 			
-			/ M1
+			/2 M1
 			(-----------)
 		END3
 		

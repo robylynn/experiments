@@ -1,7 +1,7 @@
-(DoE for projected circle points on kong pass 310 with G5P2)
+(DoE TCPC Angular Moves)
 
 POPEN
-DPRNT[DOE PCIRCLE G5P2]
+DPRNT[DOE TCPC ANGLES G5P2]
 PCLOS
 
 (FIRST FEEDRATE)
@@ -12,5 +12,5 @@ PCLOS
 #559 = 3
 
 (NUMBER OF TRIALS TO RUN)
-#557 = 9
+#557 = 2
 M99
